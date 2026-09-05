@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML — A Practical Guide</title>
+  <meta name="description"
+    content="A sequential, tiered guide to HTML from first principles to advanced browser features.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,480;0,9..144,600;0,9..144,680;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <meta property="og:title" content="HTML — A Practical Guide">
+  <meta property="og:description" content="A sequential, tiered guide to HTML from first principles to advanced browser features.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HTML — A Practical Guide">
+  <meta name="twitter:description" content="A sequential, tiered guide to HTML from first principles to advanced browser features.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div id="app">
+    <header class="masthead">
+      <button class="drawer-toggle" id="drawerToggle"
+        aria-label="Open table of contents"><span></span><span></span><span></span></button>
+      <div class="wordmark"><span class="mark">HTML</span><span class="sub">a working manuscript</span></div>
+      <div class="masthead-spacer"></div>
+      <div class="search-wrap">
+        <label for="search" class="visually-hidden">Search topics</label>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" id="search" placeholder="Search topics…" autocomplete="off">
+      </div>
+      <div class="progress-wrap">
+        <span class="progress-text" id="progressText">0 of 0 read</span>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="toc-panel" id="tocPanel">
+        <div class="toc-panel-head"><span>Contents</span><button class="drawer-close" id="drawerClose"
+            aria-label="Close">×</button></div>
+        <nav class="toc" id="toc"></nav>
+      </aside>
+      <div class="backdrop" id="backdrop"></div>
+      <main class="page" id="page">
+        <div class="page-inner" id="pageInner"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================
+     CONTENT LIBRARY — every topic lives here as plain HTML.
+     JS below reads this into structured data at load time.
+     ============================================================ -->
+  <div id="library" hidden>
+
+    <!-- ===== BEGINNER TIER ===== -->
+
+    <article class="topic-tpl" data-id="what-is-html" data-tier="beginner" data-title="What HTML Actually Is">
+      <div class="topic-body">
+        <p>HTML stands for HyperText Markup Language. <strong>Markup</strong> is the operative word: HTML describes the
+          structure and meaning of content — this is a heading, this is a list, this is a link — and leaves how it looks
+          to CSS and how it behaves to JavaScript. Confusing these jobs is the single most common beginner mistake:
+          reaching for a bigger heading tag because you want bigger text, instead of using CSS to make text bigger and
+          picking the heading tag because it <em>is</em> a heading.</p>
+        <p>The web's original idea, from Tim Berners-Lee's work at CERN in 1991, was "hypertext": documents that link to
+          other documents. HTML has grown enormously since — audio, video, forms, offline storage, custom components —
+          but linking is still baked into its name and its most important tag, <code>&lt;a&gt;</code>.</p>
+        <p>HTML today isn't a fixed numbered specification you finish reading once. It's maintained as a "living
+          standard" by the WHATWG, updated continuously as browsers add capabilities. That's why this guide is organized
+          by what you need to know, not by version number.</p>
+        <h4>What the browser does with it</h4>
+        <p>When a browser receives HTML, it parses the text into a tree of objects called the <strong>DOM</strong>
+          (Document Object Model). CSS then paints that tree, and JavaScript can read and change it. Everything else in
+          web development sits on top of this one idea.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="hello.html">&lt;!DOCTYPE html&gt;
+        &lt;html lang="en"&gt;
+        &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;title&gt;My First Page&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+        &lt;h1&gt;Hello, web&lt;/h1&gt;
+        &lt;p&gt;This paragraph is structure. Its color is CSS's job.&lt;/p&gt;
+        &lt;/body&gt;
+        &lt;/html&gt;</div>
+      <ul class="topic-keypoints">
+        <li>HTML describes structure and meaning; CSS handles appearance; JavaScript handles behavior.</li>
+        <li>Browsers parse your markup into a DOM tree — that tree is what CSS styles and JavaScript touches.</li>
+        <li>HTML is a continuously updated "living standard," not a version you finish learning once.</li>
+        <li>Never choose a tag purely for its default visual size or style — choose it for what it means.</li>
+      </ul>
+      <div class="topic-note" data-kind="tip">Open any website, right-click, and choose "View Page Source" (or press
+        Ctrl+U / Cmd+Option+U). Reading real markup from sites you use daily teaches you faster than any tutorial.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="document-anatomy" data-tier="beginner" data-title="Anatomy of an HTML Document">
+      <div class="topic-body">
+        <p>Every HTML page follows the same skeleton, and each piece has a specific job.</p>
+        <p><code>&lt;!DOCTYPE html&gt;</code> must be the very first line. It tells the browser to render the page in
+          modern "standards mode" rather than guessing based on old, inconsistent quirks from the 1990s. It isn't a tag
+          with a closing pair — it's a one-time instruction.</p>
+        <p>The <code>&lt;html&gt;</code> element wraps everything and should carry a <code>lang</code> attribute, such
+          as <code>lang="en"</code>. This one small attribute lets screen readers choose the correct pronunciation rules
+          and lets browsers offer translation — it's an accessibility feature disguised as an afterthought.</p>
+        <p>Inside <code>&lt;html&gt;</code> there are exactly two children: <code>&lt;head&gt;</code> and
+          <code>&lt;body&gt;</code>. The head holds information <em>about</em> the page — metadata, the title, links to
+          stylesheets — none of which is directly visible. The body holds everything a visitor actually sees.</p>
+        <h4>Two meta tags you always want</h4>
+        <p><code>&lt;meta charset="UTF-8"&gt;</code> should be the first thing inside <code>&lt;head&gt;</code>. It
+          tells the browser how to decode the bytes of your file into characters, so accented letters, emoji, and
+          non-Latin scripts render correctly.
+          <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code> tells mobile
+          browsers to render at the phone's actual width instead of pretending to be a 980px-wide desktop page and
+          zooming out — without it, your responsive CSS won't behave on phones at all.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="boilerplate.html">&lt;!DOCTYPE html&gt;
+        &lt;html lang="en"&gt;
+        &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+        &lt;title&gt;Page Title&lt;/title&gt;
+        &lt;link rel="stylesheet" href="styles.css"&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+        &lt;!-- visible content goes here --&gt;
+        &lt;/body&gt;
+        &lt;/html&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>&lt;!DOCTYPE html&gt;</code> comes first and switches on standards mode.</li>
+        <li><code>&lt;html lang="en"&gt;</code> helps screen readers and translation tools — set it correctly.</li>
+        <li><code>&lt;head&gt;</code> holds metadata; <code>&lt;body&gt;</code> holds what visitors see.</li>
+        <li>Charset and viewport meta tags belong in every page you ship.</li>
+      </ul>
+      <div class="topic-note" data-kind="mistake">Skipping the viewport meta tag is the most common reason a page that
+        "looks fine" on a laptop looks tiny and zoomed-out on a phone.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="headings-text" data-tier="beginner" data-title="Headings and Paragraphs">
+      <div class="topic-body">
+        <p>HTML gives you six heading levels, <code>&lt;h1&gt;</code> through <code>&lt;h6&gt;</code>. They exist to
+          describe an <strong>outline</strong> of your document, the same way a book's chapter and section titles do —
+          not to pick a font size. Screen readers let users jump between headings the way you'd flip through a table of
+          contents, which only works if the levels genuinely nest: an <code>&lt;h3&gt;</code> should sit under an
+          <code>&lt;h2&gt;</code>, which sits under the page's single <code>&lt;h1&gt;</code>.</p>
+        <p>Skipping a level — going from <code>&lt;h1&gt;</code> straight to <code>&lt;h3&gt;</code> because it "looks
+          right" — breaks that outline for anyone navigating by structure, even though sighted users browsing normally
+          won't notice anything wrong.</p>
+        <p>Regular text lives in <code>&lt;p&gt;</code> elements. One detail trips up almost every newcomer: browsers
+          collapse whitespace. Line breaks and extra spaces in your HTML <em>source</em> do not create line breaks or
+          spacing on the rendered page — only actual elements and CSS do.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="outline.html">&lt;h1&gt;Backyard Vegetable
+        Gardening&lt;/h1&gt;
+        &lt;p&gt;An introduction for first-time growers.&lt;/p&gt;
+
+        &lt;h2&gt;Choosing a Location&lt;/h2&gt;
+        &lt;p&gt;Most vegetables need six hours of direct sun.&lt;/p&gt;
+
+        &lt;h3&gt;Testing Your Soil&lt;/h3&gt;
+        &lt;p&gt;A simple pH kit will tell you what to amend.&lt;/p&gt;
+
+        &lt;h2&gt;Watering Schedules&lt;/h2&gt;
+        &lt;p&gt;Deep, infrequent watering beats a daily sprinkle.&lt;/p&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Headings encode document structure, not font size — style size with CSS instead.</li>
+        <li>Don't skip heading levels; assistive technology relies on the nesting being real.</li>
+        <li>Most pages use one <code>&lt;h1&gt;</code> for the main topic of that page.</li>
+        <li>Whitespace and line breaks in your source are collapsed by the browser.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="text-semantics" data-tier="beginner" data-title="Text-Level Semantics">
+      <div class="topic-body">
+        <p>HTML has pairs of tags that look similar but mean different things. <code>&lt;strong&gt;</code> marks text as
+          genuinely important — screen readers may change their tone for it — while <code>&lt;b&gt;</code> just makes
+          text bold with no claim about importance. Likewise <code>&lt;em&gt;</code> marks stressed emphasis (changing
+          which word carries meaning in a sentence), while <code>&lt;i&gt;</code> is purely a visual italic, appropriate
+          for things like foreign phrases or the names of ships, which are conventionally italicized without being
+          "emphasized."</p>
+        <p>A few more inline tags worth knowing: <code>&lt;small&gt;</code> for fine print or side comments,
+          <code>&lt;mark&gt;</code> for highlighting text that's relevant right now (like a search match),
+          <code>&lt;abbr title="..."&gt;</code> for abbreviations — the <code>title</code> gives the full expansion —
+          and <code>&lt;sub&gt;</code>/<code>&lt;sup&gt;</code> for subscript and superscript, useful in chemical
+          formulas or footnote markers.</p>
+        <p><code>&lt;br&gt;</code> forces a single line break and <code>&lt;hr&gt;</code> marks a thematic break between
+          sections of content. Neither is a layout tool — reach for CSS margin and spacing instead of stacks of
+          <code>&lt;br&gt;</code> tags.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="inline.html">&lt;p&gt;
+        &lt;strong&gt;Warning:&lt;/strong&gt; the &lt;em&gt;first&lt;/em&gt; step is irreversible.
+        See &lt;abbr title="Frequently Asked Questions"&gt;FAQ&lt;/abbr&gt; for details.
+        &lt;/p&gt;
+        &lt;p&gt;The compound is H&lt;sub&gt;2&lt;/sub&gt;O, discovered in &lt;mark&gt;1783&lt;/mark&gt;.&lt;/p&gt;
+      </div>
+      <ul class="topic-keypoints">
+        <li><code>&lt;strong&gt;</code>/<code>&lt;em&gt;</code> carry meaning;
+          <code>&lt;b&gt;</code>/<code>&lt;i&gt;</code> are purely visual.</li>
+        <li><code>&lt;abbr title="..."&gt;</code> gives assistive tech and hover users the full expansion.</li>
+        <li><code>&lt;br&gt;</code> and <code>&lt;hr&gt;</code> are not spacing or decoration tools — use CSS for
+          layout.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="links" data-tier="beginner" data-title="Links and Navigation">
+      <div class="topic-body">
+        <p>The anchor tag, <code>&lt;a href="..."&gt;</code>, is HTML's namesake feature. The <code>href</code> can be
+          absolute (<code>https://example.com/page</code>), relative to the current page (<code>about.html</code> or
+          <code>../images/logo.png</code>), or a jump to a section on the same page using an <code>id</code>:
+          <code>&lt;a href="#pricing"&gt;</code> scrolls to whichever element has <code>id="pricing"</code>.</p>
+        <p><code>target="_blank"</code> opens a link in a new tab. When you use it, also add
+          <code>rel="noopener noreferrer"</code> — without it, the new page can access <code>window.opener</code> and,
+          in older browsers, silently redirect your original tab to a phishing page. You'll see exactly why this matters
+          in the security topic later in this guide.</p>
+        <p>Two special schemes turn a link into an action: <code>mailto:</code> opens the visitor's email client with an
+          address pre-filled, and <code>tel:</code> dials a number on devices that can place calls.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="links.html">&lt;a href="/about.html"&gt;About us&lt;/a&gt;
+        &lt;a href="https://example.com" target="_blank" rel="noopener noreferrer"&gt;External site&lt;/a&gt;
+        &lt;a href="mailto:hello@example.com"&gt;Email us&lt;/a&gt;
+        &lt;a href="tel:+15551234567"&gt;Call us&lt;/a&gt;
+        &lt;a href="#section-2"&gt;Jump to Section 2&lt;/a&gt;
+
+        &lt;h2 id="section-2"&gt;Section 2&lt;/h2&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Relative paths point to files near the current page; absolute paths point anywhere on the web.</li>
+        <li>Always pair <code>target="_blank"</code> with <code>rel="noopener noreferrer"</code>.</li>
+        <li><code>mailto:</code> and <code>tel:</code> turn a link into a real-world action.</li>
+      </ul>
+      <div class="topic-note" data-kind="mistake">If a click should trigger app behavior rather than navigate to a URL —
+        like opening a modal — use a <code>&lt;button&gt;</code>, not an <code>&lt;a href="#"&gt;</code>. A fake link
+        confuses keyboard and screen reader users who expect links to navigate.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="images" data-tier="beginner" data-title="Images">
+      <div class="topic-body">
+        <p><code>&lt;img src="..." alt="..."&gt;</code> is a void element — it never has a closing tag or content. The
+          <code>alt</code> attribute is not optional decoration: it's read aloud by screen readers, displayed if the
+          image fails to load, and used by search engines. Write it as you would describe the image to someone on the
+          phone. If an image is purely decorative and adds no information — a background flourish — give it an empty
+          <code>alt=""</code> so assistive technology skips over it entirely, rather than omitting <code>alt</code>,
+          which some screen readers announce as the filename instead.</p>
+        <p>Always set <code>width</code> and <code>height</code> (or the equivalent CSS <code>aspect-ratio</code>). The
+          browser uses them to reserve space for the image before it finishes downloading, which prevents the rest of
+          the page from jumping around as images pop in — a real, measured metric called Cumulative Layout Shift.</p>
+        <p>When an image needs a caption, wrap both in <code>&lt;figure&gt;</code> with a
+          <code>&lt;figcaption&gt;</code> inside. This semantically ties the caption to the image as one unit, rather
+          than leaving them as two unrelated pieces of text.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="figure.html">&lt;figure&gt;
+        &lt;img src="harvest.jpg" alt="Wicker basket of freshly picked tomatoes and basil"
+        width="640" height="427"&gt;
+        &lt;figcaption&gt;First tomato harvest of the season, late July.&lt;/figcaption&gt;
+        &lt;/figure&gt;
+
+        &lt;img src="divider-flourish.svg" alt="" width="200" height="12"&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>alt</code> is required — describe meaningfully, or use <code>alt=""</code> for purely decorative
+          images.</li>
+        <li><code>width</code>/<code>height</code> prevent layout shift while images load.</li>
+        <li><code>&lt;figure&gt;</code>/<code>&lt;figcaption&gt;</code> groups an image with its caption as one semantic
+          unit.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="lists" data-tier="beginner" data-title="Lists">
+      <div class="topic-body">
+        <p>Use <code>&lt;ul&gt;</code> (unordered list) when items have no inherent ranking — ingredients, features,
+          links in a menu. Use <code>&lt;ol&gt;</code> (ordered list) when sequence carries meaning — recipe steps, race
+          results, instructions where order matters. Each item, in either case, is an <code>&lt;li&gt;</code>.</p>
+        <p>A less common but genuinely useful third type is the description list: <code>&lt;dl&gt;</code> wraps pairs of
+          <code>&lt;dt&gt;</code> (term) and <code>&lt;dd&gt;</code> (its description) — perfect for glossaries, FAQs,
+          or metadata like a spec sheet.</p>
+        <p>Lists can nest: placing a full <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code> inside an
+          <code>&lt;li&gt;</code> creates a sub-list, which is how multi-level outlines and navigation menus with
+          sub-items are built.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="lists.html">&lt;ol&gt;
+        &lt;li&gt;Preheat the oven to 220°C.&lt;/li&gt;
+        &lt;li&gt;Toss the vegetables in oil and salt.&lt;/li&gt;
+        &lt;li&gt;Roast for 25 minutes, turning once.&lt;/li&gt;
+        &lt;/ol&gt;
+
+        &lt;dl&gt;
+        &lt;dt&gt;HTML&lt;/dt&gt;
+        &lt;dd&gt;Describes the structure of a web page.&lt;/dd&gt;
+        &lt;dt&gt;CSS&lt;/dt&gt;
+        &lt;dd&gt;Describes how that structure should look.&lt;/dd&gt;
+        &lt;/dl&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>&lt;ul&gt;</code> for unordered items, <code>&lt;ol&gt;</code> when sequence matters.</li>
+        <li><code>&lt;dl&gt;/&lt;dt&gt;/&lt;dd&gt;</code> handles term–description pairs like glossaries and FAQs.</li>
+        <li>Lists can nest inside a parent <code>&lt;li&gt;</code> to build sub-lists.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="tables" data-tier="beginner" data-title="Tables for Tabular Data">
+      <div class="topic-body">
+        <p>Tables exist for genuinely grid-shaped data — pricing plans, schedules, comparison specs — where rows and
+          columns both carry meaning. Before CSS matured, developers abused tables to lay out entire pages; that
+          technique is obsolete and actively harmful to accessibility today, since screen readers announce table
+          structure and a layout table announces confusing, meaningless "row 1 of 40" noise.</p>
+        <p>The structure: <code>&lt;table&gt;</code> wraps rows (<code>&lt;tr&gt;</code>), which contain header cells
+          (<code>&lt;th&gt;</code>) or data cells (<code>&lt;td&gt;</code>). Grouping rows into
+          <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code>, and optionally <code>&lt;tfoot&gt;</code> lets
+          browsers keep the header visible while a long table scrolls or prints, and tells assistive technology exactly
+          which row is the header.</p>
+        <p>A <code>&lt;caption&gt;</code>, placed right after the opening <code>&lt;table&gt;</code> tag, gives the
+          whole table an accessible title — the equivalent of a figure caption, but for data.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="table.html">&lt;table&gt;
+        &lt;caption&gt;Quarterly rainfall (mm)&lt;/caption&gt;
+        &lt;thead&gt;
+        &lt;tr&gt;&lt;th&gt;City&lt;/th&gt;&lt;th&gt;Q1&lt;/th&gt;&lt;th&gt;Q2&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        &lt;tr&gt;&lt;td&gt;Mumbai&lt;/td&gt;&lt;td&gt;12&lt;/td&gt;&lt;td&gt;480&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Delhi&lt;/td&gt;&lt;td&gt;6&lt;/td&gt;&lt;td&gt;210&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+        &lt;/table&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Tables are for tabular data, never for page layout.</li>
+        <li><code>&lt;th&gt;</code> marks header cells; pair it with <code>&lt;thead&gt;/&lt;tbody&gt;</code> for
+          structure.</li>
+        <li><code>&lt;caption&gt;</code> gives the table an accessible title.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="forms-basics" data-tier="beginner" data-title="Forms: The Basics">
+      <div class="topic-body">
+        <p>A <code>&lt;form&gt;</code> wraps a set of input controls. Its <code>action</code> attribute says where the
+          data goes, and <code>method</code> says how: <code>GET</code> appends data to the URL and suits read-like
+          requests such as a search box, while <code>POST</code> sends data in the request body and suits anything that
+          changes state, like creating an account.</p>
+        <p>Every input needs a real <code>&lt;label&gt;</code>, connected either by wrapping the input or by matching a
+          <code>for</code> attribute to the input's <code>id</code>. A <code>placeholder</code> is not a substitute — it
+          vanishes the moment someone starts typing and isn't dependably announced by every screen reader. Clicking a
+          label should focus or toggle its input; that only happens with a real association.</p>
+        <p>Inside a form, a plain <code>&lt;button&gt;</code> defaults to <code>type="submit"</code> — including buttons
+          you intended for something else, like "Cancel." That default causes a classic bug: a cancel button that
+          unexpectedly submits the form. Set <code>type="button"</code> explicitly on anything that shouldn't submit.
+        </p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="form.html">&lt;form action="/subscribe" method="post"&gt;
+        &lt;label for="email"&gt;Email address&lt;/label&gt;
+        &lt;input type="email" id="email" name="email" required&gt;
+
+        &lt;button type="submit"&gt;Subscribe&lt;/button&gt;
+        &lt;button type="button" onclick="closeForm()"&gt;Cancel&lt;/button&gt;
+        &lt;/form&gt;</div>
+      <ul class="topic-keypoints">
+        <li>GET for read-like requests, POST for anything that changes data.</li>
+        <li>Every input needs a real, connected <code>&lt;label&gt;</code> — a placeholder is not enough.</li>
+        <li>Buttons inside a form default to <code>type="submit"</code>; say <code>type="button"</code> otherwise.</li>
+      </ul>
+      <div class="topic-note" data-kind="mistake">A "Cancel" or "Delete row" button inside a <code>&lt;form&gt;</code>
+        that's missing <code>type="button"</code> will silently submit the entire form when clicked — one of the most
+        common real-world form bugs.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="global-attributes" data-tier="beginner"
+      data-title="Global Attributes and Comments">
+      <div class="topic-body">
+        <p>A handful of attributes work on nearly every element. <code>id</code> gives a single element a unique name on
+          the page — used for anchor links, label associations, and as a hook for CSS or JavaScript. Unlike
+          <code>id</code>, <code>class</code> can repeat across many elements and can hold several space-separated
+          values, making it the right tool for reusable styling hooks.</p>
+        <p><code>style</code> lets you write inline CSS directly on an element, but reach for it sparingly — mixing
+          structure and presentation defeats much of the reason HTML and CSS are separate languages in the first place.
+          <code>title</code> adds a tooltip, but support across assistive technology is inconsistent, so never put
+          essential information only in a <code>title</code>.</p>
+        <p><code>data-*</code> attributes let you attach custom data for JavaScript to read —
+          <code>data-user-id="42"</code>, for instance — without inventing non-standard attributes. The boolean
+          <code>hidden</code> attribute removes an element from rendering entirely.</p>
+        <p>Some elements are "void": they carry no closing tag and no content, because they can't have children —
+          <code>&lt;br&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;input&gt;</code>, <code>&lt;hr&gt;</code>,
+          <code>&lt;meta&gt;</code>, and <code>&lt;link&gt;</code> among them.</p>
+        <p>Finally, <code>&lt;!-- comments --&gt;</code> are stripped before anything renders on screen, but they still
+          travel to every visitor inside your page's source. Never put secrets, internal notes, or anything sensitive in
+          one.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="attributes.html">&lt;section id="pricing" class="panel
+        panel--highlighted" data-plan="pro"&gt;
+        &lt;!-- TODO: swap in final copy before launch --&gt;
+        &lt;p title="Billed annually"&gt;$12/month&lt;/p&gt;
+        &lt;/section&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>id</code> is unique per page; <code>class</code> can repeat and hold multiple values.</li>
+        <li>Prefer real CSS files over inline <code>style</code> where you can.</li>
+        <li><code>data-*</code> attributes are the standard way to attach custom data for scripts.</li>
+        <li>Comments are invisible on the page but fully visible in "View Source."</li>
+      </ul>
+    </article>
+
+    <!-- ===== INTERMEDIATE TIER ===== -->
+
+    <article class="topic-tpl" data-id="semantic-layout" data-tier="intermediate" data-title="Semantic Layout Elements">
+      <div class="topic-body">
+        <p>Before HTML5, every section of a page was a generically named <code>&lt;div&gt;</code>, and developers relied
+          on <code>id="header"</code> or <code>class="nav"</code> to fake meaning that the browser itself couldn't see.
+          HTML5 added elements that describe a section's <em>role</em> directly: <code>&lt;header&gt;</code>,
+          <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>,
+          <code>&lt;section&gt;</code>, <code>&lt;aside&gt;</code>, and <code>&lt;footer&gt;</code>.</p>
+        <p><code>&lt;header&gt;</code> holds introductory content — it can appear once for the whole page and again
+          inside an individual <code>&lt;article&gt;</code>. <code>&lt;nav&gt;</code> wraps major navigation blocks, not
+          every group of links. <code>&lt;main&gt;</code> should appear exactly once per page and wrap the primary
+          content, letting screen reader users jump straight past repeated navigation. <code>&lt;footer&gt;</code>
+          mirrors <code>&lt;header&gt;</code> for closing or meta content, and <code>&lt;address&gt;</code> specifically
+          marks contact information for the nearest article or page.</p>
+        <p>The trickiest distinction is <code>&lt;article&gt;</code> versus <code>&lt;section&gt;</code>. Ask: "could
+          this be pulled out and make sense on its own, syndicated elsewhere?" — a blog post, a product card, a forum
+          comment — that's an <code>&lt;article&gt;</code>. A <code>&lt;section&gt;</code> is a thematic chunk of a
+          larger whole, usually introduced by its own heading, that doesn't stand alone the same way.
+          <code>&lt;div&gt;</code> and <code>&lt;span&gt;</code> still matter as the meaning-neutral fallback for purely
+          visual grouping when no semantic element actually fits — reaching for them isn't wrong, it's just a last
+          resort rather than a default.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="layout.html">&lt;body&gt;
+        &lt;header&gt;
+        &lt;h1&gt;Daily Bread Bakery&lt;/h1&gt;
+        &lt;nav&gt;&lt;a href="/menu"&gt;Menu&lt;/a&gt; &lt;a href="/visit"&gt;Visit&lt;/a&gt;&lt;/nav&gt;
+        &lt;/header&gt;
+
+        &lt;main&gt;
+        &lt;article&gt;
+        &lt;h2&gt;Sourdough, back in stock&lt;/h2&gt;
+        &lt;p&gt;Our 48-hour ferment loaf returns Thursday.&lt;/p&gt;
+        &lt;/article&gt;
+
+        &lt;aside&gt;
+        &lt;h2&gt;Opening hours&lt;/h2&gt;
+        &lt;p&gt;Tue–Sun, 7am–3pm&lt;/p&gt;
+        &lt;/aside&gt;
+        &lt;/main&gt;
+
+        &lt;footer&gt;
+        &lt;address&gt;Contact: &lt;a
+        href="mailto:hello@dailybread.example"&gt;hello@dailybread.example&lt;/a&gt;&lt;/address&gt;
+        &lt;/footer&gt;
+        &lt;/body&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Semantic elements describe a section's role, not just its grouping.</li>
+        <li>Use exactly one <code>&lt;main&gt;</code> per page, wrapping the primary content.</li>
+        <li><code>&lt;article&gt;</code> should make sense standing alone; <code>&lt;section&gt;</code> is a themed part
+          of a larger whole.</li>
+        <li><code>&lt;div&gt;</code>/<code>&lt;span&gt;</code> remain valid as a last-resort, meaning-neutral wrapper.
+        </li>
+      </ul>
+      <div class="topic-note" data-kind="tip">Screen reader users often jump between landmarks (<code>header</code>,
+        <code>nav</code>, <code>main</code>, <code>footer</code>) the way sighted users scan a page visually. Getting
+        these elements right is a large accessibility win for almost no extra effort.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="forms-in-depth" data-tier="intermediate" data-title="Forms In Depth">
+      <div class="topic-body">
+        <p>The <code>type</code> attribute on <code>&lt;input&gt;</code> is more powerful than it looks.
+          <code>type="email"</code> and <code>type="tel"</code> summon the right mobile keyboard layout;
+          <code>type="number"</code>, <code>type="date"</code>, <code>type="range"</code>, and <code>type="color"</code>
+          give you a purpose-built native control for free, with no JavaScript; <code>type="checkbox"</code> and
+          <code>type="radio"</code> handle multi-select and single-select choices respectively — radios sharing the same
+          <code>name</code> become mutually exclusive automatically.</p>
+        <p><code>&lt;fieldset&gt;</code> groups related controls — most usefully a set of radio buttons or checkboxes —
+          and its first child, <code>&lt;legend&gt;</code>, gives that whole group an accessible label, announced by
+          screen readers as you enter the group.</p>
+        <p><code>&lt;select&gt;</code> with nested <code>&lt;option&gt;</code> elements builds a dropdown restricted to
+          exactly the choices you list; <code>&lt;optgroup label="..."&gt;</code> visually and semantically clusters
+          related options. A <code>&lt;textarea&gt;</code> handles multi-line freeform text — size it with CSS rather
+          than the legacy <code>rows</code>/<code>cols</code> attributes where you can. <code>&lt;datalist&gt;</code>,
+          linked to an input via matching <code>list</code>/<code>id</code>, offers autocomplete suggestions while still
+          letting the visitor type anything — unlike <code>&lt;select&gt;</code>, it never restricts the final value.
+          <code>&lt;output&gt;</code> displays a computed result, linkable to its source inputs with a <code>for</code>
+          attribute, typically updated by a script listening for input changes.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="form-controls.html">&lt;fieldset&gt;
+        &lt;legend&gt;Preferred contact method&lt;/legend&gt;
+        &lt;label&gt;&lt;input type="radio" name="contact" value="email" checked&gt; Email&lt;/label&gt;
+        &lt;label&gt;&lt;input type="radio" name="contact" value="phone"&gt; Phone&lt;/label&gt;
+        &lt;/fieldset&gt;
+
+        &lt;label for="city"&gt;City&lt;/label&gt;
+        &lt;input type="text" id="city" list="city-options"&gt;
+        &lt;datalist id="city-options"&gt;
+        &lt;option value="Mumbai"&gt;
+        &lt;option value="Delhi"&gt;
+        &lt;option value="Bengaluru"&gt;
+        &lt;/datalist&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Choosing the closest <code>type</code> gets you the right keyboard and built-in control for free.</li>
+        <li><code>&lt;fieldset&gt;</code>/<code>&lt;legend&gt;</code> gives a whole group of related controls one
+          accessible label.</li>
+        <li><code>&lt;datalist&gt;</code> suggests options but still allows free text; <code>&lt;select&gt;</code>
+          restricts to the list.</li>
+      </ul>
+      <div class="topic-note" data-kind="note"><code>type="tel"</code> deliberately accepts any text, since phone
+        formats vary worldwide — add a <code>pattern</code> attribute yourself if you need to enforce a specific format.
+      </div>
+    </article>
+
+    <article class="topic-tpl" data-id="form-validation" data-tier="intermediate" data-title="Native Form Validation">
+      <div class="topic-body">
+        <p>Browsers can validate a surprising amount for free, purely through attributes: <code>required</code> blocks
+          submission on an empty field, <code>minlength</code>/<code>maxlength</code> bound text length,
+          <code>min</code>/<code>max</code> bound numeric or date values, <code>pattern</code> takes a regular
+          expression the value must match, and <code>step</code> controls the increment allowed for numbers. This is the
+          Constraint Validation API, and it comes with matching CSS hooks — <code>:valid</code>, <code>:invalid</code>,
+          <code>:required</code>, <code>:optional</code> — so you can style a field red or green purely based on its
+          current state, no JavaScript required.</p>
+        <p>If you need fully custom validation logic or UI, add <code>novalidate</code> to the <code>&lt;form&gt;</code>
+          to switch off the browser's built-in checks and handle everything yourself in script.</p>
+        <p>Whatever you do on the client, it is never a substitute for validating again on the server. Client-side
+          checks are for user experience — instant feedback without a round trip — while server-side checks are for
+          security, since anyone can submit a request directly and skip your HTML and JavaScript entirely.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="validation.html">&lt;label
+        for="username"&gt;Username&lt;/label&gt;
+        &lt;input
+        type="text"
+        id="username"
+        required
+        minlength="3"
+        maxlength="20"
+        pattern="[a-zA-Z0-9_]+"
+        title="Letters, numbers, and underscores only"&gt;
+
+        &lt;label for="qty"&gt;Quantity&lt;/label&gt;
+        &lt;input type="number" id="qty" min="1" max="10" step="1" value="1"&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>required</code>, <code>pattern</code>, <code>min</code>/<code>max</code>, and <code>step</code> give
+          validation with zero JavaScript.</li>
+        <li><code>:valid</code>/<code>:invalid</code> let CSS style a field based on its current validity.</li>
+        <li><code>novalidate</code> on the form opts out when you need fully custom validation.</li>
+      </ul>
+      <div class="topic-note" data-kind="mistake">Trusting client-side validation alone is a real security bug, not just
+        sloppiness — always re-check every rule on the server, since the browser's checks are trivially bypassed by
+        anyone sending requests directly.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="multimedia" data-tier="intermediate" data-title="Audio and Video">
+      <div class="topic-body">
+        <p><code>&lt;video&gt;</code> and <code>&lt;audio&gt;</code> embed media with a built-in player when you add the
+          <code>controls</code> attribute — skip it only if you're building fully custom playback controls in
+          JavaScript. Nested <code>&lt;source&gt;</code> elements let you offer the same media in several formats; the
+          browser tries each in order and plays the first one it can decode, which matters because format support still
+          varies across browsers.</p>
+        <p>A <code>&lt;track kind="captions" src="captions.vtt" srclang="en" label="English"&gt;</code> inside a
+          <code>&lt;video&gt;</code> adds captions or subtitles from a separate file — essential for anyone who is deaf
+          or hard of hearing, watching without sound, or simply searching within the video's text. The
+          <code>poster</code> attribute sets a still preview image shown before playback starts.</p>
+        <p>Browsers block video with sound from autoplaying — if you need <code>autoplay</code> (for a silent background
+          loop, say), pair it with <code>muted</code> or it simply won't play. Any content placed between the opening
+          and closing tags acts as a fallback, shown only if the browser can't play the element at all.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="video.html">&lt;video controls poster="preview.jpg"
+        width="640" height="360"&gt;
+        &lt;source src="talk.webm" type="video/webm"&gt;
+        &lt;source src="talk.mp4" type="video/mp4"&gt;
+        &lt;track kind="captions" src="talk-en.vtt" srclang="en" label="English" default&gt;
+        Your browser doesn't support embedded video.
+        &lt;a href="talk.mp4"&gt;Download the video&lt;/a&gt; instead.
+        &lt;/video&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Include <code>controls</code> unless you're replacing them with your own custom UI.</li>
+        <li><code>&lt;track&gt;</code> supplies captions — treat it as a requirement, not an extra.</li>
+        <li>Autoplaying video must also be <code>muted</code>, or browsers will block it.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="embedding-content" data-tier="intermediate"
+      data-title="Embedding External Content">
+      <div class="topic-body">
+        <p><code>&lt;iframe src="..."&gt;</code> embeds an entire separate HTML document inside your page — used for
+          maps, embedded videos, checkout widgets, or ads. Because an iframe runs someone else's code alongside yours,
+          treat every one as a security boundary rather than a neutral picture frame.</p>
+        <p>The <code>sandbox</code> attribute strips capabilities from the embedded page by default and re-grants only
+          what you list: <code>sandbox="allow-scripts"</code> permits scripts but still blocks forms, popups, and
+          top-level navigation unless you add those tokens too. An empty <code>sandbox=""</code> locks everything down
+          as tightly as possible. <code>loading="lazy"</code> defers offscreen iframes from loading until they're about
+          to scroll into view, the same as it does for images.</p>
+        <p><code>&lt;object&gt;</code> and <code>&lt;embed&gt;</code> are older, now-niche ways to embed plugin content
+          like PDFs; for the vast majority of modern uses, an <code>&lt;iframe&gt;</code> for documents or the
+          <code>&lt;video&gt;</code>/<code>&lt;audio&gt;</code> elements you already know cover the job better.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="embed.html">&lt;iframe
+        src="https://maps.example.com/embed?q=CERN"
+        title="Map showing the location of CERN"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin"
+        width="600" height="360"&gt;
+        &lt;/iframe&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Treat every <code>&lt;iframe&gt;</code> as a security boundary, not just a layout tool.</li>
+        <li><code>sandbox</code> strips capabilities by default; add only the tokens you actually need.</li>
+        <li>Give every iframe a descriptive <code>title</code> so screen reader users know what it contains.</li>
+      </ul>
+      <div class="topic-note" data-kind="note">A missing <code>title</code> means a screen reader announces the frame
+        only as "iframe" — a real title tells visitors what's inside before they enter it.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="meta-seo" data-tier="intermediate" data-title="Metadata and SEO">
+      <div class="topic-body">
+        <p>The <code>&lt;head&gt;</code> carries several tags aimed at search engines and link previews rather than
+          visitors reading the page directly. <code>&lt;meta name="description" content="..."&gt;</code> supplies the
+          summary many search engines show under your title — it doesn't directly affect ranking, but a well-written one
+          affects whether people click. <code>&lt;meta name="robots" content="noindex, nofollow"&gt;</code> asks search
+          engines to leave a page out of results entirely, useful for admin pages or duplicates.</p>
+        <p><code>&lt;link rel="canonical" href="..."&gt;</code> tells search engines which URL is the authoritative
+          version when the same content is reachable multiple ways (with and without tracking parameters, for instance),
+          avoiding duplicate-content confusion. A favicon comes from <code>&lt;link rel="icon" href="..."&gt;</code>.
+        </p>
+        <p>Open Graph tags (<code>og:title</code>, <code>og:description</code>, <code>og:image</code>) control how a
+          link looks when shared on social platforms and chat apps; Twitter/X has its own similar set of
+          <code>twitter:*</code> tags for the same purpose. None of this makes content appear that isn't genuinely on
+          the page — it describes what's already there to systems that can't otherwise summarize it well.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="head-meta.html">&lt;meta name="description"
+        content="Hand-thrown pottery classes in central Pune, weekend and evening slots."&gt;
+        &lt;link rel="canonical" href="https://example.com/classes"&gt;
+        &lt;link rel="icon" href="/favicon.ico"&gt;
+
+        &lt;meta property="og:title" content="Pottery Classes — Clay & Wheel Studio"&gt;
+        &lt;meta property="og:description" content="Weekend and evening slots, all skill levels."&gt;
+        &lt;meta property="og:image" content="https://example.com/social-card.jpg"&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Meta description affects click-through from search results, not ranking directly.</li>
+        <li><code>rel="canonical"</code> resolves duplicate-content confusion across near-identical URLs.</li>
+        <li>Open Graph and Twitter tags control link previews on social platforms and chat apps.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="responsive-images" data-tier="intermediate" data-title="Responsive Images">
+      <div class="topic-body">
+        <p>A single fixed-size image is a poor fit for the range of screens visiting your site: too large and it wastes
+          bandwidth on a phone, too small and it looks blurry on a high-density display. <code>srcset</code> lets one
+          <code>&lt;img&gt;</code> list several resolutions of the same picture, and <code>sizes</code> tells the
+          browser how wide the image will actually render at different viewport widths — together the browser picks
+          whichever file makes sense for the visitor's exact screen. This is called "resolution switching," and it keeps
+          the same crop throughout.</p>
+        <p>When you need a genuinely different crop at different sizes — a tight portrait crop on mobile, a wide
+          landscape crop on desktop — that's "art direction," and it calls for <code>&lt;picture&gt;</code> wrapping
+          several <code>&lt;source media="..." srcset="..."&gt;</code> elements plus a required fallback
+          <code>&lt;img&gt;</code> for browsers that support none of the listed sources.</p>
+        <p><code>loading="lazy"</code> on an <code>&lt;img&gt;</code> defers offscreen images until they're about to
+          enter the viewport, which speeds up the initial page load without any JavaScript.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="responsive-img.html">&lt;picture&gt;
+        &lt;source media="(min-width: 800px)" srcset="hero-wide.jpg"&gt;
+        &lt;source media="(max-width: 799px)" srcset="hero-tall.jpg"&gt;
+        &lt;img src="hero-wide.jpg" alt="Potter shaping a bowl on a wheel"
+        loading="lazy" width="1200" height="675"&gt;
+        &lt;/picture&gt;
+
+        &lt;img
+        src="thumb-400.jpg"
+        srcset="thumb-400.jpg 400w, thumb-800.jpg 800w, thumb-1200.jpg 1200w"
+        sizes="(min-width: 600px) 400px, 100vw"
+        alt="Finished ceramic mug"&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>srcset</code>/<code>sizes</code> handle resolution switching — same crop, best-fit size.</li>
+        <li><code>&lt;picture&gt;</code> handles art direction — genuinely different crops per breakpoint.</li>
+        <li><code>loading="lazy"</code> defers offscreen images to speed up initial load.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="rel-and-downloads" data-tier="intermediate"
+      data-title="Links, Downloads, and rel Attributes">
+      <div class="topic-body">
+        <p>The <code>rel</code> attribute describes the relationship between the current page and a linked one, and
+          several values matter beyond the <code>noopener noreferrer</code> pair you met earlier.
+          <code>rel="noopener"</code> stops a page opened via <code>target="_blank"</code> from getting a JavaScript
+          handle back to your window; <code>rel="noreferrer"</code> goes further and withholds the referrer header
+          entirely, so the destination can't see where the click came from.</p>
+        <p><code>rel="nofollow"</code> tells search engines not to pass ranking credit through a link — common practice
+          on user-submitted or paid links. Two more specific variants exist for the same family of cases:
+          <code>rel="sponsored"</code> for paid or advertising links, and <code>rel="ugc"</code> for user-generated
+          content like comments.</p>
+        <p>The <code>download</code> attribute on a link forces a save-to-disk instead of navigation, and can suggest a
+          filename: <code>&lt;a href="report.pdf" download="Q3-report.pdf"&gt;</code>. Separately,
+          <code>&lt;link rel="preload" as="..." href="..."&gt;</code> in the document head — not on an
+          <code>&lt;a&gt;</code> — tells the browser to fetch a resource it will need soon, before it would otherwise
+          discover it.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="rel-values.html">&lt;a href="https://partner.example"
+        rel="sponsored"&gt;Our sponsor&lt;/a&gt;
+        &lt;a href="/user/42/comment/9" rel="ugc"&gt;See their comment&lt;/a&gt;
+        &lt;a href="/invoice.pdf" download="Invoice-2451.pdf"&gt;Download invoice&lt;/a&gt;
+
+        &lt;link rel="preload" as="font" href="/fonts/inter.woff2" type="font/woff2" crossorigin&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>noopener</code>/<code>noreferrer</code> protect your window and its referrer data from a linked page.
+        </li>
+        <li><code>nofollow</code>/<code>sponsored</code>/<code>ugc</code> tell search engines how to treat a link's
+          authority.</li>
+        <li><code>download</code> saves a file directly, optionally under a custom filename.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="accessibility-foundations" data-tier="intermediate"
+      data-title="Accessibility Foundations">
+      <div class="topic-body">
+        <p>Accessibility isn't a separate skill bolted onto HTML — it's mostly a byproduct of markup that's genuinely
+          correct, which is why it keeps resurfacing throughout this guide: meaningful <code>alt</code> text, real label
+          associations, a heading outline that doesn't skip levels, semantic landmarks instead of unlabeled
+          <code>&lt;div&gt;</code>s.</p>
+        <p>Two more tools round this out. <code>tabindex="0"</code> adds an element to the natural tab order when it
+          wouldn't otherwise be focusable — though a real <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code> is
+          almost always a better choice than a styled <code>&lt;div&gt;</code> that needs this fix in the first place.
+          <code>tabindex="-1"</code> makes an element focusable only programmatically, handy for moving keyboard focus
+          after something like a client-side page change. Avoid any <code>tabindex</code> value above <code>0</code> —
+          it overrides the natural reading order with a manually maintained one, which quietly breaks the first time the
+          page layout changes.</p>
+        <p>A "skip to content" link — an <code>&lt;a href="#main"&gt;</code> placed as the very first focusable element,
+          visually hidden until it receives keyboard focus — lets keyboard users bypass repeated navigation on every
+          single page load, rather than tabbing through the same menu every time. And one plain rule worth keeping in
+          mind well beyond HTML: never convey information by color alone, since it's invisible to colorblind visitors
+          and anyone using a screen reader.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="skip-link.html">&lt;body&gt;
+        &lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;
+
+        &lt;header&gt;...&lt;/header&gt;
+        &lt;nav&gt;...&lt;/nav&gt;
+
+        &lt;main id="main"&gt;
+        &lt;h1&gt;Page content starts here&lt;/h1&gt;
+        &lt;/main&gt;
+        &lt;/body&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Correct semantic HTML is most of what "accessible" means in practice.</li>
+        <li>Avoid <code>tabindex</code> values greater than <code>0</code> — they create a fragile, manually maintained
+          tab order.</li>
+        <li>A hidden-until-focused skip link saves keyboard users from repeating the same navigation on every page.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="html-entities" data-tier="intermediate"
+      data-title="HTML Entities and Special Characters">
+      <div class="topic-body">
+        <p>Three characters are reserved because HTML uses them for its own syntax: <code>&lt;</code> opens a tag,
+          <code>&gt;</code> closes one, and <code>&amp;</code> starts an entity. To display any of them as literal text
+          rather than have the browser try to parse them, write <code>&amp;lt;</code>, <code>&amp;gt;</code>, and
+          <code>&amp;amp;</code> instead.</p>
+        <p>Beyond escaping, named entities give you characters that are awkward to type directly:
+          <code>&amp;copy;</code> renders ©, <code>&amp;mdash;</code> renders an em dash —, <code>&amp;hellip;</code>
+          renders an ellipsis …. One entity does real layout work rather than just typography: <code>&amp;nbsp;</code>
+          is a non-breaking space, which glues two words together so they never get split across a line break — useful
+          in things like "10&amp;nbsp;km" or "Mr.&amp;nbsp;Shah."</p>
+        <p>Since virtually every modern file is saved as UTF-8 (set via the <code>charset</code> meta tag you met
+          earlier), you can generally type accented letters, emoji, and non-Latin scripts directly into your HTML rather
+          than reaching for numeric entities — entities today are mainly for the three reserved characters and a handful
+          of typographically awkward symbols.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="entities.html">&lt;p&gt;Use &amp;lt;strong&amp;gt; for
+        important text, not &amp;lt;b&amp;gt;.&lt;/p&gt;
+        &lt;p&gt;&amp;copy; 2026 Studio Verde &amp;mdash; all rights reserved.&lt;/p&gt;
+        &lt;p&gt;Race distance: 10&amp;nbsp;km. Doors open at 7&amp;nbsp;am.&lt;/p&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>&lt;</code>, <code>&gt;</code>, and <code>&amp;</code> must be escaped as entities when you mean them
+          literally.</li>
+        <li><code>&amp;nbsp;</code> stops two words from being separated across a line break.</li>
+        <li>With UTF-8 set, most other special characters can simply be typed directly.</li>
+      </ul>
+    </article>
+
+    <!-- ===== ADVANCED TIER ===== -->
+
+    <article class="topic-tpl" data-id="web-components-custom-elements" data-tier="advanced"
+      data-title="Web Components: Custom Elements">
+      <div class="topic-body">
+        <p>Web Components let you invent your own HTML tags with their own built-in behavior —
+          <code>&lt;user-card&gt;</code>, <code>&lt;rating-stars&gt;</code> — that work anywhere plain HTML works,
+          framework or not. Three technologies cooperate: Custom Elements define the new tag, Shadow DOM (next topic)
+          encapsulates its internal markup and styles, and the <code>&lt;template&gt;</code> element (also next topic)
+          supplies reusable inert markup.</p>
+        <p><code>customElements.define('tag-name', ClassName)</code> connects a tag name to a JavaScript class that
+          extends <code>HTMLElement</code>. Custom tag names <em>must</em> contain a hyphen — a deliberate rule ensuring
+          your invented names can never collide with a future standard HTML element, since none of those will ever
+          contain one.</p>
+        <p>A handful of lifecycle methods fire automatically: <code>connectedCallback()</code> runs when your element is
+          inserted into the page, <code>disconnectedCallback()</code> when it's removed, and
+          <code>attributeChangedCallback()</code> whenever a watched attribute changes — "watched" meaning listed in a
+          static <code>observedAttributes</code> array on the class. You can also extend an existing built-in element (a
+          "customized built-in," written as <code>&lt;button is="fancy-button"&gt;</code>), but browser support for that
+          variant is inconsistent, so a brand-new "autonomous" element like the one below is the safer default.</p>
+      </div>
+      <div class="topic-code" data-lang="js" data-filename="user-card.js">class UserCard extends HTMLElement {
+        static observedAttributes = ['name'];
+
+        connectedCallback() {
+        this.textContent = 'Loading…';
+        }
+
+        attributeChangedCallback(attr, oldVal, newVal) {
+        if (attr === 'name') this.textContent = 'Hi, ' + newVal;
+        }
+        }
+
+        customElements.define('user-card', UserCard);
+        // Usage in HTML: &lt;user-card name="Amit"&gt;&lt;/user-card&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Custom element tag names must contain a hyphen so they never collide with future standard tags.</li>
+        <li><code>connectedCallback()</code> runs on insertion; <code>attributeChangedCallback()</code> needs
+          <code>observedAttributes</code>.</li>
+        <li>An "autonomous" brand-new element is generally safer than extending a built-in one, given inconsistent
+          browser support.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="shadow-dom-templates" data-tier="advanced"
+      data-title="Web Components: Shadow DOM and Templates">
+      <div class="topic-body">
+        <p><code>&lt;template&gt;</code> holds markup that the browser parses but never renders and never runs — no
+          images inside it load, no scripts inside it execute — until you explicitly clone its <code>.content</code>
+          with JavaScript. That inertness is exactly why it's the right tool for a widget's repeatable markup, instead
+          of assembling the same HTML at runtime out of string concatenation.</p>
+        <p>Shadow DOM attaches a second, encapsulated DOM tree to an element via
+          <code>element.attachShadow({ mode: 'open' })</code>. Styles and markup placed inside that shadow root are
+          sealed off from the rest of the page: a <code>&lt;style&gt;</code> inside it won't leak out and style your
+          whole document, and most of your page's own CSS won't reach in and affect it either. This is how a custom
+          element ships its own internal look without any risk of colliding with whatever stylesheet the page around it
+          happens to have.</p>
+        <p><code>&lt;slot&gt;</code>, used inside a shadow tree, marks exactly where the "light DOM" — the regular
+          children a user places inside your custom element in their own markup — actually gets displayed. It's what
+          lets <code>&lt;user-card&gt;Amit&lt;/user-card&gt;</code> keep control over its own internal chrome while
+          still accepting content from whoever uses it.</p>
+      </div>
+      <div class="topic-code" data-lang="js" data-filename="fancy-card.js">const tpl =
+        document.createElement('template');
+        tpl.innerHTML = `
+        &lt;style&gt;
+        .card { border: 1px solid #ccc; padding: 12px; border-radius: 6px; }
+        &lt;/style&gt;
+        &lt;div class="card"&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/div&gt;
+        `;
+
+        class FancyCard extends HTMLElement {
+        connectedCallback() {
+        const shadow = this.attachShadow({ mode: 'open' });
+        shadow.appendChild(tpl.content.cloneNode(true));
+        }
+        }
+        customElements.define('fancy-card', FancyCard);</div>
+      <ul class="topic-keypoints">
+        <li><code>&lt;template&gt;</code> content is inert — nothing inside loads or runs until it's cloned with
+          JavaScript.</li>
+        <li>Shadow DOM encapsulates a custom element's markup and CSS from the rest of the page in both directions.</li>
+        <li><code>&lt;slot&gt;</code> is where a custom element's user-supplied content actually renders.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="canvas-vs-svg" data-tier="advanced" data-title="Canvas vs. SVG">
+      <div class="topic-body">
+        <p><code>&lt;canvas&gt;</code> and inline <code>&lt;svg&gt;</code> both draw graphics in the browser, but on
+          fundamentally different models. A canvas is a raster surface: you draw onto it imperatively from JavaScript
+          via <code>getContext('2d')</code> and a sequence of draw calls, and once drawn, the browser remembers only
+          pixels — no individual shape objects exist to click, style with CSS, or inspect later. That trade-off makes it
+          well suited to work with a very high number of draw operations: games, real-time charts with thousands of
+          points, image manipulation.</p>
+        <p>Inline SVG is markup: elements like <code>&lt;circle&gt;</code>, <code>&lt;path&gt;</code>, and
+          <code>&lt;rect&gt;</code> become real, inspectable DOM nodes, each individually stylable with CSS, animatable,
+          and clickable, and resolution-independent at any zoom level since it's vector math rather than pixels. That
+          makes it the better fit for icons, diagrams, logos, and data visualizations with a moderate, human-scale
+          number of shapes.</p>
+        <p>A simple rule of thumb: reach for SVG when you want elements you can style or script individually and that
+          must stay crisp at any size; reach for canvas when you're drawing so much, or so frequently, that keeping
+          every shape as its own DOM node would be too slow.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="icon.svg">&lt;svg viewBox="0 0 24 24" width="24"
+        height="24" fill="none" stroke="currentColor" stroke-width="2"&gt;
+        &lt;circle cx="12" cy="12" r="9"&gt;&lt;/circle&gt;
+        &lt;path d="M9 12l2 2 4-4"&gt;&lt;/path&gt;
+        &lt;/svg&gt;
+
+        &lt;!-- A canvas only reserves a drawing surface; JavaScript does the actual drawing --&gt;
+        &lt;canvas id="chart" width="400" height="200"&gt;&lt;/canvas&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Canvas is pixels drawn imperatively via JavaScript — fast at scale, but no per-shape DOM.</li>
+        <li>Inline SVG is real, stylable, resolution-independent DOM elements.</li>
+        <li>Choose SVG for icons/diagrams/charts with modest shape counts; canvas for high-volume or pixel-level work.
+        </li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="web-storage" data-tier="advanced" data-title="Web Storage and Offline Basics">
+      <div class="topic-body">
+        <p>Every browser ships two simple key-value stores. <code>localStorage</code> persists until something
+          explicitly clears it, surviving closed tabs and browser restarts; <code>sessionStorage</code> clears
+          automatically when its tab closes. Both only store strings, so objects need <code>JSON.stringify()</code>
+          going in and <code>JSON.parse()</code> coming out, both are synchronous, and both are capped at roughly 5–10MB
+          depending on the browser.</p>
+        <p>Cookies predate both and are still around mainly because, unlike storage, they're sent automatically with
+          every matching HTTP request to their domain — which is exactly why you should keep them small: anything you
+          store in a cookie adds weight to <em>every single request</em>, not just the page that set it.</p>
+        <p>For anything larger, more structured, or that needs real querying, IndexedDB is the actual database built
+          into the browser: asynchronous, transactional, and capable of storing far more than <code>localStorage</code>
+          — though its raw API is verbose enough that most projects reach for a small wrapper library rather than using
+          it directly. Offline-capable web apps typically pair storage like this with a service worker, a background
+          script that can intercept network requests and serve cached responses with no connection at all — a
+          substantial topic in its own right, worth a dedicated study once you get here.</p>
+      </div>
+      <div class="topic-code" data-lang="js" data-filename="storage.js">// Save
+        const cart = { items: ['mug', 'plate'], total: 850 };
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        // Read it back later, even after closing the browser
+        const saved = JSON.parse(localStorage.getItem('cart') || 'null');
+
+        // sessionStorage has the identical API, but clears when the tab closes
+        sessionStorage.setItem('draftMessage', 'Hey, are we still on for—');</div>
+      <ul class="topic-keypoints">
+        <li><code>localStorage</code> persists indefinitely; <code>sessionStorage</code> clears when the tab closes.
+        </li>
+        <li>Both store strings only — serialize objects with <code>JSON.stringify</code>/<code>JSON.parse</code>.</li>
+        <li>Cookies are sent with every matching request, so keep them small; IndexedDB is the real client-side
+          database.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="drag-and-drop" data-tier="advanced" data-title="The Drag and Drop API">
+      <div class="topic-body">
+        <p>Any element becomes draggable with a single attribute: <code>draggable="true"</code>. From there, a handful
+          of events drive the whole interaction. <code>dragstart</code> fires on the element being picked up — this is
+          where you attach the payload with <code>event.dataTransfer.setData(type, value)</code>. <code>dragover</code>
+          fires repeatedly on anything the dragged element passes over, and it must call
+          <code>event.preventDefault()</code> or the browser refuses to allow a drop there at all — this single missing
+          line is the most common reason a drop handler silently never fires. <code>drop</code> fires when the user
+          releases over a valid target, where you read the payload back out with
+          <code>event.dataTransfer.getData(type)</code>.</p>
+        <p>This native API predates most drag-and-drop JavaScript libraries and still underlies real desktop-to-browser
+          interactions, like dropping a file from your file manager onto an upload zone — worth knowing directly even if
+          you reach for a library for something more elaborate, like a fully sortable list.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="drag-drop.html">&lt;div id="card" draggable="true"&gt;Drag
+        me&lt;/div&gt;
+
+        &lt;div id="bin"
+        ondragover="event.preventDefault()"
+        ondrop="event.preventDefault(); console.log('dropped')"&gt;
+        Drop here
+        &lt;/div&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>draggable="true"</code> is all it takes to make an element draggable.</li>
+        <li><code>dragover</code> must call <code>preventDefault()</code> or the drop target will refuse the drop.</li>
+        <li><code>dataTransfer.setData()</code>/<code>getData()</code> carry the payload between <code>dragstart</code>
+          and <code>drop</code>.</li>
+      </ul>
+      <div class="topic-note" data-kind="mistake">Forgetting <code>event.preventDefault()</code> inside
+        <code>dragover</code> is the single most common reason a drop handler never runs.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="advanced-aria" data-tier="advanced"
+      data-title="Advanced Accessibility and ARIA">
+      <div class="topic-body">
+        <p>ARIA (Accessible Rich Internet Applications) attributes fill gaps for interactive widgets that plain HTML has
+          no native element for — a custom tab panel, a live chat feed, a combobox. The first rule of ARIA is to use as
+          little of it as possible: a real <code>&lt;button&gt;</code> is already fully accessible, while slapping
+          <code>role="button"</code> on a <code>&lt;div&gt;</code> means you now have to manually rebuild keyboard
+          activation, focus styling, and more that the real element already gave you at no cost.</p>
+        <p>When you genuinely need it: <code>role</code> tells assistive technology what a custom widget behaves like
+          (<code>role="tablist"</code>, <code>role="dialog"</code>); <code>aria-expanded="true|false"</code> reports
+          whether a disclosure widget is currently open; <code>aria-live="polite"</code> marks a region so a screen
+          reader announces content that changes inside it — a form's error summary, a live score — without the user
+          needing to navigate there themselves. Landmark roles like <code>role="navigation"</code> largely duplicate
+          what the semantic elements from earlier in this guide already provide, which is one more reason to reach for
+          the real element first.</p>
+        <p>Focus management deserves special attention for anything that opens on top of the page, like a modal: move
+          keyboard focus into it the moment it opens, keep <kbd>Tab</kbd> cycling only within it while it's open, and
+          return focus to whatever triggered it once it closes. Skip any of these three and keyboard users lose their
+          place in the page entirely.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="disclosure.html">&lt;button aria-expanded="false"
+        aria-controls="panel-1" id="toggle"&gt;
+        Shipping details
+        &lt;/button&gt;
+        &lt;div id="panel-1" hidden&gt;
+        Ships within 2 business days via standard courier.
+        &lt;/div&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Prefer a real HTML element over ARIA-on-a-div whenever one already exists.</li>
+        <li><code>aria-expanded</code> communicates open/closed state; <code>aria-live</code> announces dynamic changes.
+        </li>
+        <li>Anything that opens like a modal needs focus moved in, trapped, and returned on close.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="performance-hints" data-tier="advanced"
+      data-title="Performance and Resource Hints">
+      <div class="topic-body">
+        <p>Where a <code>&lt;script&gt;</code> sits and how it loads has a direct, measurable effect on page speed. A
+          plain <code>&lt;script src="..."&gt;</code> in the <code>&lt;head&gt;</code> blocks HTML parsing completely
+          until it finishes downloading and running. Adding <code>defer</code> downloads it in the background and runs
+          it only after parsing finishes, in source order — a solid default for most scripts. Adding <code>async</code>
+          also downloads in the background, but runs the instant it's ready, potentially out of order relative to other
+          scripts — better suited to fully independent code like analytics snippets.</p>
+        <p>A family of "resource hints" change <em>when</em> something loads without changing what loads at all.
+          <code>&lt;link rel="preload" as="..."&gt;</code> fetches a resource the browser wouldn't otherwise discover
+          early enough — a font referenced only inside CSS, say. <code>rel="preconnect"</code> opens the network
+          connection (DNS plus TLS handshake) to another origin ahead of the first real request to it;
+          <code>rel="dns-prefetch"</code> does just the DNS lookup, a lighter fallback for older browsers.
+          <code>loading="lazy"</code>, met earlier on images and iframes, defers offscreen media until it's about to
+          scroll into view.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="resource-hints.html">&lt;head&gt;
+        &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+        &lt;link rel="preload" as="style" href="/critical.css"&gt;
+        &lt;script src="/app.js" defer&gt;&lt;/script&gt;
+        &lt;script src="/analytics.js" async&gt;&lt;/script&gt;
+        &lt;/head&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>defer</code> runs scripts in order, after parsing finishes — a good general default.</li>
+        <li><code>async</code> runs as soon as a script is ready, potentially out of order.</li>
+        <li>Resource hints (<code>preload</code>/<code>preconnect</code>/<code>dns-prefetch</code>) change timing, not
+          content.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="security-markup" data-tier="advanced" data-title="Security in Markup">
+      <div class="topic-body">
+        <p>Markup choices carry real security weight. A Content-Security-Policy, set via
+          <code>&lt;meta http-equiv="Content-Security-Policy" content="..."&gt;</code>, restricts which sources scripts,
+          styles, and other resources are allowed to load from — meaningfully limiting the damage even if a malicious
+          script does slip onto your page. You already met <code>rel="noopener"</code> for links; the same reasoning
+          applies with more force to iframes, where the <code>sandbox</code> attribute from earlier is your main line of
+          defense.</p>
+        <p>The classic markup-level vulnerability is writing user-supplied text directly into HTML — via something like
+          <code>element.innerHTML = userComment</code> — without escaping it first. If that comment contains
+          <code>&lt;script&gt;...&lt;/script&gt;</code> and you insert it unescaped, that script now runs with full
+          access to your page, your cookies, and anything else on it. Always escape user content before treating it as
+          HTML (turning <code>&lt;</code> into <code>&amp;lt;</code>, exactly like every code sample throughout this
+          guide has been escaped), or better, use <code>element.textContent</code>, which never interprets its input as
+          markup in the first place.</p>
+        <p>Avoid inline event handler attributes like <code>onclick="..."</code> scattered through your HTML — beyond
+          being harder to maintain, each one is something a strict Content-Security-Policy has to specifically permit,
+          which quietly weakens the exact protection the policy exists to provide.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="csp.html">&lt;meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; object-src 'none'"&gt;</div>
+      <ul class="topic-keypoints">
+        <li>A CSP meta tag limits what an injected script — if one ever slips through — is able to do.</li>
+        <li>Always escape user-supplied content before inserting it as HTML, or use <code>textContent</code> instead.
+        </li>
+        <li>Avoid inline event handler attributes; they also weaken a strict CSP.</li>
+      </ul>
+      <div class="topic-note" data-kind="mistake">Inserting raw user input via <code>innerHTML</code> without escaping
+        it is the textbook cause of stored cross-site scripting (XSS) vulnerabilities.</div>
+    </article>
+
+    <article class="topic-tpl" data-id="structured-data" data-tier="advanced"
+      data-title="Structured Data: Microdata and JSON-LD">
+      <div class="topic-body">
+        <p>Structured data marks up the meaning of your content in a shared, machine-readable vocabulary — mainly
+          schema.org — so search engines can build richer results from it: star ratings, a recipe's cook time, an
+          event's date, shown directly in the search listing itself rather than left for the search engine to guess at.
+        </p>
+        <p>There are two ways to write it. Microdata attaches <code>itemscope</code>, <code>itemtype</code>, and
+          <code>itemprop</code> attributes directly onto your existing HTML elements, tightly coupling the data to your
+          visible markup. JSON-LD instead lives in a single separate
+          <code>&lt;script type="application/ld+json"&gt;</code> block containing plain structured JSON, fully decoupled
+          from your visible HTML — which is exactly why it has become the generally recommended approach: you can add,
+          update, or correct it without touching your page's markup at all.</p>
+        <p>Whichever form you use, only describe content that's genuinely present and visible on the page. Marking up
+          information that isn't actually there is treated as manipulative by search engines and risks the page being
+          penalized rather than helped.</p>
+      </div>
+      <div class="topic-code" data-lang="js" data-filename="ld-json.html">&lt;script type="application/ld+json"&gt;
+        {
+        "@context": "https://schema.org",
+        "@type": "Recipe",
+        "name": "Weeknight Dal",
+        "prepTime": "PT10M",
+        "cookTime": "PT25M",
+        "recipeYield": "4 servings"
+        }
+        &lt;/script&gt;</div>
+      <ul class="topic-keypoints">
+        <li>Structured data helps search engines build richer, more detailed result listings.</li>
+        <li>JSON-LD (a standalone script block) is now generally preferred over inline Microdata attributes.</li>
+        <li>Only mark up content that's genuinely visible on the page itself.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="modern-interactive-elements" data-tier="advanced"
+      data-title="Modern Interactive Elements">
+      <div class="topic-body">
+        <p>A handful of relatively recent elements replace what used to require hand-rolled JavaScript.
+          <code>&lt;details&gt;</code> paired with a nested <code>&lt;summary&gt;</code> creates a native disclosure
+          widget — click the summary to expand or collapse everything else inside, with full keyboard support and zero
+          JavaScript; add the boolean <code>open</code> attribute to start it expanded.</p>
+        <p><code>&lt;dialog&gt;</code> is a native modal (or non-modal) window. Calling its <code>.showModal()</code>
+          method from JavaScript opens it with an automatic backdrop, focus trapped inside it, and the <kbd>Escape</kbd>
+          key already wired up to close it — a genuinely large amount of the accessibility work you'd otherwise have to
+          hand-build for a custom modal, delivered by the browser itself. Call <code>.close()</code> to dismiss it
+          programmatically.</p>
+        <p>The <code>popover</code> attribute, paired with a triggering button's <code>popovertarget</code> attribute,
+          creates a lightweight floating layer — a tooltip, a menu, a non-modal hint — that the browser automatically
+          renders above everything else and dismisses on an outside click or <kbd>Escape</kbd>, again without a line of
+          JavaScript for the basic case. You already met <code>&lt;template&gt;</code>, for inert, cloneable markup,
+          back in the Web Components topics.</p>
+      </div>
+      <div class="topic-code" data-lang="html" data-filename="native-widgets.html">&lt;details&gt;
+        &lt;summary&gt;What's your return policy?&lt;/summary&gt;
+        &lt;p&gt;Unused items can be returned within 30 days with a receipt.&lt;/p&gt;
+        &lt;/details&gt;
+
+        &lt;button popovertarget="tip"&gt;Why do we ask?&lt;/button&gt;
+        &lt;div id="tip" popover&gt;We only use this to size your recommendation.&lt;/div&gt;</div>
+      <ul class="topic-keypoints">
+        <li><code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code> is a native, keyboard-accessible disclosure widget
+          — no script needed.</li>
+        <li><code>&lt;dialog&gt;</code>'s <code>.showModal()</code> handles backdrop, focus trapping, and
+          Escape-to-close natively.</li>
+        <li>The <code>popover</code> attribute creates a dismissible floating layer without any JavaScript.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="dom-rendering" data-tier="advanced"
+      data-title="The DOM and Browser Rendering, Briefly">
+      <div class="topic-body">
+        <p>It's worth closing the loop on where all of this actually goes. When a browser receives your HTML, it parses
+          it into the DOM — a tree of node objects, one per element, attribute, and piece of text — which is the literal
+          structure that CSS selectors match against and that <code>document.querySelector</code> and friends return. In
+          parallel, the browser builds a similar tree from your CSS, the CSSOM. The two combine into a render tree
+          describing exactly what should appear, which the browser then lays out — computing sizes and positions — and
+          finally paints to the screen.</p>
+        <p>This is precisely why script placement, covered in the performance topic, has a real effect rather than being
+          a matter of style: a <code>&lt;script&gt;</code> without <code>defer</code> or <code>async</code>, sitting in
+          the middle of your HTML, pauses this entire parse-build-layout-paint sequence to fetch and run.</p>
+        <p>One practical payoff: "inspecting an element" in your browser's developer tools is really just browsing this
+          exact DOM tree live. It's frequently faster to read the current DOM there than to re-read your own HTML
+          source, especially once JavaScript has modified the page after the initial load.</p>
+      </div>
+      <ul class="topic-keypoints">
+        <li>The browser parses HTML into the DOM and CSS into the CSSOM.</li>
+        <li>Those two trees combine into a render tree, which is laid out and then painted.</li>
+        <li>A render-blocking script pauses this whole sequence — the real reason <code>defer</code>/<code>async</code>
+          matter.</li>
+        <li>Devtools' element inspector shows this same live DOM tree, not your original source file.</li>
+      </ul>
+    </article>
+
+    <!-- ===== REFERENCE TIER ===== -->
+
+    <article class="topic-tpl" data-id="interview-questions" data-tier="reference" data-title="Interview Question Bank">
+      <div class="topic-body">
+        <p>Sixteen questions that come up often in real interviews, drawn from across every tier of this guide. Click a
+          question to reveal a concise model answer — try answering in your own words first.</p>
+
+        <details>
+          <summary>What is semantic HTML, and why does it matter?</summary>
+          <p>Markup chosen for what it means rather than how it looks — <code>&lt;nav&gt;</code> instead of a generic
+            <code>&lt;div class="nav"&gt;</code>. It matters because browsers, screen readers, and search engines all
+            use that meaning: for navigation, document outlines, and search result quality.</p>
+        </details>
+
+        <details>
+          <summary>What's the difference between an element being "block" and "inline"?</summary>
+          <p>A block-level element (like <code>&lt;p&gt;</code> or <code>&lt;div&gt;</code>) starts on its own line and
+            takes the full available width by default. An inline element (like <code>&lt;span&gt;</code> or
+            <code>&lt;a&gt;</code>) flows within a line of text and only takes as much width as its content needs.</p>
+        </details>
+
+        <details>
+          <summary>What's the difference between <code>id</code> and <code>class</code>?</summary>
+          <p><code>id</code> must be unique within the page and is used for anchors, label associations, and
+            single-element hooks. <code>class</code> can be reused across many elements and can hold multiple
+            space-separated values on one element.</p>
+        </details>
+
+        <details>
+          <summary>Why is the <code>alt</code> attribute on images important?</summary>
+          <p>It's read aloud by screen readers, shown if the image fails to load, and used by search engines. Purely
+            decorative images should get an empty <code>alt=""</code> rather than no <code>alt</code> at all.</p>
+        </details>
+
+        <details>
+          <summary>What happens if the browser encounters a tag it doesn't recognize?</summary>
+          <p>It treats it as an unknown, un-styled inline element and keeps rendering the rest of the page normally —
+            HTML parsing is deliberately fault-tolerant. This is also exactly how custom elements are able to work
+            before their JavaScript definition has loaded.</p>
+        </details>
+
+        <details>
+          <summary>What's the difference between <code>&lt;script&gt;</code>, <code>defer</code>, and
+            <code>async</code>?</summary>
+          <p>A plain script blocks HTML parsing while it downloads and runs. <code>defer</code> downloads in the
+            background and runs after parsing finishes, in order. <code>async</code> downloads in the background too,
+            but runs the instant it's ready, potentially out of order.</p>
+        </details>
+
+        <details>
+          <summary>What's the difference between <code>localStorage</code>, <code>sessionStorage</code>, and cookies?
+          </summary>
+          <p><code>localStorage</code> persists until cleared; <code>sessionStorage</code> clears when the tab closes;
+            both store strings client-side only. Cookies are smaller, and unlike storage, are sent automatically with
+            every matching HTTP request.</p>
+        </details>
+
+        <details>
+          <summary>What's the difference between the <code>hidden</code> attribute and CSS <code>display: none</code>?
+          </summary>
+          <p>They produce the same visual result, but <code>hidden</code> is HTML — it expresses "this isn't relevant
+            right now" directly in your markup with no CSS required, while <code>display: none</code> is a styling
+            decision. Both remove the element from the accessibility tree.</p>
+        </details>
+
+        <details>
+          <summary>Why prefer <code>&lt;strong&gt;</code> over <code>&lt;b&gt;</code>, or <code>&lt;em&gt;</code> over
+            <code>&lt;i&gt;</code>?</summary>
+          <p><code>&lt;strong&gt;</code>/<code>&lt;em&gt;</code> carry semantic weight that assistive technology can act
+            on; <code>&lt;b&gt;</code>/<code>&lt;i&gt;</code> are purely visual with no claim about importance or
+            emphasis.</p>
+        </details>
+
+        <details>
+          <summary>What does the viewport meta tag actually do?</summary>
+          <p><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code> tells mobile
+            browsers to render at the device's real width instead of a fake 980px-wide desktop layout that then gets
+            zoomed out — without it, responsive CSS breakpoints won't behave correctly on phones.</p>
+        </details>
+
+        <details>
+          <summary>When would you use GET versus POST on a form?</summary>
+          <p>GET appends form data to the URL and suits read-like, idempotent requests such as a search box. POST sends
+            data in the request body and suits anything that changes server state, like creating an account or placing
+            an order.</p>
+        </details>
+
+        <details>
+          <summary>What does <code>&lt;!DOCTYPE html&gt;</code> actually do?</summary>
+          <p>It switches the browser into standards-compliant rendering mode. Without it, older "quirks mode" rendering
+            kicks in, with inconsistent, legacy behavior around sizing and layout.</p>
+        </details>
+
+        <details>
+          <summary>What is Shadow DOM, in one sentence?</summary>
+          <p>A separate, encapsulated DOM tree attached to an element, so its internal markup and CSS don't leak out to
+            the page and the page's CSS mostly can't leak in — the mechanism that lets custom elements ship
+            self-contained styling.</p>
+        </details>
+
+        <details>
+          <summary>Why avoid inline event handlers like <code>onclick="..."</code>?</summary>
+          <p>They mix behavior into structure, are harder to maintain and reuse, and each one is something a strict
+            Content-Security-Policy has to specifically allow — weakening the exact protection that policy exists to
+            provide.</p>
+        </details>
+
+        <details>
+          <summary>What's the difference between <code>srcset</code>/<code>sizes</code> and
+            <code>&lt;picture&gt;</code>?</summary>
+          <p><code>srcset</code>/<code>sizes</code> on a plain <code>&lt;img&gt;</code> handles resolution switching —
+            the same crop at different sizes. <code>&lt;picture&gt;</code> handles art direction — genuinely different
+            crops at different breakpoints.</p>
+        </details>
+
+        <details>
+          <summary>What is a void element? Name a few.</summary>
+          <p>An element that can never have children and therefore has no closing tag: <code>&lt;br&gt;</code>,
+            <code>&lt;img&gt;</code>, <code>&lt;input&gt;</code>, <code>&lt;hr&gt;</code>, <code>&lt;meta&gt;</code>,
+            and <code>&lt;link&gt;</code> are the common ones.</p>
+        </details>
+      </div>
+      <ul class="topic-keypoints">
+        <li>Model answers are meant as a starting point — say them in your own words, with an example, in an actual
+          interview.</li>
+        <li>If a question here feels shaky, that topic's full page earlier in this guide has the complete explanation.
+        </li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="cheat-sheet" data-tier="reference" data-title="Cheat Sheet: Tags at a Glance">
+      <div class="topic-body">
+        <p>A categorized quick reference for when you know roughly what you need but not the exact tag name.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Tags</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Document structure</td>
+              <td><code>html</code>, <code>head</code>, <code>body</code>, <code>title</code>, <code>meta</code>,
+                <code>link</code></td>
+            </tr>
+            <tr>
+              <td>Headings & text</td>
+              <td><code>h1</code>–<code>h6</code>, <code>p</code>, <code>blockquote</code>, <code>pre</code>,
+                <code>hr</code></td>
+            </tr>
+            <tr>
+              <td>Inline text semantics</td>
+              <td><code>a</code>, <code>strong</code>, <code>em</code>, <code>b</code>, <code>i</code>,
+                <code>small</code>, <code>mark</code>, <code>abbr</code>, <code>sub</code>, <code>sup</code>,
+                <code>br</code>, <code>span</code>, <code>code</code></td>
+            </tr>
+            <tr>
+              <td>Lists</td>
+              <td><code>ul</code>, <code>ol</code>, <code>li</code>, <code>dl</code>, <code>dt</code>, <code>dd</code>
+              </td>
+            </tr>
+            <tr>
+              <td>Tables</td>
+              <td><code>table</code>, <code>caption</code>, <code>thead</code>, <code>tbody</code>, <code>tfoot</code>,
+                <code>tr</code>, <code>th</code>, <code>td</code></td>
+            </tr>
+            <tr>
+              <td>Forms</td>
+              <td><code>form</code>, <code>label</code>, <code>input</code>, <code>textarea</code>, <code>select</code>,
+                <code>option</code>, <code>optgroup</code>, <code>button</code>, <code>fieldset</code>,
+                <code>legend</code>, <code>datalist</code>, <code>output</code></td>
+            </tr>
+            <tr>
+              <td>Media</td>
+              <td><code>img</code>, <code>picture</code>, <code>source</code>, <code>video</code>, <code>audio</code>,
+                <code>track</code>, <code>figure</code>, <code>figcaption</code></td>
+            </tr>
+            <tr>
+              <td>Embedding</td>
+              <td><code>iframe</code>, <code>embed</code>, <code>object</code></td>
+            </tr>
+            <tr>
+              <td>Semantic layout</td>
+              <td><code>header</code>, <code>nav</code>, <code>main</code>, <code>article</code>, <code>section</code>,
+                <code>aside</code>, <code>footer</code>, <code>address</code></td>
+            </tr>
+            <tr>
+              <td>Interactive & modern</td>
+              <td><code>details</code>, <code>summary</code>, <code>dialog</code></td>
+            </tr>
+            <tr>
+              <td>Scripting & components</td>
+              <td><code>script</code>, <code>noscript</code>, <code>template</code>, <code>slot</code>,
+                <code>style</code></td>
+            </tr>
+            <tr>
+              <td>Graphics</td>
+              <td><code>svg</code>, <code>canvas</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="topic-keypoints">
+        <li>Bookmark this page as a fast lookup once you already know the concepts, not as a starting point for learning
+          them.</li>
+      </ul>
+    </article>
+
+    <article class="topic-tpl" data-id="common-mistakes" data-tier="reference"
+      data-title="Common Mistakes and Misconceptions">
+      <div class="topic-body">
+        <p>Twelve recurring mistakes gathered from across this guide, in one place for a final pass before you consider
+          yourself done.</p>
+        <dl>
+          <dt>Choosing a heading level for its default size</dt>
+          <dd>Style size with CSS; pick the heading level for the document outline it creates.</dd>
+          <dt>Missing or meaningless <code>alt</code> text</dt>
+          <dd>Screen readers and the broken-image fallback both depend on it — use <code>alt=""</code> only for purely
+            decorative images.</dd>
+          <dt><code>target="_blank"</code> without <code>rel="noopener noreferrer"</code></dt>
+          <dd>Leaves the new page with a handle back to your window and your referrer data.</dd>
+          <dt>Buttons inside a form missing <code>type="button"</code></dt>
+          <dd>They default to <code>type="submit"</code> and silently submit the form when clicked.</dd>
+          <dt>Reaching for <code>&lt;div&gt;</code>/<code>&lt;span&gt;</code> for everything</dt>
+          <dd>Misses free accessibility landmarks and outline structure that semantic elements provide.</dd>
+          <dt>Trusting client-side form validation alone</dt>
+          <dd>It's trivially bypassed by anyone sending a request directly — always re-check on the server.</dd>
+          <dt><code>tabindex</code> values above <code>0</code></dt>
+          <dd>Creates a manually maintained tab order that quietly breaks the next time the layout changes.</dd>
+          <dt>An <code>&lt;iframe&gt;</code> with no <code>title</code></dt>
+          <dd>Screen readers announce it only as "iframe," with no clue what's inside.</dd>
+          <dt>Forgetting <code>event.preventDefault()</code> in <code>dragover</code></dt>
+          <dd>The single most common reason a drop handler never fires.</dd>
+          <dt>Inserting user input via <code>innerHTML</code> unescaped</dt>
+          <dd>The textbook cause of stored cross-site scripting (XSS) vulnerabilities.</dd>
+          <dt>Using <code>&lt;table&gt;</code> for page layout</dt>
+          <dd>An obsolete, pre-CSS hack that breaks screen reader table navigation.</dd>
+          <dt>A placeholder standing in for a real <code>&lt;label&gt;</code></dt>
+          <dd>It vanishes once typing starts and isn't reliably announced by assistive technology.</dd>
+        </dl>
+      </div>
+    </article>
+
+    <article class="topic-tpl" data-id="further-practice" data-tier="reference" data-title="Keep Practicing">
+      <div class="topic-body">
+        <p>Reading a guide gets you to recognition; writing markup from scratch gets you to fluency. A few ways to close
+          that gap:</p>
+        <ul>
+          <li>Build a small personal portfolio page using only semantic HTML — no CSS at all yet — and check that it
+            reads sensibly in outline form.</li>
+          <li>Pick a real website you use daily, view its source, and try to explain why each major section uses the tag
+            it does.</li>
+          <li>Take a video you've made or found and add real <code>&lt;track&gt;</code> captions to it.</li>
+          <li>Build one small custom element from the Web Components topics — a <code>&lt;rating-stars&gt;</code> or
+            <code>&lt;countdown-timer&gt;</code> is a good first project.</li>
+          <li>Run any page you build through the W3C Markup Validator and an accessibility checker like axe DevTools or
+            Lighthouse, and fix every warning rather than only the errors.</li>
+        </ul>
+        <p>Because HTML is a living standard, treat MDN (developer.mozilla.org) as your ongoing reference for exact,
+          current syntax whenever you need it — this guide is a foundation to build fluency on, not the last word on any
+          single tag.</p>
+      </div>
+    </article>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>
