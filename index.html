@@ -4,17 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Guides — HTML &amp; CSS Practical Working Manuscripts</title>
+  <title>Web Guides — HTML, CSS &amp; JavaScript Practical Working Manuscripts</title>
   <meta name="description"
-    content="A sequential, tiered reference curriculum for modern web craftsmanship. Select your path between HTML and CSS working manuscripts.">
+    content="A sequential, tiered reference curriculum for modern web craftsmanship. Select your path between HTML, CSS, and JavaScript working manuscripts.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,480;0,9..144,600;0,9..144,680;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
-  <meta property="og:title" content="Web Guides — HTML &amp; CSS Working Manuscripts">
+  <meta property="og:title" content="Web Guides — HTML, CSS &amp; JavaScript Working Manuscripts">
   <meta property="og:description"
-    content="A sequential, tiered curriculum for HTML and CSS built from first principles to modern web architecture.">
+    content="A sequential, tiered curriculum for HTML, CSS, and JavaScript built from first principles to modern web architecture.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -29,6 +29,7 @@
     <nav class="portal-nav-links" aria-label="Main Navigation">
       <a href="html-guide/index.html" class="portal-nav-btn" id="navHtmlBtn">HTML Guide</a>
       <a href="css-guide/index.html" class="portal-nav-btn" id="navCssBtn">CSS Guide</a>
+      <a href="js-guide/index.html" class="portal-nav-btn" id="navJsBtn">JS Guide</a>
       <a href="#curriculum" class="portal-nav-btn">Curriculum</a>
       <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="portal-nav-btn" title="View Source on GitHub">
         GitHub
@@ -45,7 +46,7 @@
         <span>A Practical Web Standards Series</span>
       </div>
       <h1 class="portal-hero-title" id="heroHeading">
-        Master the Web from <em>Structure</em> to <em>Style</em>.
+        Master the Web from <em>Structure</em> to <em>Style</em> to <em>Behavior</em>.
       </h1>
       <p class="portal-hero-desc">
         Sequential, tiered working manuscripts designed to build foundational fluency and engineering confidence.
@@ -55,7 +56,10 @@
       <!-- Meta stats chips -->
       <div class="portal-meta-row" role="list">
         <div class="portal-meta-chip" role="listitem">
-          <strong>60</strong> Total Topics
+          <strong>96</strong> Total Topics
+        </div>
+        <div class="portal-meta-chip" role="listitem">
+          <strong>3</strong> Core Disciplines
         </div>
         <div class="portal-meta-chip" role="listitem">
           <strong>4</strong> Progressive Tiers
@@ -69,11 +73,11 @@
       </div>
     </section>
 
-    <!-- Guide Selection Paths (Two Core Paths) -->
+    <!-- Guide Selection Paths (Three Core Paths) -->
     <section class="portal-guides-section" id="guidesSelection" aria-labelledby="pathsHeading">
       <div class="portal-section-header">
         <h2 class="portal-section-title" id="pathsHeading">Choose Your Discipline</h2>
-        <span class="portal-section-sub">Two Comprehensive Manuscripts</span>
+        <span class="portal-section-sub">Three Comprehensive Manuscripts</span>
       </div>
 
       <div class="portal-cards-grid">
@@ -198,6 +202,67 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </a>
         </article>
+
+        <!-- PATH 3: JAVASCRIPT GUIDE -->
+        <article class="guide-card guide-card-js" id="jsGuideCard">
+          <div class="guide-card-top">
+            <span class="guide-badge-pill badge-js">Logic &amp; Behavior</span>
+            <div class="guide-card-glyph" aria-hidden="true">{ JS }</div>
+          </div>
+
+          <div class="guide-card-body">
+            <h3 class="guide-card-title">JavaScript — A Working Script</h3>
+            <div class="guide-card-subtitle">From First Principles to Async Architecture</div>
+            <p class="guide-card-desc">
+              Master the behavior engine of the web. Demystify closures, execution context, prototypal inheritance, the event loop, async/await, DOM APIs, browser features, and design patterns.
+            </p>
+          </div>
+
+          <!-- Tiers Overview -->
+          <div class="guide-tiers-list" aria-label="JavaScript Curriculum Tiers">
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-i">I</span>
+              <span class="guide-tier-name">Beginner</span>
+              <span class="guide-tier-focus">Syntax, Variables, DOM, Functions</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-ii">II</span>
+              <span class="guide-tier-name">Intermediate</span>
+              <span class="guide-tier-focus">Closures, Event Loop, Promises, Fetch</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-iii">III</span>
+              <span class="guide-tier-name">Advanced</span>
+              <span class="guide-tier-focus">Prototypes, Modules, Observers, Patterns</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-iv">IV</span>
+              <span class="guide-tier-name">Reference</span>
+              <span class="guide-tier-focus">Technical Interviews &amp; Anti-Patterns</span>
+            </div>
+          </div>
+
+          <!-- Quick tags -->
+          <div class="guide-tags-row" aria-label="Key JS Topics">
+            <span class="guide-tag">async / await</span>
+            <span class="guide-tag">Closures</span>
+            <span class="guide-tag">Event Loop</span>
+            <span class="guide-tag">Fetch API</span>
+            <span class="guide-tag">Prototypes</span>
+            <span class="guide-tag">IntersectionObserver</span>
+          </div>
+
+          <!-- Dynamic Reading Progress Tracker -->
+          <div id="jsProgressSummary" class="portal-meta-chip" style="margin-top: -8px; width: fit-content;">
+            <span id="jsProgressText">36 Topics in Curriculum</span>
+          </div>
+
+          <!-- Enter Button -->
+          <a href="js-guide/index.html" class="guide-action-btn btn-js" id="enterJsBtn">
+            <span>Enter JS Guide</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </article>
       </div>
     </section>
 
@@ -297,6 +362,29 @@
             </li>
           </ul>
         </div>
+
+        <!-- JS Track -->
+        <div class="compare-col">
+          <div class="compare-col-header col-js-head">JS Track Syllabus</div>
+          <ul class="compare-topics-list">
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Tier I: Syntax &bull; Variables &bull; Data Types &bull; Functions &bull; The DOM</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Tier II: Events &bull; Closures &bull; Promises &bull; Async/Await &bull; Fetch API</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Tier III: Prototypes &bull; Event Loop &bull; Modules &bull; Observers &bull; Patterns</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Tier IV: Technical Interviews &bull; Cheat Sheet &bull; Common Mistakes</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
@@ -309,6 +397,7 @@
     <div class="footer-links">
       <a href="html-guide/index.html">HTML Guide</a>
       <a href="css-guide/index.html">CSS Guide</a>
+      <a href="js-guide/index.html">JS Guide</a>
       <a href="404.html">404 Page</a>
       <a href="README.md">Documentation</a>
     </div>
@@ -340,6 +429,18 @@
               if (count > 0) {
                 var el = document.getElementById('cssProgressText');
                 if (el) el.textContent = '✓ ' + count + ' of 32 Topics Read';
+              }
+            }
+          }
+          // JS Guide Progress
+          var jsRaw = localStorage.getItem('js-guide-state');
+          if (jsRaw) {
+            var jsState = JSON.parse(jsRaw);
+            if (jsState && jsState.completed) {
+              var count = Object.keys(jsState.completed).filter(function (k) { return jsState.completed[k]; }).length;
+              if (count > 0) {
+                var el = document.getElementById('jsProgressText');
+                if (el) el.textContent = '✓ ' + count + ' of 36 Topics Read';
               }
             }
           }

@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript — A Working Script</title>
+<meta name="description" content="A sequential, tiered guide to JavaScript from first principles to advanced async patterns, architecture, and tooling.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,480;0,9..144,600;0,9..144,680;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div id="app">
+  <header class="masthead">
+    <button class="drawer-toggle" id="drawerToggle" aria-label="Open table of contents"><span></span><span></span><span></span></button>
+    <a href="../index.html" class="home-nav-link" title="Return to All Guides">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      <span>All Guides</span>
+    </a>
+    <div class="wordmark"><span class="mark">JS</span><span class="sub">a working script</span></div>
+    <div class="masthead-spacer"></div>
+    <div class="search-wrap">
+      <label for="search" class="visually-hidden">Search topics</label>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Search topics…" autocomplete="off">
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-text" id="progressText">0 of 0 read</span>
+      <div class="progress-bar"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc-panel" id="tocPanel">
+      <div class="toc-panel-head"><span>Contents</span><button class="drawer-close" id="drawerClose" aria-label="Close">×</button></div>
+      <nav class="toc" id="toc"></nav>
+    </aside>
+    <div class="backdrop" id="backdrop"></div>
+    <main class="page" id="page"><div class="page-inner" id="pageInner"></div></main>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONTENT LIBRARY — every topic lives here as plain HTML.
+     JS below reads this into structured data at load time.
+     ============================================================ -->
+<div id="library" hidden>
+
+<!-- ===== BEGINNER TIER ===== -->
+
+
+<article class="topic-tpl" data-id="what-is-js" data-tier="beginner" data-title="What JavaScript Actually Is">
+  <div class="topic-body">
+
+    <p>JavaScript is the third leg of the web platform's original three-part stool: HTML for structure, CSS for presentation, JavaScript for behavior — anything that responds to a click, updates without a full page reload, or runs logic right in the browser. Despite the name, it has no real relationship to Java; the name was a marketing decision from 1995, when the language was created in ten days at Netscape to ride the popularity of Java applets at the time.</p>
+    <p>Today JavaScript runs in every major browser through its own engine (V8 in Chrome, SpiderMonkey in Firefox), and — thanks to Node.js — outside the browser entirely, on servers and in command-line tools, using the exact same language.</p>
+    <p>A <code>&lt;script&gt;</code> tag brings JavaScript into an HTML page. Placed with <code>defer</code>, it downloads in the background and runs only after HTML parsing finishes, in source order — the sensible default for most page scripts. <code>console.log(...)</code> is arguably the single most useful line in this entire guide: it prints a value to the browser's developer console, and reaching for it constantly to inspect what your code is actually doing is completely normal practice, not a crutch.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="hello.js">console.log("Hello, browser console!");
+
+const message = "JavaScript runs the behavior layer.";
+console.log(message);</div>
+  <ul class="topic-keypoints">
+    <li>JS is behavior, sitting alongside HTML (structure) and CSS (presentation).</li>
+    <li>It runs in the browser via an engine, and outside the browser via Node.js.</li>
+    <li><code>console.log</code> is the everyday tool for seeing what your code is actually doing.</li>
+  </ul>
+  <div class="topic-note" data-kind="tip">Open your own browser's devtools console right now (F12, or Cmd+Option+J) and type <code>console.log("hello")</code> — you don't need a file or a server to start experimenting with JavaScript.</div>
+</article>
+
+<article class="topic-tpl" data-id="variables-let-const-var" data-tier="beginner" data-title="Variables: let, const, and var">
+  <div class="topic-body">
+
+    <p>A variable is a named container for a value. Modern JavaScript gives you two everyday ways to declare one: <code>let</code> for a value you plan to reassign later, and <code>const</code> for one you don't — attempting to reassign a <code>const</code> throws an error, which is exactly the point: it documents intent and catches accidental reassignment early. A common convention is to reach for <code>const</code> by default and switch to <code>let</code> only once you genuinely need to reassign.</p>
+    <p><code>var</code> is the original way to declare a variable, predating both, and it behaves differently in ways that cause real bugs. It's function-scoped rather than block-scoped, meaning a <code>var</code> declared inside an <code>if</code> block or a loop "leaks" out to the whole enclosing function, while <code>let</code>/<code>const</code> stay confined to the block they're declared in. <code>var</code> declarations are also hoisted to the top of their scope and initialized to <code>undefined</code> immediately, so referencing one before its declaration line silently gives <code>undefined</code> instead of an error — <code>let</code>/<code>const</code> stay in an unusable state until their declaration line actually runs, throwing a clear error if you touch them early instead of failing silently.</p>
+    <p>For all of these reasons, modern JavaScript treats <code>var</code> as legacy — reach for <code>const</code>/<code>let</code> in new code.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="scope.js">function example() {
+  if (true) {
+    let blockScoped = "only visible inside this block";
+    var functionScoped = "visible through the whole function";
+  }
+  // console.log(blockScoped);      // ReferenceError
+  console.log(functionScoped);      // works — var "leaked" out
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>const</code> by default; <code>let</code> when reassignment is genuinely needed.</li>
+    <li><code>var</code> is function-scoped, not block-scoped — it leaks out of if-blocks and loops.</li>
+    <li>Modern JavaScript treats <code>var</code> as legacy — avoid it in new code.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake">Declaring a loop counter with <code>var</code> inside a loop that creates closures (like several <code>setTimeout</code> calls) is a classic bug, since every closure shares the same single <code>var</code> variable instead of each getting its own — covered fully in the closures topic later.</div>
+</article>
+
+<article class="topic-tpl" data-id="data-types-values" data-tier="beginner" data-title="Data Types and Values">
+  <div class="topic-body">
+
+    <p>JavaScript is dynamically typed — a variable itself has no fixed type; whatever value it currently holds does, and that can change over the variable's lifetime. A handful of "primitive" types cover most everyday values: <code>string</code> (text), <code>number</code> (integers and decimals share one type — no separate int/float), <code>boolean</code> (<code>true</code>/<code>false</code>), <code>undefined</code> (a variable that's been declared but never assigned), and <code>null</code> (an explicit, intentional "no value," set deliberately by you rather than simply left absent). Everything else — arrays, objects, functions — is an <code>object</code> under the hood. <code>typeof value</code> tells you a value's type as a string, useful for debugging and the occasional runtime check.</p>
+    <p>JavaScript will also try to convert between types automatically in certain situations, called type coercion — <code>"5" + 1</code> produces the string <code>"51"</code> (numbers get converted to a string when added to one), while <code>"5" - 1</code> produces the number <code>4</code> (subtraction has no string meaning, so the string gets converted to a number instead). This inconsistency is exactly why <code>===</code> (strict equality, checking both value and type) is strongly preferred over <code>==</code> (loose equality, which silently coerces one side to match the other first) — <code>"5" == 5</code> is <code>true</code>, which is rarely what you actually meant to ask.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="types.js">typeof "hello";      // "string"
+typeof 42;            // "number"
+typeof undefined;     // "undefined"
+typeof null;          // "object" (a famous, long-standing quirk)
+
+"5" == 5;              // true  — coerces types first, often surprising
+"5" === 5;             // false — different types, no coercion, safer</div>
+  <ul class="topic-keypoints">
+    <li>JavaScript is dynamically typed — values have types, variables don't.</li>
+    <li><code>undefined</code> means "never assigned"; <code>null</code> means "intentionally empty."</li>
+    <li>Always prefer <code>===</code> over <code>==</code> to avoid surprising type coercion.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake"><code>==</code> silently converts types before comparing, producing surprising results like <code>"5" == 5</code> being <code>true</code> — use <code>===</code> by default.</div>
+</article>
+
+<article class="topic-tpl" data-id="operators-expressions" data-tier="beginner" data-title="Operators and Expressions">
+  <div class="topic-body">
+
+    <p>Arithmetic operators (<code>+ - * / % **</code>) work as expected on numbers, with <code>%</code> giving the remainder of division (handy for checking even/odd, or alternating something every few items) and <code>**</code> for exponentiation. Comparison operators (<code>&lt; &gt; &lt;= &gt;= === !==</code>) produce a boolean. Logical operators combine or check booleans: <code>&amp;&amp;</code> (true only if both sides are true), <code>||</code> (true if either side is true), and <code>!</code> (flips a boolean).</p>
+    <p>Beyond pure booleans, <code>&amp;&amp;</code> and <code>||</code> are also used constantly for their "short-circuiting" behavior — <code>||</code> returns the first value that isn't "falsy" (a small set of values JavaScript treats as false in a boolean context: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>), which is how <code>someValue || 'default'</code> provides a fallback. <code>??</code> (nullish coalescing) is a more precise version of that same idea: it only falls back when the left side is specifically <code>null</code> or <code>undefined</code>, not for other falsy values like <code>0</code> — important when a legitimate value like the number zero shouldn't be treated as "missing."</p>
+    <p>The ternary operator, <code>condition ? valueIfTrue : valueIfFalse</code>, packs a simple if/else into a single expression that itself produces a value, unlike a full <code>if</code> statement.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="operators.js">const quantity = 0;
+
+quantity || 10;   // 10 — 0 is falsy, so it falls back
+quantity ?? 10;   // 0  — 0 is not null/undefined, so it's kept
+
+const label = quantity &gt; 0 ? "In stock" : "Out of stock";</div>
+  <ul class="topic-keypoints">
+    <li><code>%</code> gives the remainder, <code>**</code> gives exponentiation.</li>
+    <li><code>||</code> falls back on any falsy value; <code>??</code> falls back only on <code>null</code>/<code>undefined</code>.</li>
+    <li>The ternary operator is an if/else that produces a value, usable inline.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="strings-template-literals" data-tier="beginner" data-title="Strings and Template Literals">
+  <div class="topic-body">
+
+    <p>Strings can be written with single quotes, double quotes (functionally identical — pick one and stay consistent), or backticks, which create a "template literal" with two extra powers: multi-line text with no special escape characters, and <code>${...}</code> interpolation, embedding any JavaScript expression directly inside the string — dramatically more readable than concatenating pieces together with <code>+</code>.</p>
+    <p>A handful of string methods come up constantly: <code>.length</code> (a property, not a method, giving the character count), <code>.slice(start, end)</code> extracts a substring, <code>.split(separator)</code> breaks a string into an array of pieces, <code>.trim()</code> removes leading/trailing whitespace, <code>.includes(substring)</code> checks for a substring's presence, and <code>.toUpperCase()</code>/<code>.toLowerCase()</code> change case. Strings are immutable — every one of these methods returns a brand-new string rather than modifying the original in place.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="template-literals.js">const name = "Amit";
+const count = 3;
+
+const greeting = `Hi, ${name}! You have ${count + 1} new messages.`;
+
+const tags = "javascript, css, html";
+const list = tags.split(", ").map(t =&gt; t.trim().toUpperCase());
+// ["JAVASCRIPT", "CSS", "HTML"]</div>
+  <ul class="topic-keypoints">
+    <li>Template literals (backticks) support multi-line text and <code>${}</code> interpolation.</li>
+    <li>Strings are immutable — every string method returns a new string.</li>
+    <li>Prefer template literals over <code>+</code> concatenation for readability.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="arrays-basics" data-tier="beginner" data-title="Arrays Basics">
+  <div class="topic-body">
+
+    <p>An array is an ordered, numbered list of values, created with square brackets: <code>const fruits = ['apple', 'banana', 'cherry'];</code>. Access an item by its zero-based index — <code>fruits[0]</code> is <code>'apple'</code> — and the last item's index is always <code>fruits.length - 1</code>, not <code>fruits.length</code>, a very common off-by-one trip-up for newcomers.</p>
+    <p><code>.push(item)</code> adds to the end, <code>.pop()</code> removes from the end, <code>.unshift(item)</code> adds to the start, <code>.shift()</code> removes from the start — all four mutate the original array in place, unlike the string methods from the previous topic. A basic <code>for</code> loop visits every item by index; a more modern <code>for...of</code> loop visits every item directly with no index variable to manage at all, and is generally preferred for a simple "do something with every item" case.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="arrays.js">const fruits = ["apple", "banana", "cherry"];
+
+fruits.push("date");        // ["apple", "banana", "cherry", "date"]
+fruits[fruits.length - 1];  // "date" — the last item, correctly indexed
+
+for (const fruit of fruits) {
+  console.log(fruit);
+}</div>
+  <ul class="topic-keypoints">
+    <li>Arrays are zero-indexed — the last valid index is <code>length - 1</code>.</li>
+    <li><code>push</code>/<code>pop</code>/<code>shift</code>/<code>unshift</code> mutate the array in place.</li>
+    <li><code>for...of</code> is the simpler modern way to visit every item.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="objects-basics" data-tier="beginner" data-title="Objects Basics">
+  <div class="topic-body">
+
+    <p>An object stores data as named key/value pairs, created with curly braces: <code>const user = { name: 'Amit', age: 28 };</code>. Access a property with dot notation (<code>user.name</code>) when you know the property name ahead of time, or bracket notation (<code>user['name']</code>, or <code>user[someVariable]</code>) when the name itself needs to come from a variable. Objects nest arbitrarily — a value can itself be another object or an array — which is how real-world data, like a user profile or an API response, is typically shaped.</p>
+    <p><code>Object.keys(obj)</code> returns an array of just the property names, <code>Object.values(obj)</code> returns just the values, and <code>Object.entries(obj)</code> returns an array of <code>[key, value]</code> pairs — the standard way to loop over an object's contents, since a plain <code>for...of</code> doesn't work directly on an object the way it does on an array.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="objects.js">const user = {
+  name: "Amit",
+  role: "engineer",
+  address: { city: "Ghaziabad" }
+};
+
+user.name;              // "Amit"
+user["role"];           // "engineer"
+user.address.city;      // "Ghaziabad"
+
+Object.keys(user);      // ["name", "role", "address"]</div>
+  <ul class="topic-keypoints">
+    <li>Dot notation for known property names, bracket notation when the name is dynamic.</li>
+    <li>Objects nest arbitrarily to represent real-world structured data.</li>
+    <li><code>Object.keys</code>/<code>values</code>/<code>entries</code> are the standard way to loop over an object.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="functions-declarations-expressions" data-tier="beginner" data-title="Functions: Declarations and Expressions">
+  <div class="topic-body">
+
+    <p>A function packages up a reusable block of code. A function declaration is hoisted entirely — including its body — meaning you can call it earlier in a file than where it's actually written. A function expression stores an anonymous (or named) function in a variable instead, and is <em>not</em> hoisted the same way, so it can only be called after that line runs. An arrow function is a more compact syntax for a function expression, and — for a single-expression body — can drop both the curly braces and the <code>return</code> keyword entirely. Arrow functions also handle the <code>this</code> keyword differently from the other two forms, covered fully in its own topic later.</p>
+    <p>Parameters can have default values, used whenever the caller doesn't supply that argument. Whatever a function's <code>return</code> statement produces becomes the function call's own value; a function with no <code>return</code> statement at all implicitly returns <code>undefined</code>.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="functions.js">// Function declaration — fully hoisted
+function greetA(name) {
+  return "Hi, " + name;
+}
+
+// Function expression — not hoisted
+const greetB = function (name) {
+  return "Hi, " + name;
+};
+
+// Arrow function, with a default parameter
+const greetC = (name = "friend") =&gt; `Hi, ${name}`;</div>
+  <ul class="topic-keypoints">
+    <li>Function declarations are fully hoisted; function expressions and arrow functions are not.</li>
+    <li>Arrow functions offer a compact single-expression shorthand.</li>
+    <li>A function with no <code>return</code> implicitly returns <code>undefined</code>.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="conditionals-loops" data-tier="beginner" data-title="Conditionals and Loops">
+  <div class="topic-body">
+
+    <p><code>if</code>/<code>else if</code>/<code>else</code> branches based on a condition's truthiness. <code>switch</code> compares one value against several possible cases, useful when you'd otherwise write a long <code>else if</code> chain against the same variable — each <code>case</code> needs a <code>break</code>, or execution "falls through" into the next case, usually unintentionally.</p>
+    <p>Three loop forms cover repetition. A <code>for</code> loop is best when you need an index or a specific count of iterations. A <code>while</code> loop repeats as long as a condition stays true, checked before each pass — good when the number of iterations isn't known ahead of time. A <code>do...while</code> loop is identical to <code>while</code> except it checks the condition <em>after</em> the first pass, guaranteeing the body runs at least once even if the condition is already false. <code>break</code> exits a loop (or switch) immediately; <code>continue</code> skips straight to the next iteration without exiting.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="control-flow.js">function describe(size) {
+  switch (size) {
+    case "small":
+      return "Fits in a pocket";
+    case "medium":
+      return "Fits in a bag";
+    default:
+      return "Bring a cart";
+  }
+}
+
+let attempts = 0;
+while (attempts &lt; 3) {
+  attempts++;
+}</div>
+  <ul class="topic-keypoints">
+    <li>Each <code>switch</code> case needs its own <code>break</code>, or it falls through into the next one.</li>
+    <li><code>while</code> checks its condition before each pass; <code>do...while</code> checks after.</li>
+    <li><code>break</code> exits a loop entirely; <code>continue</code> skips to the next iteration.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake">Forgetting <code>break</code> inside a <code>switch</code> case is a classic bug — execution quietly continues into the next case's code instead of stopping.</div>
+</article>
+
+<article class="topic-tpl" data-id="dom-selecting-modifying" data-tier="beginner" data-title="The DOM: Selecting and Modifying Elements">
+  <div class="topic-body">
+
+    <p>This is where JavaScript actually touches the page. <code>document.querySelector('.card')</code> returns the first element matching a CSS selector — any valid CSS selector works here, from a simple class to a complex combinator; <code>document.querySelectorAll('.card')</code> returns every matching element, as a static list.</p>
+    <p>Once you have an element, <code>.textContent</code> reads or sets its plain text safely, with no risk of the content being interpreted as markup, while <code>.innerHTML</code> reads or sets its actual HTML — powerful, but risky if fed unescaped user input. <code>.classList.add(...)</code>/<code>.remove(...)</code>/<code>.toggle(...)</code> manage an element's CSS classes directly, generally the cleanest way to change an element's appearance from script. <code>document.createElement('div')</code> builds a brand-new element entirely in memory, and <code>.append(...)</code> inserts it into the actual page.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="dom.js">const card = document.querySelector(".card");
+card.classList.toggle("is-active");
+
+const note = document.createElement("p");
+note.textContent = "Added by JavaScript";
+card.append(note);</div>
+  <ul class="topic-keypoints">
+    <li><code>querySelector</code>/<code>querySelectorAll</code> accept any CSS selector, exactly like a stylesheet would.</li>
+    <li><code>textContent</code> is safe for plain text; <code>innerHTML</code> risks the XSS issue if fed unescaped input.</li>
+    <li><code>classList</code> is generally the cleanest way to change appearance from script.</li>
+  </ul>
+</article>
+
+
+<!-- ===== INTERMEDIATE TIER ===== -->
+
+
+<article class="topic-tpl" data-id="events-listeners" data-tier="intermediate" data-title="Events and Event Listeners">
+  <div class="topic-body">
+
+    <p><code>element.addEventListener('click', handlerFunction)</code> runs <code>handlerFunction</code> every time that element is clicked — the standard way to respond to interaction, replacing the older inline <code>onclick="..."</code> attribute pattern. The handler receives an event object as its argument, and <code>event.target</code> is the specific element the event actually originated from, which matters once elements are nested.</p>
+    <p>Events "bubble" upward by default: a click on a button inside a card fires the button's handler first, then the card's (if it has one), then further up the tree. This bubbling is what makes "event delegation" possible — instead of attaching a separate listener to a hundred individual list items, attach one listener to their shared parent and check <code>event.target</code> inside it to figure out which child was actually clicked, far more efficient, and it automatically covers items added later. <code>event.preventDefault()</code> stops an event's default browser behavior — most commonly, stopping a form's submit from actually reloading the page.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="delegation.js">const list = document.querySelector(".todo-list");
+
+list.addEventListener("click", (event) =&gt; {
+  if (event.target.matches(".todo-item")) {
+    event.target.classList.toggle("done");
+  }
+});</div>
+  <ul class="topic-keypoints">
+    <li><code>addEventListener</code> is the standard way to respond to interaction.</li>
+    <li>Events bubble upward through ancestors by default, enabling event delegation.</li>
+    <li><code>preventDefault()</code> stops the browser's default behavior for that event.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="array-methods-map-filter-reduce" data-tier="intermediate" data-title="Array Methods: map, filter, reduce">
+  <div class="topic-body">
+
+    <p>These three methods, together with <code>forEach</code>, cover the vast majority of everyday array work, and all four take a function that runs once per item. <code>forEach</code> just runs a function per item for a side effect (like logging) and returns <code>undefined</code> — it doesn't build anything. <code>.map(fn)</code> returns a brand-new array by transforming every item — same length, different content. <code>.filter(fn)</code> returns a new array containing only the items where <code>fn</code> returns something truthy — same or shorter length.</p>
+    <p><code>.reduce(fn, initialValue)</code> is the most flexible: it walks the array building a single accumulated result, calling <code>fn(accumulator, currentItem)</code> at each step and carrying the return value forward as the new accumulator. None of the three mutate the original array — each returns a fresh one, which is exactly why they chain together cleanly.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="array-methods.js">const orders = [12, 45, 8, 90, 33];
+
+const total = orders
+  .filter(amount =&gt; amount &gt; 10)
+  .map(amount =&gt; amount * 1.18)
+  .reduce((sum, amount) =&gt; sum + amount, 0);</div>
+  <ul class="topic-keypoints">
+    <li><code>map</code> transforms every item into a new array of the same length.</li>
+    <li><code>filter</code> keeps only matching items.</li>
+    <li><code>reduce</code> folds the array down into one accumulated value.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="destructuring-spread-rest" data-tier="intermediate" data-title="Destructuring and Spread/Rest">
+  <div class="topic-body">
+
+    <p>Destructuring unpacks values out of an array or object into individual named variables in one line. Array destructuring goes by position; object destructuring goes by property name, and can rename on the way out or supply a default for a property that might be missing.</p>
+    <p>The spread operator, <code>...</code>, expands an array or object out into individual elements or properties — <code>{ ...obj1, ...obj2 }</code> merges two objects into a new one, with later properties overriding earlier ones on a collision — an extremely common pattern for updating one property immutably, without mutating the original. The rest parameter uses the exact same <code>...</code> syntax in the opposite direction: gathering any remaining function arguments into a real array.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="destructuring.js">const user = { name: "Amit", role: "engineer", age: 28 };
+const { name, role = "guest" } = user;
+
+const updated = { ...user, age: 29 };   // new object, original untouched
+
+function sum(...numbers) {
+  return numbers.reduce((a, b) =&gt; a + b, 0);
+}
+sum(1, 2, 3);   // 6</div>
+  <ul class="topic-keypoints">
+    <li>Destructuring unpacks array items by position, or object properties by name.</li>
+    <li>Spread (<code>...</code>) expands a collection out — the standard pattern for updating an object immutably.</li>
+    <li>Rest (same <code>...</code> syntax, opposite direction) gathers arguments into an array.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="scope-closures" data-tier="intermediate" data-title="Scope and Closures">
+  <div class="topic-body">
+
+    <p>JavaScript uses lexical scope — a function can access any variable declared in the scope it was physically written inside, no matter where it later gets called from. A closure is what happens when an inner function is returned or passed elsewhere and keeps that access alive even after the outer function has already finished running: it "closes over" those outer variables, remembering rather than losing them.</p>
+    <p>Each call to a function that returns another function creates a genuinely separate, private set of variables that nothing outside can reach directly — a real, practical way to create private state without a class. The classic closure gotcha involves <code>var</code> inside a loop: because <code>var</code> is function-scoped, every closure created inside a <code>var</code>-based loop shares the exact same variable, so by the time any of them run, they all see the loop's final value. Switching to <code>let</code> fixes it immediately, since <code>let</code> creates a fresh binding for each iteration.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="closures.js">function makeCounter() {
+  let count = 0;
+  return function () {
+    count++;
+    return count;
+  };
+}
+
+const counter = makeCounter();
+counter();   // 1
+counter();   // 2 — count is private to this specific counter</div>
+  <ul class="topic-keypoints">
+    <li>A closure is an inner function retaining access to its outer function's variables.</li>
+    <li>Closures are a real way to create private state.</li>
+    <li>The classic <code>var</code>-in-a-loop bug happens because every iteration shares one binding — <code>let</code> fixes it.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="this-function-context" data-tier="intermediate" data-title="this and Function Context">
+  <div class="topic-body">
+
+    <p><code>this</code> is confusing because its value isn't fixed by where a function is defined — it's determined by how that function is actually called, its "call site." Called as a method (<code>user.greet()</code>), <code>this</code> is the object left of the dot. Called as a plain, unattached function, <code>this</code> is <code>undefined</code> in strict mode — exactly why a method casually passed around as a callback so often "loses" its <code>this</code>.</p>
+    <p>Arrow functions are the major exception: they don't have their own <code>this</code> at all — they use whatever <code>this</code> was in effect in the surrounding code where they were written, the same lexical rule closures use for ordinary variables — which is why arrow functions have become the default choice for callbacks that need an outer <code>this</code>. <code>.bind(thisValue)</code> returns a brand-new function permanently locked to a chosen <code>this</code>, commonly used to fix this problem for a plain function.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="this-context.js">const button = {
+  label: "Save",
+  onClick: function () {
+    console.log(this.label);
+  }
+};
+
+setTimeout(button.onClick, 100);              // logs undefined — lost "this"
+setTimeout(() =&gt; button.onClick(), 100);       // logs "Save" — arrow keeps it</div>
+  <ul class="topic-keypoints">
+    <li><code>this</code> is determined by how a function is called, not where it's defined.</li>
+    <li>Arrow functions don't have their own <code>this</code> — they inherit it from the surrounding code.</li>
+    <li><code>bind</code> permanently locks a function to a chosen <code>this</code>.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="async-callbacks-event-loop" data-tier="intermediate" data-title="Asynchronous JavaScript: Callbacks and the Event Loop">
+  <div class="topic-body">
+
+    <p>JavaScript runs on a single thread — one call stack, doing exactly one thing at a time — yet browsers routinely juggle network requests, timers, and animations all "at once" without freezing. The trick is the event loop: slow operations are handed off to the browser to handle in the background, and only once they finish does their callback get queued to run on the main thread, whenever it's next free.</p>
+    <p>A callback is simply a function passed into another function to be run later, once some operation completes. The trouble starts once several asynchronous steps need to happen strictly in sequence, each depending on the previous one's result — nesting callback inside callback produces the infamous "callback hell," deeply indented and genuinely hard to follow. That real problem is exactly what promises, the next topic, were designed to solve.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="callback-hell.js">getUser(id, (user) =&gt; {
+  getOrders(user.id, (orders) =&gt; {
+    getInvoice(orders[0].id, (invoice) =&gt; {
+      console.log(invoice);   // three levels deep, and growing
+    });
+  });
+});</div>
+  <ul class="topic-keypoints">
+    <li>JavaScript runs on a single thread; the event loop hands off slow work and runs callbacks later.</li>
+    <li>This doesn't block other code from running in the meantime.</li>
+    <li>Deeply nested callbacks for sequential steps produce hard-to-read "callback hell."</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="promises" data-tier="intermediate" data-title="Promises">
+  <div class="topic-body">
+
+    <p>A Promise represents a value that isn't available yet but will be eventually — the eventual result of an asynchronous operation. It exists in one of three states: pending, fulfilled (succeeded, with a value), or rejected (failed, with a reason). <code>.then(onFulfilled)</code> registers a function to run once it fulfills; <code>.catch(onRejected)</code> runs if it rejects instead; <code>.finally(fn)</code> runs regardless, useful for cleanup like hiding a loading spinner either way.</p>
+    <p>Crucially, <code>.then()</code> itself returns a new promise, which is what makes chaining work — each step runs only after the previous one resolves, replacing callback hell's nested pyramid with a flat sequence. <code>Promise.all([p1, p2, p3])</code> waits for every promise to fulfill and is the standard way to run several independent operations concurrently rather than one after another.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="promises.js">getUser(id)
+  .then(user =&gt; getOrders(user.id))
+  .then(orders =&gt; console.log(orders))
+  .catch(error =&gt; console.error(error));
+
+Promise.all([getUser(1), getUser(2)])
+  .then(([userA, userB]) =&gt; console.log(userA, userB));</div>
+  <ul class="topic-keypoints">
+    <li>A promise is pending, then eventually fulfilled or rejected, exactly once.</li>
+    <li><code>.then()</code> chaining replaces nested callback pyramids with a flat sequence.</li>
+    <li><code>Promise.all</code> runs several promises concurrently and waits for all of them.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="async-await" data-tier="intermediate" data-title="Async/Await">
+  <div class="topic-body">
+
+    <p><code>async</code>/<code>await</code> is syntax sugar sitting directly on top of promises — it doesn't replace them, it lets code that uses them read like ordinary, top-to-bottom code. Marking a function <code>async</code> makes it always return a promise automatically; inside it, <code>await somePromise</code> pauses execution at that line — without blocking the rest of the page — until the promise settles, then hands back its resolved value directly.</p>
+    <p>Error handling switches from <code>.catch()</code> to an ordinary <code>try</code>/<code>catch</code> block around the <code>await</code> calls. One genuine trap: awaiting several independent operations one after another runs them sequentially even though they don't depend on each other — when they're genuinely independent, <code>await Promise.all([...])</code> runs both at once and is measurably faster.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="async-await.js">async function loadDashboard(id) {
+  try {
+    const [user, orders] = await Promise.all([
+      getUser(id),
+      getOrders(id)
+    ]);
+    return { user, orders };
+  } catch (error) {
+    console.error("Failed to load dashboard:", error);
+  }
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>async</code>/<code>await</code> is syntax sugar over promises.</li>
+    <li>Errors are caught with ordinary <code>try</code>/<code>catch</code> around the <code>await</code>.</li>
+    <li>Independent awaits should run via <code>Promise.all</code> in parallel, not one after another.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake">Awaiting several unrelated operations one after another, instead of with <code>Promise.all</code>, needlessly serializes work that could have run concurrently.</div>
+</article>
+
+<article class="topic-tpl" data-id="fetch-json" data-tier="intermediate" data-title="The Fetch API and Working with JSON">
+  <div class="topic-body">
+
+    <p><code>fetch(url)</code> sends an HTTP request and returns a promise that resolves once the response's headers arrive — even for an error response like a 404, since <code>fetch</code> only rejects on an actual network failure, never on an HTTP error status by itself. Real code checks <code>response.ok</code> explicitly before trusting the result. <code>response.json()</code> reads and parses the body as JSON, itself returning another promise — which is why a typical fetch involves two <code>await</code>s in a row.</p>
+    <p>JSON (JavaScript Object Notation) is a plain-text data format that looks almost like a JavaScript object literal but with stricter rules — property names always need double quotes, and it can't contain functions or comments. <code>JSON.stringify(value)</code> converts a JavaScript value into a JSON string, exactly what you send in a POST body; <code>JSON.parse(jsonString)</code> does the reverse.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="fetch.js">async function createUser(data) {
+  const response = await fetch("/api/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  return response.json();
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>fetch</code> only rejects on a genuine network failure — always check <code>response.ok</code>.</li>
+    <li><code>response.json()</code> returns its own promise, needing its own <code>await</code>.</li>
+    <li><code>JSON.stringify</code>/<code>parse</code> convert between a JS value and its JSON text form.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="error-handling" data-tier="intermediate" data-title="Error Handling">
+  <div class="topic-body">
+
+    <p><code>try { ... } catch (error) { ... }</code> runs the try block, and if anything inside throws, execution jumps to the catch block instead of crashing the script. An optional <code>finally { ... }</code> block runs afterward regardless of the outcome, ideal for cleanup that must happen either way.</p>
+    <p><code>throw new Error('Something specific went wrong')</code> is the conventional way to raise your own errors — an <code>Error</code> object captures a stack trace automatically, invaluable for tracking down where a problem originated. Not every error should be caught at the point it occurs — sometimes the right choice is to let it bubble up to a higher level of the code that's in a better position to decide what the user should see or whether to retry.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="errors.js">function withdraw(balance, amount) {
+  if (amount &gt; balance) {
+    throw new Error("Insufficient funds");
+  }
+  return balance - amount;
+}
+
+try {
+  withdraw(100, 500);
+} catch (error) {
+  console.error(error.message);
+} finally {
+  console.log("Transaction attempt finished");
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>try</code>/<code>catch</code> stops a thrown error from crashing the whole script.</li>
+    <li><code>throw new Error(message)</code> is the conventional way to raise your own errors.</li>
+    <li>Not every error should be caught immediately — sometimes it should bubble up.</li>
+  </ul>
+</article>
+
+
+<!-- ===== ADVANCED TIER ===== -->
+
+
+<article class="topic-tpl" data-id="prototypes" data-tier="advanced" data-title="Prototypes and Prototypal Inheritance">
+  <div class="topic-body">
+
+    <p>Every JavaScript object has an internal link to another object called its prototype, and when you access a property that isn't found directly on the object itself, JavaScript keeps looking up that chain of prototypes until it finds the property or runs out of chain — this is prototypal inheritance, the mechanism underneath nearly everything in the language, including why every plain object has methods like <code>.toString()</code> available without you ever defining them. <code>Object.create(protoObject)</code> creates a new object with its prototype explicitly set to whatever you pass in — the most direct way to build this relationship by hand.</p>
+    <p>Every function also has a <code>.prototype</code> property — when you call a function with <code>new</code>, the resulting object's internal prototype gets set to that function's <code>.prototype</code>, which is exactly the low-level mechanism the <code>class</code> syntax in the next topic is actually built on top of. Classes didn't replace prototypes; they gave them a cleaner, more familiar syntax.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="prototypes.js">const animal = {
+  speak() { return `${this.name} makes a sound.`; }
+};
+
+const dog = Object.create(animal);
+dog.name = "Rex";
+dog.speak();   // "Rex makes a sound." — found via the prototype chain</div>
+  <ul class="topic-keypoints">
+    <li>Objects look up a chain of prototypes for properties they don't have directly.</li>
+    <li><code>Object.create()</code> builds this relationship explicitly.</li>
+    <li>The <code>class</code> syntax (next topic) is sugar over this exact same prototype mechanism.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="classes" data-tier="advanced" data-title="Classes">
+  <div class="topic-body">
+
+    <p><code>class</code> syntax gives object-oriented code a familiar, readable shape, even though it compiles down to the same prototype mechanism underneath. A <code>constructor</code> method runs automatically when you create an instance with <code>new</code>, typically used to set up initial properties; other methods are automatically shared via the prototype chain rather than duplicated onto every instance.</p>
+    <p><code>extends</code> sets up inheritance between classes, and <code>super(...)</code> inside a subclass's constructor calls the parent's constructor, required before using <code>this</code> in a subclass constructor at all. <code>static</code> methods and fields belong to the class itself rather than any instance. A <code>#</code> prefix on a field or method marks it genuinely private, enforced by the language itself — completely inaccessible from outside the class.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="classes.js">class Account {
+  #balance;
+
+  constructor(owner, balance = 0) {
+    this.owner = owner;
+    this.#balance = balance;
+  }
+
+  deposit(amount) {
+    this.#balance += amount;
+    return this.#balance;
+  }
+}
+
+class SavingsAccount extends Account {
+  constructor(owner, balance, rate) {
+    super(owner, balance);
+    this.rate = rate;
+  }
+}</div>
+  <ul class="topic-keypoints">
+    <li>Class syntax is sugar over prototypes, not a separate inheritance system.</li>
+    <li><code>extends</code>/<code>super</code> set up and initialize inheritance between classes.</li>
+    <li>A <code>#</code> prefix creates a field the language itself enforces as private.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="event-loop-deep-dive" data-tier="advanced" data-title="The Event Loop, in Depth">
+  <div class="topic-body">
+
+    <p>The event loop actually manages two separate queues of pending work. The "macrotask" queue holds things like <code>setTimeout</code> callbacks and user input events. The "microtask" queue holds promise callbacks — everything an <code>await</code> resumes into. After every single macrotask finishes, the event loop always drains the entire microtask queue completely before moving on to the next macrotask — which is exactly why a resolved promise's <code>.then()</code> reliably runs before a <code>setTimeout(fn, 0)</code> callback, even though the timeout was technically requested to fire "immediately."</p>
+    <p>This matters whenever you're reasoning about the precise order several asynchronous operations will run in, especially when mixing promise chains with timers.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="event-loop.js">console.log("1: sync");
+
+setTimeout(() =&gt; console.log("2: macrotask (setTimeout)"), 0);
+
+Promise.resolve().then(() =&gt; console.log("3: microtask (promise)"));
+
+console.log("4: sync");
+
+// Actual order: 1, 4, 3, 2
+// Microtasks always drain before the next macrotask runs.</div>
+  <ul class="topic-keypoints">
+    <li>The microtask queue (promise callbacks) is always fully drained before the next macrotask runs.</li>
+    <li>This is why a resolved promise's <code>.then()</code> runs before a <code>setTimeout(fn, 0)</code>.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="modules-import-export" data-tier="advanced" data-title="Modules: import and export">
+  <div class="topic-body">
+
+    <p>An ES module is a JavaScript file with its own private scope — nothing declared inside it is automatically visible to any other file, unlike old-fashioned scripts that all shared one global scope. <code>export</code> makes a value, function, or class available to other files — a "named" export, of which a file can have any number, or a file's single "default" export. Another file brings those in with <code>import</code>, matching a named export's exact name, or choosing any local name for a default export.</p>
+    <p>A <code>&lt;script type="module"&gt;</code> tag, rather than a plain <code>&lt;script&gt;</code>, tells the browser to treat a file as a module — enabling <code>import</code>/<code>export</code> — and modules are automatically deferred, run only after parsing, exactly like the <code>defer</code> attribute. In real projects with many files, a bundler typically combines everything into fewer, optimized files for production, but the <code>import</code>/<code>export</code> syntax you write is identical either way.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="constants.js">export const TAX_RATE = 0.18;
+
+export default function formatPrice(amount) {
+  return `₹${amount.toFixed(2)}`;
+}
+
+// In another file:
+// import formatPrice, { TAX_RATE } from './constants.js';</div>
+  <ul class="topic-keypoints">
+    <li>Each module has its own private scope, unlike old shared-global-scope scripts.</li>
+    <li>Named exports import by their exact name; a default export can be imported under any local name.</li>
+    <li><code>type="module"</code> enables this and behaves like <code>defer</code> automatically.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="higher-order-functional" data-tier="advanced" data-title="Higher-Order Functions and Functional Patterns">
+  <div class="topic-body">
+
+    <p>In JavaScript, a function is a value like any other — it can be stored in a variable, passed as an argument, or returned from another function. A "higher-order function" is simply a function that takes another function as an argument, returns one, or both — <code>map</code>/<code>filter</code>/<code>reduce</code> are all higher-order functions, and so is any function that returns a closure.</p>
+    <p>A "pure" function always produces the same output for the same input and causes no observable side effects outside itself. Pure functions are easier to test and reason about, since calling one twice with the same arguments is always safe and predictable. "Composing" functions means feeding one function's output directly into another's input to build a pipeline out of simpler pieces, rather than one large function doing everything at once.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="compose.js">const withTax = price =&gt; price * 1.18;
+const format = price =&gt; `₹${price.toFixed(2)}`;
+
+const finalPrice = price =&gt; format(withTax(price));
+
+finalPrice(100);   // "₹118.00" — two small, pure functions composed</div>
+  <ul class="topic-keypoints">
+    <li>Functions are ordinary values in JavaScript — they can be passed around like any other value.</li>
+    <li>A pure function's output depends only on its input, with no outside side effects.</li>
+    <li>Composing small, focused functions together is generally more testable than one large function.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="generators-iterators" data-tier="advanced" data-title="Generators and Iterators">
+  <div class="topic-body">
+
+    <p>An iterator is any object implementing a <code>next()</code> method that returns <code>{ value, done }</code> — a standard protocol JavaScript uses internally for <code>for...of</code> loops and the spread operator, letting them work on arrays, strings, and any custom object that opts in. A generator function — declared with <code>function*</code> and using <code>yield</code> — is a much easier way to build one than implementing the raw protocol by hand: calling it doesn't run the body immediately; it returns a special iterator, and each call to <code>.next()</code> runs up to the next <code>yield</code>, pausing there, and resumes exactly where it left off on the following call.</p>
+    <p>This pause-and-resume ability suits a sequence produced lazily, one value at a time, rather than computed and stored all at once — useful for something expensive to compute in full, or conceptually infinite.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="generators.js">function* countTo(n) {
+  for (let i = 1; i &lt;= n; i++) {
+    yield i;
+  }
+}
+
+for (const num of countTo(3)) {
+  console.log(num);   // 1, 2, 3
+}</div>
+  <ul class="topic-keypoints">
+    <li>An iterator exposes a <code>next()</code> method returning <code>{ value, done }</code>.</li>
+    <li>A generator function (<code>function*</code>/<code>yield</code>) is the easy way to build one.</li>
+    <li>Well suited to lazy or effectively infinite sequences.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="browser-apis-observers" data-tier="advanced" data-title="Browser APIs: Storage and Observers">
+  <div class="topic-body">
+
+    <p><code>localStorage.setItem(key, value)</code>/<code>.getItem(key)</code> persist small string values in the browser. Since storage only holds strings, saving anything more structured means <code>JSON.stringify()</code> going in and <code>JSON.parse()</code> coming back out.</p>
+    <p>Two lesser-known but genuinely useful browser APIs solve specific problems elegantly. <code>IntersectionObserver</code> efficiently detects when an element scrolls into or out of the viewport — the modern way to implement lazy-loading or infinite-scroll, without manually checking scroll position on every scroll event. <code>MutationObserver</code> watches part of the DOM and fires a callback whenever it changes, useful for reacting to changes made by code you don't control directly.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="observer.js">const observer = new IntersectionObserver((entries) =&gt; {
+  entries.forEach(entry =&gt; {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+    }
+  });
+});
+
+document.querySelectorAll(".fade-in").forEach(el =&gt; observer.observe(el));</div>
+  <ul class="topic-keypoints">
+    <li>Storage APIs only hold strings — serialize structured data with <code>JSON.stringify</code>/<code>parse</code>.</li>
+    <li><code>IntersectionObserver</code> is the efficient modern way to detect an element entering the viewport.</li>
+    <li><code>MutationObserver</code> reacts to DOM changes you don't directly control.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="debounce-throttle" data-tier="advanced" data-title="Debouncing and Throttling">
+  <div class="topic-body">
+
+    <p>Some events — scrolling, resizing, typing — can fire dozens of times per second, and running an expensive handler on every single one quickly overwhelms the browser. Debouncing delays running the handler until events have actually stopped arriving for a specified pause — perfect for a search-as-you-type box, where you only want to fire the request once typing pauses. Throttling instead guarantees the handler runs at most once per interval no matter how continuously events keep arriving — better suited to a scroll handler, where you genuinely want periodic updates throughout.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="debounce.js">function debounce(fn, delay) {
+  let timer;
+  return (...args) =&gt; {
+    clearTimeout(timer);
+    timer = setTimeout(() =&gt; fn(...args), delay);
+  };
+}
+
+const search = debounce((query) =&gt; runSearch(query), 300);
+input.addEventListener("input", (e) =&gt; search(e.target.value));</div>
+  <ul class="topic-keypoints">
+    <li>Debouncing waits for a pause in events before running — right for search-as-you-type.</li>
+    <li>Throttling guarantees a maximum rate no matter how continuous the events are.</li>
+    <li>Both exist to protect the browser from an expensive handler running far too often.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="memory-performance" data-tier="advanced" data-title="Memory Management and Performance">
+  <div class="topic-body">
+
+    <p>JavaScript manages memory automatically through garbage collection — the engine periodically finds objects nothing can reach anymore and frees their memory. A memory leak happens when something keeps a reference to an object alive that should genuinely be free to go — the most common real-world cause is a forgotten event listener or <code>setInterval</code> timer that keeps referencing DOM elements or data long after they're needed. Removing an element from the DOM doesn't free its memory if a stray reference still points to it, a "detached DOM node," invisible on the page but still alive in memory.</p>
+    <p>Beyond memory specifically, the browser's devtools Performance panel can record exactly where time goes during a slow interaction, and profiling the actual bottleneck is a much better use of time than guessing.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Garbage collection reclaims memory automatically, but only for objects nothing can still reach.</li>
+    <li>Forgotten event listeners and timers are the most common real-world cause of a leak.</li>
+    <li>Profile the actual bottleneck with devtools before optimizing based on a guess.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="design-patterns" data-tier="advanced" data-title="Design Patterns in JavaScript">
+  <div class="topic-body">
+
+    <p>A design pattern is a named, reusable solution to a recurring structural problem — worth knowing mainly so you can recognize and discuss them, not because every project needs one forced in. The module pattern uses a closure to expose only a chosen public interface while keeping details private — largely superseded by real ES modules, but still the conceptual root of "public API, private internals." The singleton pattern ensures only one instance of something ever exists across an app.</p>
+    <p>The observer pattern lets subscriber functions register interest in an event and get notified when it happens — you've already used this constantly, since it's exactly what <code>addEventListener</code> is. The factory pattern is a function whose job is creating and configuring objects of a certain shape, so construction logic lives in one obvious place.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="observer-pattern.js">function createEmitter() {
+  const listeners = [];
+  return {
+    on(fn) { listeners.push(fn); },
+    emit(data) { listeners.forEach(fn =&gt; fn(data)); }
+  };
+}
+
+const cartEvents = createEmitter();
+cartEvents.on(item =&gt; console.log("Added:", item));
+cartEvents.emit("Blue mug");</div>
+  <ul class="topic-keypoints">
+    <li>These are named, recognizable solutions to recurring problems, not mandatory rules.</li>
+    <li>The observer pattern is one you've already been using — <code>addEventListener</code> implements it.</li>
+    <li>Recognizing a pattern by name makes discussing code with others considerably easier.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="typescript-brief-look" data-tier="advanced" data-title="TypeScript: A Brief Look">
+  <div class="topic-body">
+
+    <p>TypeScript is a superset of JavaScript — every valid JavaScript file is already valid TypeScript — that adds an optional static type system checked before the code ever runs, then compiled down to plain JavaScript. Declaring a variable's type lets tooling catch a whole category of mistakes (passing a string where a number was expected) at write-time, in your editor, rather than discovering them later at runtime.</p>
+    <p>Type annotations are stripped away entirely during compilation — they have zero effect on the running code or its performance. Many teams adopt it on any codebase past a certain size, where the editor autocompletion and refactoring safety it enables become a substantial, compounding time-saver.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="greet.ts">function greet(name: string): string {
+  return `Hi, ${name}`;
+}
+
+greet("Amit");    // fine
+greet(42);        // caught at compile time, before it ever runs</div>
+  <ul class="topic-keypoints">
+    <li>TypeScript is a strict superset of JavaScript that adds compile-time type checking.</li>
+    <li>Type annotations are stripped away entirely before the code runs — zero runtime cost.</li>
+    <li>Teams commonly adopt it for earlier error-catching and editor tooling as a codebase grows.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="testing-javascript" data-tier="advanced" data-title="Testing JavaScript">
+  <div class="topic-body">
+
+    <p>An automated test runs a small piece of code and checks it behaves as expected, without a human manually clicking through the app to verify — the real payoff shows up the second time you touch that code, when the test immediately flags whether a change accidentally broke something. A unit test checks one small, isolated piece, usually a single function; an integration test checks that several pieces genuinely work together.</p>
+    <p>Testing frameworks share a broadly similar shape: <code>describe(...)</code> groups related tests, and <code>it(...)</code> defines one test case, typically ending in an assertion that fails the test if it doesn't hold. "Mocking" replaces a real dependency — a network call, the current date — with a fake, controlled stand-in during a test, so the outcome depends only on the code actually being tested.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="sum.test.js">function sum(a, b) {
+  return a + b;
+}
+
+describe("sum", () =&gt; {
+  it("adds two positive numbers", () =&gt; {
+    expect(sum(2, 3)).toBe(5);
+  });
+});</div>
+  <ul class="topic-keypoints">
+    <li>Automated tests pay off most the second time code is touched, catching regressions immediately.</li>
+    <li>A unit test isolates one small piece; an integration test checks several pieces together.</li>
+    <li>Mocking swaps a real, unpredictable dependency for a controlled fake during a test.</li>
+  </ul>
+</article>
+
+
+<!-- ===== REFERENCE TIER ===== -->
+
+
+<article class="topic-tpl" data-id="interview-questions" data-tier="reference" data-title="Interview Question Bank">
+  <div class="topic-body">
+
+    <p>Sixteen questions that come up often in real interviews, drawn from across every tier of this guide. Click a question to reveal a concise model answer — try answering in your own words first.</p>
+
+    <details><summary>What's the difference between <code>let</code>, <code>const</code>, and <code>var</code>?</summary><p><code>let</code> and <code>const</code> are block-scoped; <code>const</code> additionally can't be reassigned. <code>var</code> is function-scoped and hoisted in a way that causes real bugs — avoid it in new code.</p></details>
+
+    <details><summary>What's the difference between <code>==</code> and <code>===</code>?</summary><p><code>==</code> coerces types before comparing; <code>===</code> checks both type and value with no coercion. Prefer <code>===</code> by default.</p></details>
+
+    <details><summary>What is a closure?</summary><p>An inner function that retains access to its outer function's variables even after the outer function has already finished running.</p></details>
+
+    <details><summary>Explain event bubbling and event delegation.</summary><p>Events propagate upward through ancestor elements by default. Delegation attaches one listener to a shared parent and inspects <code>event.target</code> to determine which child was actually interacted with.</p></details>
+
+    <details><summary>What's the difference between <code>map</code> and <code>forEach</code>?</summary><p><code>map</code> returns a new, transformed array. <code>forEach</code> just runs a function per item for a side effect and returns <code>undefined</code>.</p></details>
+
+    <details><summary>What does <code>this</code> refer to in a regular function versus an arrow function?</summary><p>In a regular function, <code>this</code> is determined by the call site. An arrow function has no <code>this</code> of its own — it inherits it from the surrounding lexical scope.</p></details>
+
+    <details><summary>What's the difference between a Promise and async/await?</summary><p><code>async</code>/<code>await</code> is syntax sugar over promises, letting asynchronous code read top-to-bottom like synchronous code.</p></details>
+
+    <details><summary>Why does a resolved Promise's <code>.then()</code> run before a <code>setTimeout(fn, 0)</code>?</summary><p>The microtask queue (promise callbacks) is always fully drained before the event loop moves on to the next macrotask, which is where <code>setTimeout</code> callbacks live.</p></details>
+
+    <details><summary>What's the difference between <code>null</code> and <code>undefined</code>?</summary><p><code>undefined</code> means a variable was never assigned a value. <code>null</code> is an explicit, intentional "no value" that you set deliberately.</p></details>
+
+    <details><summary>What is prototypal inheritance?</summary><p>Objects look up a chain of linked prototype objects for properties or methods they don't have directly on themselves.</p></details>
+
+    <details><summary>What does the spread operator do, and how does it differ from rest?</summary><p>Spread expands a collection out into individual elements or properties. Rest, using the identical <code>...</code> syntax, does the opposite — gathering individual arguments into an array. The direction is the difference.</p></details>
+
+    <details><summary>Why do many patterns favor not mutating state directly?</summary><p>Treating data as immutable and preferring pure functions makes code more predictable and testable, since a value can't have changed unexpectedly somewhere else in the program.</p></details>
+
+    <details><summary>What is debouncing, and when would you use it?</summary><p>Delaying execution until a burst of events has actually stopped arriving for a pause — ideal for a search-as-you-type input, so a request only fires once typing settles.</p></details>
+
+    <details><summary>What does <code>Array.prototype.reduce</code> do?</summary><p>It folds an array down into a single accumulated value, calling a function with the running accumulator and the current item at each step.</p></details>
+
+    <details><summary>What's a memory leak in JavaScript, and what commonly causes one?</summary><p>An object that should be collectible but is kept alive by a lingering reference — most often a forgotten event listener or an active timer that's never cleared.</p></details>
+
+    <details><summary>What is a pure function?</summary><p>A function whose output depends only on its input, with no observable side effects outside itself — calling it twice with the same arguments always gives the same result.</p></details>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Model answers are a starting point — say them in your own words, with an example, in an actual interview.</li>
+    <li>If a question here feels shaky, that topic's full page earlier in this guide has the complete explanation.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="cheat-sheet" data-tier="reference" data-title="Cheat Sheet: Methods and Syntax at a Glance">
+  <div class="topic-body">
+
+    <p>A categorized quick reference for when you know roughly what you need but not the exact method or syntax.</p>
+    <table>
+      <thead><tr><th>Category</th><th>Methods / Syntax</th></tr></thead>
+      <tbody>
+        <tr><td>Variables &amp; types</td><td><code>let</code>, <code>const</code>, <code>var</code>, <code>typeof</code>, <code>===</code>, <code>==</code></td></tr>
+        <tr><td>Operators</td><td><code>&amp;&amp;</code>, <code>||</code>, <code>??</code>, <code>?:</code>, <code>...</code></td></tr>
+        <tr><td>Strings</td><td>template literals, <code>slice</code>, <code>split</code>, <code>includes</code>, <code>trim</code>, <code>replace</code></td></tr>
+        <tr><td>Arrays</td><td><code>map</code>, <code>filter</code>, <code>reduce</code>, <code>forEach</code>, <code>push</code>/<code>pop</code>, <code>find</code>, <code>some</code>/<code>every</code></td></tr>
+        <tr><td>Objects</td><td>destructuring, spread, <code>Object.keys</code>/<code>values</code>/<code>entries</code></td></tr>
+        <tr><td>Functions</td><td>declaration, expression, arrow, default params, rest params</td></tr>
+        <tr><td>Async</td><td><code>Promise</code>, <code>async</code>/<code>await</code>, <code>fetch</code>, <code>Promise.all</code></td></tr>
+        <tr><td>DOM</td><td><code>querySelector</code>, <code>addEventListener</code>, <code>classList</code>, <code>textContent</code></td></tr>
+        <tr><td>Classes</td><td><code>class</code>, <code>constructor</code>, <code>extends</code>/<code>super</code>, <code>static</code>, <code>#private</code></td></tr>
+        <tr><td>Modules</td><td><code>import</code>, <code>export</code>, <code>export default</code></td></tr>
+      </tbody>
+    </table>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Bookmark this page as a fast lookup once you already know the concepts, not as a starting point for learning them.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="common-mistakes" data-tier="reference" data-title="Common Mistakes and Misconceptions">
+  <div class="topic-body">
+
+    <p>Twelve recurring mistakes gathered from across this guide, in one place for a final pass before you consider yourself done.</p>
+    <dl>
+      <dt>Using <code>==</code> instead of <code>===</code></dt>
+      <dd>Leads to surprising type coercion — prefer strict equality by default.</dd>
+      <dt><code>var</code> inside a loop that creates closures</dt>
+      <dd>Every closure shares the same single binding — switch to <code>let</code>.</dd>
+      <dt>Forgetting <code>break</code> in a <code>switch</code> case</dt>
+      <dd>Execution quietly falls through into the next case.</dd>
+      <dt>Assuming spread makes a deep copy</dt>
+      <dd><code>{ ...obj }</code> only copies one level deep — nested objects/arrays are still shared references.</dd>
+      <dt>Losing <code>this</code> when passing a method as a callback</dt>
+      <dd>Use an arrow function wrapper or <code>.bind()</code> to preserve it.</dd>
+      <dt>Awaiting independent promises sequentially</dt>
+      <dd>Needlessly serializes work that <code>Promise.all</code> could run concurrently.</dd>
+      <dt>Not checking <code>response.ok</code> after <code>fetch</code></dt>
+      <dd><code>fetch</code> doesn't reject on HTTP error statuses like 404 by itself.</dd>
+      <dt>Off-by-one on array length versus last index</dt>
+      <dd>The last valid index is <code>length - 1</code>, not <code>length</code>.</dd>
+      <dt>Assuming array methods like <code>map</code>/<code>filter</code> mutate</dt>
+      <dd>They return a new array — the original is left untouched.</dd>
+      <dt>Comparing objects or arrays with <code>===</code></dt>
+      <dd>Always <code>false</code> unless it's literally the same reference, never a deep comparison.</dd>
+      <dt>Forgetting an <code>async</code> function always returns a promise</dt>
+      <dd>Even a synchronous-looking <code>return</code> value needs an <code>await</code> at the call site.</dd>
+      <dt>A forgotten <code>setInterval</code> or event listener</dt>
+      <dd>The most common real-world cause of a memory leak.</dd>
+    </dl>
+    
+  </div>
+</article>
+
+<article class="topic-tpl" data-id="further-practice" data-tier="reference" data-title="Keep Practicing">
+  <div class="topic-body">
+
+    <p>Reading a guide gets you to recognition; writing JavaScript from scratch gets you to fluency. A few ways to close that gap:</p>
+    <ul>
+      <li>Build a small to-do list app using only DOM methods and events, no framework, to solidify the DOM and events topics.</li>
+      <li>Rewrite a chain of nested callbacks into promises, then again into async/await, and compare readability.</li>
+      <li>Implement your own <code>debounce</code> function from scratch without looking at the guide's example.</li>
+      <li>Build a tiny event emitter and use it to decouple two unrelated pieces of code.</li>
+      <li>Write a few unit tests for a pure function you've already written.</li>
+    </ul>
+    <p>Because JavaScript keeps evolving, treat MDN (developer.mozilla.org) as your ongoing reference for exact, current syntax whenever you need it — this guide is a foundation to build fluency on, not the last word on any single method.</p>
+    
+  </div>
+</article>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var TIER_META = {
+    beginner:     { label: 'Beginner',     roman: 'I',   color: 'sage' },
+    intermediate: { label: 'Intermediate', roman: 'II',  color: 'blue' },
+    advanced:     { label: 'Advanced',     roman: 'III', color: 'red'  },
+    reference:    { label: 'Reference',    roman: 'IV',  color: 'gold' }
+  };
+  var TIER_ORDER = ['beginner','intermediate','advanced','reference'];
+
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  var JS_KEYWORDS = /^(const|let|var|function|return|if|else|new|await|async|for|of|in|class|extends|import|from|export|default|true|false|null|undefined|this|typeof|instanceof|try|catch|finally|throw|switch|case|break|continue|do|while|static|get|set|yield|delete|void|super)$/;
+  var JS_BUILTINS = /^(document|window|console|Array|Object|Promise|Math|JSON|Number|String|Boolean|Map|Set|Symbol|Error|fetch|localStorage|sessionStorage|Infinity|NaN|setTimeout|setInterval|clearTimeout|clearInterval|IntersectionObserver|MutationObserver|describe|it|test|expect)$/;
+  var JS_TOKEN_RE = /(\/\*[\s\S]*?\*\/)|(\/\/[^\n]*)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)|(\b[a-zA-Z_$][a-zA-Z0-9_$]*\b)/g;
+
+  function highlight(src, lang){
+    var s = escapeHtml(src);
+    if(lang === 'html'){
+      s = s.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="tk-cm">$1</span>');
+      s = s.replace(/(&lt;\/?)([a-zA-Z][a-zA-Z0-9-]*)([\s\S]*?)(\/?&gt;)/g, function(m, open, tag, attrs, close){
+        var attrHtml = attrs.replace(/([a-zA-Z_:][a-zA-Z0-9_:-]*)(=)("[^"]*"|'[^']*')/g,
+          '<span class="tk-at">$1</span>$2<span class="tk-str">$3</span>');
+        return '<span class="tk-pn">'+open+'</span><span class="tk-tg">'+tag+'</span>'+attrHtml+'<span class="tk-pn">'+close+'</span>';
+      });
+      return s;
+    }
+    if(lang === 'css'){
+      s = s.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tk-cm">$1</span>');
+      s = s.replace(/(@[a-zA-Z-]+)/g, '<span class="tk-kw">$1</span>');
+      s = s.replace(/([^\{\}\n;]+)(\{)/g, '<span class="tk-tg">$1</span>$2');
+      s = s.replace(/([a-zA-Z-]+)(\s*:)(\s*)([^;{}\n]+)(;)/g,
+        '<span class="tk-at">$1</span>$2$3<span class="tk-str">$4</span>$5');
+      return s;
+    }
+    if(lang === 'js'){
+      s = s.replace(JS_TOKEN_RE, function(m, blockComment, lineComment, str, word){
+        if(blockComment !== undefined) return '<span class="tk-cm">'+blockComment+'</span>';
+        if(lineComment !== undefined) return '<span class="tk-cm">'+lineComment+'</span>';
+        if(str !== undefined) return '<span class="tk-str">'+str+'</span>';
+        if(word !== undefined){
+          if(JS_KEYWORDS.test(word)) return '<span class="tk-kw">'+word+'</span>';
+          if(JS_BUILTINS.test(word)) return '<span class="tk-tg">'+word+'</span>';
+          return word;
+        }
+        return m;
+      });
+      return s;
+    }
+    return s;
+  }
+
+  function parseLibrary(){
+    var byTier = {}; TIER_ORDER.forEach(function(t){ byTier[t] = []; });
+    document.querySelectorAll('#library .topic-tpl').forEach(function(node){
+      var tier = node.getAttribute('data-tier');
+      if(!byTier[tier]) return;
+      var codeEl = node.querySelector('.topic-code');
+      var noteEl = node.querySelector('.topic-note');
+      var kp = Array.prototype.map.call(node.querySelectorAll('.topic-keypoints li'), function(li){ return li.innerHTML; });
+      byTier[tier].push({
+        id: node.getAttribute('data-id'),
+        title: node.getAttribute('data-title'),
+        tier: tier,
+        bodyHtml: node.querySelector('.topic-body').innerHTML,
+        code: codeEl ? { lang: codeEl.getAttribute('data-lang'), filename: codeEl.getAttribute('data-filename'), src: codeEl.textContent.trim() } : null,
+        keyPoints: kp,
+        note: noteEl ? { kind: noteEl.getAttribute('data-kind'), html: noteEl.innerHTML } : null
+      });
+    });
+    return byTier;
+  }
+
+  var byTier = parseLibrary();
+  var flat = [];
+  TIER_ORDER.forEach(function(t){ byTier[t].forEach(function(topic){ flat.push(topic); }); });
+  var indexById = {}; flat.forEach(function(t,i){ indexById[t.id] = i; });
+
+  var state = { completed: {}, lastViewed: null };
+
+  function loadState() {
+    return Promise.resolve().then(function () {
+      if (window.storage && window.storage.get) {
+        return window.storage.get('js-guide-state').then(function (res) {
+          if (res && res.value) {
+            var parsed = JSON.parse(res.value);
+            if (parsed && typeof parsed === 'object') {
+              state.completed = parsed.completed || {};
+              state.lastViewed = parsed.lastViewed || null;
+            }
+          }
+        }).catch(function () { });
+      } else if (window.localStorage) {
+        try {
+          var raw = localStorage.getItem('js-guide-state');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              state.completed = parsed.completed || {};
+              state.lastViewed = parsed.lastViewed || null;
+            }
+          }
+        } catch (e) { /* localStorage access disabled or restricted */ }
+      }
+    });
+  }
+
+  function saveState() {
+    if (window.storage) {
+      try { window.storage.set('js-guide-state', JSON.stringify(state)).catch(function () { }); }
+      catch (e) { /* storage unavailable */ }
+    } else if (window.localStorage) {
+      try { localStorage.setItem('js-guide-state', JSON.stringify(state)); }
+      catch (e) { /* localStorage unavailable or quota exceeded */ }
+    }
+  }
+
+  var tocEl = document.getElementById('toc');
+  var pageEl = document.getElementById('page');
+  var pageInnerEl = document.getElementById('pageInner');
+  var searchEl = document.getElementById('search');
+  var progressTextEl = document.getElementById('progressText');
+  var progressBarEl = document.getElementById('progressBarFill');
+
+  var currentId = null;
+
+  function buildToc(filter){
+    var q = (filter||'').trim().toLowerCase();
+    tocEl.innerHTML = '';
+    TIER_ORDER.forEach(function(tierId){
+      var topics = byTier[tierId];
+      if(!topics.length) return;
+      var meta = TIER_META[tierId];
+      var matched = topics.filter(function(t){ return !q || t.title.toLowerCase().indexOf(q) !== -1; });
+      if(matched.length === 0) return;
+      var doneCount = topics.filter(function(t){ return state.completed[t.id]; }).length;
+      var tierWrap = document.createElement('div');
+      tierWrap.className = 'tier tier-' + meta.color;
+      var head = document.createElement('div');
+      head.className = 'tier-head';
+      head.innerHTML = '<span class="stamp">' + meta.roman + '</span><span class="tier-label">' + meta.label + '</span><span class="tier-count">' + doneCount + '/' + topics.length + '</span>';
+      tierWrap.appendChild(head);
+      var list = document.createElement('div');
+      list.className = 'tier-list';
+      matched.forEach(function(topic){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'toc-item' + (topic.id === currentId ? ' active' : '') + (state.completed[topic.id] ? ' done' : '');
+        btn.innerHTML = '<span class="chk">' + (state.completed[topic.id] ? '✓' : '') + '</span><span>' + topic.title + '</span>';
+        btn.addEventListener('click', function(){ goTo(topic.id); closeDrawer(); });
+        list.appendChild(btn);
+      });
+      tierWrap.appendChild(list);
+      tocEl.appendChild(tierWrap);
+    });
+  }
+
+  function updateProgressChrome(){
+    var total = flat.length;
+    var done = flat.filter(function(t){ return state.completed[t.id]; }).length;
+    progressTextEl.textContent = done + ' of ' + total + ' read';
+    progressBarEl.style.width = (total ? (done/total*100) : 0) + '%';
+  }
+
+  function flashCopied(btn){
+    var orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(function(){ btn.textContent = orig; }, 1400);
+  }
+  function fallbackCopy(text, btn){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      flashCopied(btn);
+    }catch(e){ /* clipboard unavailable */ }
+  }
+
+  function renderTopic(id, opts){
+    opts = opts || {};
+    var idx = indexById[id];
+    if(idx === undefined) return;
+    var topic = flat[idx];
+    currentId = id;
+    state.lastViewed = id;
+    var meta = TIER_META[topic.tier];
+    var prev = flat[idx-1];
+    var next = flat[idx+1];
+
+    var html = '';
+    html += '<div class="page-head">';
+    html += '<span class="tier-pill tier-pill-' + meta.color + '">' + meta.label + '</span>';
+    html += '<span class="page-count">Page ' + (idx+1) + ' of ' + flat.length + '</span>';
+    html += '</div>';
+    html += '<h1 class="topic-title">' + topic.title + '</h1>';
+    html += '<div class="topic-mark"><button type="button" class="mark-btn' + (state.completed[id] ? ' done':'') + '" id="markBtn">' +
+            (state.completed[id] ? '✓ Read' : 'Mark as read') + '</button></div>';
+    html += '<div class="prose">' + topic.bodyHtml + '</div>';
+
+    if(topic.code){
+      html += '<div class="code-panel">';
+      html += '<div class="code-head"><span class="code-dot dot-' + meta.color + '"></span><span class="code-filename">' + topic.code.filename + '</span>' +
+              '<button type="button" class="copy-btn" id="copyBtn">Copy</button></div>';
+      html += '<pre class="code-body"><code>' + highlight(topic.code.src, topic.code.lang) + '</code></pre>';
+      html += '</div>';
+    }
+
+    if(topic.keyPoints && topic.keyPoints.length){
+      html += '<div class="keypoints"><h2>Key points</h2><ul>' +
+              topic.keyPoints.map(function(k){ return '<li>' + k + '</li>'; }).join('') + '</ul></div>';
+    }
+
+    if(topic.note){
+      var kindLabel = topic.note.kind === 'mistake' ? 'Common mistake' : (topic.note.kind === 'tip' ? 'Try it' : 'Note');
+      html += '<div class="callout callout-' + topic.note.kind + '"><strong>' + kindLabel + '.</strong> ' + topic.note.html + '</div>';
+    }
+
+    html += '<div class="pager">';
+    html += prev ? '<button type="button" class="pager-btn pager-prev" data-id="'+prev.id+'"><span class="pager-arrow">←</span><span><span class="pager-label">Previous</span><span class="pager-title">'+prev.title+'</span></span></button>' : '<span></span>';
+    html += next ? '<button type="button" class="pager-btn pager-next" data-id="'+next.id+'"><span><span class="pager-label">Next</span><span class="pager-title">'+next.title+'</span></span><span class="pager-arrow">→</span></button>' : '<span></span>';
+    html += '</div>';
+
+    pageInnerEl.innerHTML = html;
+    if(!opts.skipScroll) pageEl.scrollTop = 0;
+
+    document.getElementById('markBtn').addEventListener('click', function(){ toggleComplete(id); });
+    var copyBtn = document.getElementById('copyBtn');
+    if(copyBtn){
+      copyBtn.addEventListener('click', function(){
+        var codeText = topic.code.src;
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(codeText).then(function(){ flashCopied(copyBtn); }).catch(function(){ fallbackCopy(codeText, copyBtn); });
+        } else {
+          fallbackCopy(codeText, copyBtn);
+        }
+      });
+    }
+    Array.prototype.forEach.call(pageInnerEl.querySelectorAll('.pager-btn'), function(b){
+      b.addEventListener('click', function(){ goTo(b.getAttribute('data-id')); });
+    });
+
+    buildToc(searchEl.value);
+    updateProgressChrome();
+    saveState();
+  }
+
+  function toggleComplete(id){
+    state.completed[id] = !state.completed[id];
+    renderTopic(id);
+  }
+
+  function goTo(id){ renderTopic(id); }
+
+  var drawerToggle = document.getElementById('drawerToggle');
+  var drawerClose = document.getElementById('drawerClose');
+  var backdrop = document.getElementById('backdrop');
+  var tocPanel = document.getElementById('tocPanel');
+  function openDrawer(){ tocPanel.classList.add('open'); backdrop.classList.add('show'); }
+  function closeDrawer(){ tocPanel.classList.remove('open'); backdrop.classList.remove('show'); }
+  drawerToggle.addEventListener('click', openDrawer);
+  drawerClose.addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  searchEl.addEventListener('input', function(){ buildToc(searchEl.value); });
+
+  document.addEventListener('keydown', function(e){
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var idx = indexById[currentId];
+    if(e.key === 'ArrowRight' && flat[idx+1]) goTo(flat[idx+1].id);
+    if(e.key === 'ArrowLeft' && flat[idx-1]) goTo(flat[idx-1].id);
+  });
+
+  loadState().then(function(){
+    buildToc('');
+    var startId = (state.lastViewed && indexById[state.lastViewed] !== undefined) ? state.lastViewed : flat[0].id;
+    renderTopic(startId);
+  });
+})();
+</script>
+</body>
+</html>
