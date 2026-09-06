@@ -1,8 +1,9 @@
-# 📖 HTML — A Practical Guide & Working Manuscript
+# 📖 Web Guides — Practical Learning Manuscripts
 
-A modern, interactive, tiered reference and learning manuscript for **HyperText Markup Language (HTML)** built from first principles to advanced browser APIs and Web Components.
+A modern, interactive, tiered reference and learning manuscript series for modern web craftsmanship: **HTML — A Practical Guide** and **CSS — A Working Style Sheet**, built from first principles to advanced browser APIs, layout architectures, and Web Components.
 
-![HTML Guide Preview](https://img.shields.io/badge/HTML5-Living_Standard-orange?style=for-the-badge&logo=html5)
+![HTML5](https://img.shields.io/badge/HTML5-Living_Standard-orange?style=for-the-badge&logo=html5)
+![CSS3](https://img.shields.io/badge/CSS3-Modern_Specs-blue?style=for-the-badge&logo=css3)
 ![Status](https://img.shields.io/badge/Status-Production_Ready-success?style=for-the-badge)
 ![Deployment](https://img.shields.io/badge/Deployment-GitHub_Pages-blue?style=for-the-badge&logo=github)
 
@@ -10,11 +11,14 @@ A modern, interactive, tiered reference and learning manuscript for **HyperText 
 
 ## ✨ Features
 
+- **🏛️ Dual Curriculum Paths:**
+  - **HTML Guide (`html-guide/`):** 28 sequential topics covering semantic outlines, form validation, accessible media, Shadow DOM, Custom Elements, and storage APIs.
+  - **CSS Guide (`css-guide/`):** 32 sequential topics covering cascade mechanics, the box model, Flexbox, CSS Grid, custom properties, container queries, cascade layers, and animation.
 - **📚 Tiered Learning Curriculum:**
-  - **Tier I: Beginner** — Core syntax, document outlines, text formatting, links, and image semantics.
-  - **Tier II: Intermediate** — Tables, structured forms, audio/video media, and responsive images.
-  - **Tier III: Advanced** — Accessible landmarks (ARIA), drag & drop, Web Components (`<template>`, Shadow DOM, Custom Elements), and storage APIs.
-  - **Tier IV: Reference** — Complete HTML element sitemap, common anti-patterns & mistakes, and practice projects.
+  - **Tier I: Beginner** — Syntax, selectors, box model, outlines, and fundamental units.
+  - **Tier II: Intermediate** — Responsive layouts, forms, media queries, flexbox, and grid.
+  - **Tier III: Advanced** — Web Components, Shadow DOM, container queries, and storage.
+  - **Tier IV: Reference** — Complete sitemaps, common anti-patterns & debugging best practices.
 - **⚡ Interactive Search & Filtering:** Filter topics dynamically by title or keyword in real time.
 - **✅ Progress Tracking & Persistence:** Mark topics as read with progress bars; progress automatically saves in browser `localStorage`.
 - **💻 Syntax-Highlighted Code Blocks:** Copy runnable code examples directly with one-click clipboard copying.
@@ -29,15 +33,20 @@ A modern, interactive, tiered reference and learning manuscript for **HyperText 
 Web-Guide/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml      # GitHub Actions automated deployment to GitHub Pages
+│       └── deploy.yml          # GitHub Actions automated deployment to GitHub Pages
 ├── css/
-│   └── styles.css          # Core CSS design system & dark mode aesthetics
+│   └── styles.css              # Core design system, portal styles & syntax highlighting
 ├── js/
-│   └── app.js              # Interactive application logic & local storage handler
-├── index.html              # Main website entry point
-├── 404.html                # Custom 404 error page for static hosting
-├── .gitignore              # Git ignore rules for clean repository state
-└── README.md               # Repository documentation
+│   └── app.js                  # HTML guide application logic & local storage handler
+├── html-guide/
+│   └── index.html              # HTML Practical Guide manuscript
+├── css-guide/
+│   ├── index.html              # CSS Practical Guide manuscript (main entry)
+│   └── css-guide.html          # Secondary entry satisfying direct file requests
+├── index.html                  # Main Home Portal entry page (links to both guides)
+├── 404.html                    # Custom 404 error page with multi-guide routing
+├── .gitignore                  # Git ignore rules for clean repository state
+└── README.md                   # Repository documentation
 ```
 
 ---

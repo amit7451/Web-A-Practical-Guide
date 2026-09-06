@@ -124,6 +124,38 @@ a {
   display: block;
 }
 
+.home-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--ink-2);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--radius);
+  color: var(--ink-text-dim);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.home-nav-link:hover {
+  background: var(--ink-3);
+  color: var(--paper);
+  border-color: var(--ink-text-dim);
+}
+
+.home-nav-link svg {
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.home-nav-link:hover svg {
+  opacity: 1;
+  transform: translateX(-2px);
+}
+
 .wordmark {
   display: flex;
   align-items: baseline;
@@ -866,5 +898,633 @@ main.page {
 
   .wordmark .sub {
     display: none;
+  }
+}
+
+/* ============================================================
+   PORTAL / HOME PAGE STYLING
+   Aesthetic: Editorial Manuscript / Warm Ink & Paper
+   ============================================================ */
+
+.portal-page {
+  min-height: 100vh;
+  background-color: var(--ink);
+  background-image: 
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(179, 69, 47, 0.15), transparent 70%),
+    radial-gradient(circle at 85% 30%, rgba(58, 91, 116, 0.12), transparent 45%),
+    radial-gradient(circle at 15% 70%, rgba(92, 122, 86, 0.08), transparent 40%);
+  color: var(--ink-text);
+  display: flex;
+  flex-direction: column;
+}
+
+.portal-header {
+  height: var(--masthead-h);
+  border-bottom: 1px solid var(--ink-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(28, 35, 33, 0.85);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.portal-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.portal-brand .brand-title {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 680;
+  color: var(--paper);
+  letter-spacing: 0.02em;
+}
+
+.portal-brand .brand-badge {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 2px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.portal-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.portal-nav-btn {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink-text-dim);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.portal-nav-btn:hover {
+  color: var(--paper);
+  border-color: var(--ink-line);
+  background: rgba(233, 227, 211, 0.04);
+}
+
+.portal-nav-cta {
+  background: var(--red);
+  color: #fff !important;
+  font-weight: 500;
+}
+
+.portal-nav-cta:hover {
+  background: #c74d35;
+}
+
+/* Main Container */
+.portal-main {
+  flex: 1;
+  max-width: 1140px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 64px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+
+/* Hero */
+.portal-hero {
+  text-align: center;
+  max-width: 840px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.portal-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(233, 227, 211, 0.06);
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--paper-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.portal-eyebrow .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sage);
+  box-shadow: 0 0 8px var(--sage);
+}
+
+.portal-hero-title {
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+  font-weight: 680;
+  line-height: 1.1;
+  color: var(--paper);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.portal-hero-title em {
+  font-style: italic;
+  color: var(--gold);
+  font-weight: 480;
+}
+
+.portal-hero-desc {
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.65;
+  color: var(--ink-text-dim);
+  max-width: 680px;
+  margin: 0;
+}
+
+.portal-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.portal-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  padding: 6px 14px;
+  background: var(--ink-2);
+  border: 1px solid var(--ink-3);
+  border-radius: 4px;
+  color: var(--ink-text-dim);
+}
+
+.portal-meta-chip strong {
+  color: var(--paper);
+}
+
+/* The Guides Grid (Core Selection) */
+.portal-guides-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.portal-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ink-line);
+  padding-bottom: 12px;
+}
+
+.portal-section-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--paper);
+  margin: 0;
+}
+
+.portal-section-sub {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-text-dim);
+}
+
+.portal-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.guide-card {
+  position: relative;
+  background: var(--ink-2);
+  border: 1px solid var(--ink-3);
+  border-radius: 8px;
+  padding: 36px 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  text-decoration: none;
+  color: inherit;
+}
+
+.guide-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  transition: height 0.2s ease;
+}
+
+.guide-card-html::before {
+  background: linear-gradient(90deg, var(--red), var(--gold));
+}
+
+.guide-card-css::before {
+  background: linear-gradient(90deg, var(--blue), var(--sage));
+}
+
+.guide-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(233, 227, 211, 0.3);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+}
+
+.guide-card:hover::before {
+  height: 6px;
+}
+
+.guide-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.guide-badge-pill {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.badge-html {
+  background: var(--red-dim);
+  color: #e88674;
+  border: 1px solid rgba(179, 69, 47, 0.3);
+}
+
+.badge-css {
+  background: var(--blue-dim);
+  color: #8cb5d6;
+  border: 1px solid rgba(58, 91, 116, 0.3);
+}
+
+.guide-card-glyph {
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-weight: 600;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  border: 1px solid var(--ink-3);
+  color: var(--paper);
+}
+
+.guide-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-card-title {
+  font-family: var(--serif);
+  font-size: 1.85rem;
+  font-weight: 680;
+  color: var(--paper);
+  line-height: 1.2;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.guide-card-subtitle {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.98rem;
+  color: var(--gold);
+  margin: -6px 0 4px;
+}
+
+.guide-card-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink-text-dim);
+  margin: 0;
+}
+
+/* Tier Preview inside cards */
+.guide-tiers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--ink);
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid var(--ink-line);
+}
+
+.guide-tier-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+}
+
+.guide-tier-num {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 0.72rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+}
+
+.tier-i { color: var(--sage); border-color: var(--sage); }
+.tier-ii { color: var(--blue); border-color: var(--blue); }
+.tier-iii { color: var(--red); border-color: var(--red); }
+.tier-iv { color: var(--gold); border-color: var(--gold); }
+
+.guide-tier-name {
+  color: var(--ink-text);
+  font-weight: 500;
+}
+
+.guide-tier-focus {
+  color: var(--ink-text-dim);
+  font-size: 0.78rem;
+  margin-left: auto;
+  font-family: var(--mono);
+}
+
+/* Tags row */
+.guide-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.guide-tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(233, 227, 211, 0.05);
+  border: 1px solid var(--ink-line);
+  color: var(--ink-text-dim);
+}
+
+/* Card Button */
+.guide-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.94rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.btn-html {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(179, 69, 47, 0.35);
+}
+
+.btn-html:hover {
+  background: #ca4d35;
+  box-shadow: 0 6px 20px rgba(179, 69, 47, 0.5);
+}
+
+.btn-css {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(58, 91, 116, 0.35);
+}
+
+.btn-css:hover {
+  background: #466e8d;
+  box-shadow: 0 6px 20px rgba(58, 91, 116, 0.5);
+}
+
+.guide-action-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.guide-card:hover .guide-action-btn svg {
+  transform: translateX(4px);
+}
+
+/* Feature Pillars Grid */
+.portal-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.pillar-card {
+  background: var(--ink-2);
+  border: 1px solid var(--ink-line);
+  border-radius: 6px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pillar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(233, 227, 211, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--paper);
+}
+
+.pillar-title {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--paper);
+  margin: 0;
+}
+
+.pillar-desc {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ink-text-dim);
+  margin: 0;
+}
+
+/* Quick Jump / Comparison section */
+.portal-compare-box {
+  background: var(--ink-2);
+  border: 1px solid var(--ink-3);
+  border-radius: 8px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.compare-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.compare-title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--paper);
+  margin: 0;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.compare-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compare-col-header {
+  font-family: var(--serif);
+  font-weight: 680;
+  font-size: 1.08rem;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ink-line);
+}
+
+.col-html-head { color: var(--red); }
+.col-css-head { color: #8cb5d6; }
+
+.compare-topics-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compare-topics-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--ink-text-dim);
+}
+
+.compare-topics-list li svg {
+  color: var(--sage);
+  flex-shrink: 0;
+}
+
+/* Portal Footer */
+.portal-footer {
+  border-top: 1px solid var(--ink-line);
+  padding: 36px 32px;
+  background: var(--ink-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-copy {
+  font-size: 0.85rem;
+  color: var(--ink-text-dim);
+}
+
+.footer-copy strong {
+  color: var(--paper);
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-links a {
+  color: var(--ink-text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--paper);
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .portal-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .portal-pillars-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .portal-header {
+    padding: 0 16px;
+  }
+  .portal-main {
+    padding: 36px 16px 60px;
+    gap: 40px;
+  }
+  .portal-pillars-grid {
+    grid-template-columns: 1fr;
+  }
+  .guide-card {
+    padding: 24px 20px 24px;
+  }
+  .portal-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS — A Working Style Sheet</title>
+<meta name="description" content="A sequential, tiered guide to CSS from first principles to advanced layout, motion, and architecture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,480;0,9..144,600;0,9..144,680;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div id="app">
+  <header class="masthead">
+    <button class="drawer-toggle" id="drawerToggle" aria-label="Open table of contents"><span></span><span></span><span></span></button>
+    <a href="../index.html" class="home-nav-link" title="Return to All Guides">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      <span>All Guides</span>
+    </a>
+    <div class="wordmark"><span class="mark">CSS</span><span class="sub">a working style sheet</span></div>
+    <div class="masthead-spacer"></div>
+    <div class="search-wrap">
+      <label for="search" class="visually-hidden">Search topics</label>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Search topics…" autocomplete="off">
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-text" id="progressText">0 of 0 read</span>
+      <div class="progress-bar"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc-panel" id="tocPanel">
+      <div class="toc-panel-head"><span>Contents</span><button class="drawer-close" id="drawerClose" aria-label="Close">×</button></div>
+      <nav class="toc" id="toc"></nav>
+    </aside>
+    <div class="backdrop" id="backdrop"></div>
+    <main class="page" id="page"><div class="page-inner" id="pageInner"></div></main>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONTENT LIBRARY — every topic lives here as plain HTML.
+     JS below reads this into structured data at load time.
+     ============================================================ -->
+<div id="library" hidden>
+
+<!-- ===== BEGINNER TIER ===== -->
+
+<article class="topic-tpl" data-id="what-is-css" data-tier="beginner" data-title="What CSS Actually Is">
+  <div class="topic-body">
+    <p>CSS stands for Cascading Style Sheets. Where HTML describes structure and meaning, CSS describes presentation: color, spacing, layout, typography, motion. The "cascading" part of the name refers to how the browser resolves multiple, possibly conflicting rules that target the same element into one final value per property — governed by where a rule came from, how specific its selector is, and where it sits in the file. This guide comes back to that mechanism in detail shortly, since almost every confusing CSS bug traces back to it.</p>
+    <p>There are three ways to attach CSS to a page. An external stylesheet, linked with <code>&lt;link rel="stylesheet" href="styles.css"&gt;</code> in the head, is the one to reach for by default — it's cacheable by the browser, reusable across every page of a site, and keeps structure and presentation cleanly separated. An internal <code>&lt;style&gt;</code> block in the head works fine for a single page or a quick prototype. An inline <code>style="..."</code> attribute on one element has the highest specificity of the three and is the hardest to override or maintain later — reach for it sparingly.</p>
+    <p>The basic unit of CSS is a rule: a selector says what to target, followed by a declaration block in curly braces containing one or more <code>property: value;</code> pairs.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="styles.css">p {
+  color: #333;
+  font-size: 16px;
+}</div>
+  <ul class="topic-keypoints">
+    <li>HTML is structure and meaning; CSS is presentation — color, spacing, layout, motion.</li>
+    <li>"Cascading" describes how the browser resolves conflicting rules into one final value.</li>
+    <li>Prefer an external stylesheet by default; use inline styles sparingly.</li>
+    <li>A rule is a selector plus a declaration block of <code>property: value;</code> pairs.</li>
+  </ul>
+  <div class="topic-note" data-kind="tip">Every browser applies its own default stylesheet before yours loads — that's why a bare <code>&lt;button&gt;</code> or <code>&lt;h1&gt;</code> already looks like something. You're always overriding defaults, never starting from a truly blank page.</div>
+</article>
+
+<article class="topic-tpl" data-id="selectors-basics" data-tier="beginner" data-title="Selectors: Targeting Elements">
+  <div class="topic-body">
+    <p>A type (or element) selector matches every instance of a tag: <code>p { }</code> targets every <code>&lt;p&gt;</code> on the page. A class selector, written with a leading dot, matches every element carrying that class: <code>.card { }</code> — reusable across as many elements as you like, and the everyday workhorse of most stylesheets. An ID selector, with a leading hash, matches the single element with that id: <code>#header { }</code>. Because an id can only appear once per page and carries heavy specificity, it's generally better reserved for JavaScript hooks and anchor links than for routine styling — overriding an id-based rule later is disproportionately annoying.</p>
+    <p>The universal selector, <code>*</code>, matches everything, and shows up constantly in resets like <code>* { box-sizing: border-box; }</code>. Grouping several selectors with commas — <code>h1, h2, h3 { margin: 0; }</code> — applies identical declarations to all of them without repeating yourself. Writing two selectors back to back with no space, like <code>p.intro</code>, narrows the match to only elements satisfying both at once — here, a <code>&lt;p&gt;</code> that also carries <code>class="intro"</code>.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="selectors.css">* {
+  box-sizing: border-box;
+}
+
+.card {
+  padding: 1rem;
+}
+
+#site-header {
+  position: sticky;
+}
+
+h1, h2, h3 {
+  font-family: Georgia, serif;
+}
+
+p.intro {
+  font-size: 1.2rem;
+}</div>
+  <ul class="topic-keypoints">
+    <li>Classes are the everyday workhorse — reusable across as many elements as needed.</li>
+    <li>IDs carry heavy specificity; reserve them for hooks and anchors more than styling.</li>
+    <li>Comma-separated grouping avoids repeating identical declarations across selectors.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="box-model" data-tier="beginner" data-title="The Box Model">
+  <div class="topic-body">
+    <p>Every element renders as a rectangular box built from four layers, from the inside out: content (the actual text or image), padding (space inside the border, cushioning the content), border (a visible or invisible edge), and margin (space outside the border, separating this box from its neighbors).</p>
+    <p>By default, the box model is <code>content-box</code>: <code>width</code> and <code>height</code> apply only to the content area, so any padding or border you add gets tacked on top, quietly enlarging the element's actual rendered size beyond what you declared. Setting <code>box-sizing: border-box</code> instead makes <code>width</code>/<code>height</code> include padding and border, so the box you declare really is the box you get. Most developers apply this globally near the top of every stylesheet, exactly as shown in the previous topic's reset.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="box-model.css">*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.panel {
+  width: 300px;
+  padding: 24px;
+  border: 2px solid #ccc;
+  margin: 16px;
+}
+/* With border-box, this panel is exactly 300px wide,
+   padding and border included — not 300px plus extra. */</div>
+  <ul class="topic-keypoints">
+    <li>From inside out: content → padding → border → margin.</li>
+    <li><code>content-box</code> (the default) excludes padding/border from the declared width.</li>
+    <li><code>border-box</code> includes them — apply it globally near the top of your stylesheet.</li>
+  </ul>
+  <div class="topic-note" data-kind="tip">Browser devtools' Layout or Computed panel draws this exact box visually for whatever element you select — one of the fastest ways to debug unexpected spacing.</div>
+</article>
+
+<article class="topic-tpl" data-id="colors-units" data-tier="beginner" data-title="Colors and Units">
+  <div class="topic-body">
+    <p>CSS accepts color in several interchangeable formats: named keywords (<code>crimson</code>), hex codes (<code>#ff3b30</code>, or the shorthand <code>#f33</code>), <code>rgb(255, 59, 48)</code>, and <code>hsl(4, 100%, 59%)</code> — hue, saturation, and lightness, which many people find more intuitive to hand-tune than hex. Adding an alpha channel — <code>rgba(255, 59, 48, 0.5)</code> or <code>hsla(...)</code> — controls transparency. <code>currentColor</code> is a live keyword meaning "whatever this element's own text color currently is," handy for a border or icon that should always track text color automatically without repeating the value.</p>
+    <p>Units split into absolute and relative. <code>px</code> is absolute — a fixed size regardless of context. Relative units depend on something else: <code>%</code> is relative to a containing value (its exact meaning varies by property), <code>em</code> is relative to the current element's own <code>font-size</code> — and compounds when elements sized in <code>em</code> nest inside each other, a common surprise — while <code>rem</code> is relative only to the root <code>&lt;html&gt;</code> element's font-size, so it never compounds, making it the generally safer default for spacing and type scales. <code>vw</code>/<code>vh</code> are percentages of the viewport's width/height, useful for full-bleed sections.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="units.css">.badge {
+  background: rgba(179, 69, 47, 0.15);
+  color: currentColor;
+  border-radius: 999px;
+}
+
+.hero {
+  min-height: 60vh;
+  padding: 2rem;      /* rem: relative to the root font-size only */
+  font-size: 1.125rem;
+}</div>
+  <ul class="topic-keypoints">
+    <li>rgb/hsl with an alpha value handle transparency directly.</li>
+    <li><code>currentColor</code> keeps something in sync with the element's own text color automatically.</li>
+    <li>Prefer <code>rem</code> over <code>em</code> for most sizing to avoid compounding surprises.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake"><code>em</code> compounds with nesting — a <code>0.8em</code> font-size on an element already inside another <code>0.8em</code>-sized element renders smaller than most people expect, multiplicatively.</div>
+</article>
+
+<article class="topic-tpl" data-id="typography-basics" data-tier="beginner" data-title="Typography Basics">
+  <div class="topic-body">
+    <p><code>font-family</code> takes a comma-separated fallback list ending in a generic family — <code>serif</code>, <code>sans-serif</code>, or <code>monospace</code> — so the browser always has something to fall back to if earlier fonts aren't installed or haven't loaded yet. This whole list is called a font stack. <code>font-size</code> sets text size (in <code>rem</code>, per the previous topic). <code>font-weight</code> controls boldness, either numerically (100–900) or with keywords like <code>normal</code>/<code>bold</code> — a weight not actually shipped by the loaded font gets "faked" by the browser through algorithmic bolding, which typically looks worse than an honest weight.</p>
+    <p><code>line-height</code> sets the vertical space between lines of text. A unitless value, like <code>1.5</code>, is generally preferable to a fixed <code>px</code>/<code>em</code> value because it scales proportionally with whatever font-size is in effect, rather than needing separate tuning at every size. Rounding out the basics: <code>text-align</code> (<code>left</code>/<code>center</code>/<code>right</code>/<code>justify</code>), <code>text-decoration</code> (commonly <code>none</code>, to remove the default underline from links), and <code>letter-spacing</code> for fine tracking adjustments.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="typography.css">body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  line-height: 1.5;
+}
+
+h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+a {
+  text-decoration: none;
+}</div>
+  <ul class="topic-keypoints">
+    <li>Always end a font stack with a generic family as a safety net.</li>
+    <li>A unitless <code>line-height</code> scales with font-size instead of needing separate tuning.</li>
+    <li>A font-weight the loaded font doesn't actually have gets faked, usually looking worse.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="backgrounds-borders" data-tier="beginner" data-title="Backgrounds and Borders">
+  <div class="topic-body">
+    <p><code>background-color</code> sets a solid fill; <code>background-image</code> accepts a <code>url(...)</code> or a gradient function like <code>linear-gradient(...)</code>. <code>background-size</code> (commonly <code>cover</code> or <code>contain</code>) controls how an image fills its box, <code>background-position</code> places it within that box, and <code>background-repeat: no-repeat</code> stops it tiling, which is usually what you want for a photo.</p>
+    <p><code>border</code> is a shorthand bundling <code>border-width</code>, <code>border-style</code>, and <code>border-color</code> into one line: <code>border: 1px solid #ccc;</code>. The style value is not optional — without one, nothing renders even if width and color are both set. <code>border-radius</code> rounds corners, accepting one value for all four corners or up to four values to control each individually. <code>box-shadow</code> adds a drop shadow from four or five values — horizontal offset, vertical offset, blur radius, an optional spread, and a color — with an optional leading <code>inset</code> keyword flipping it to render inside the box instead of outside.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="card.css">.card {
+  background-color: #fff;
+  border: 1px solid #e2ded2;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card--pressed {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>border</code> needs a style value (<code>solid</code>, <code>dashed</code>, etc.) to render at all.</li>
+    <li><code>border-radius</code> can target one, two, or all four corners.</li>
+    <li><code>box-shadow</code>'s <code>inset</code> keyword flips it to an inner shadow.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake">Setting <code>border-color</code> and <code>border-width</code> without a <code>border-style</code> renders no visible border at all — the style isn't a cosmetic extra, it's required.</div>
+</article>
+
+<article class="topic-tpl" data-id="display-visibility" data-tier="beginner" data-title="Display and Visibility">
+  <div class="topic-body">
+    <p><code>display</code> controls how an element participates in layout. <code>block</code> elements — like <code>&lt;div&gt;</code> or <code>&lt;p&gt;</code> by default — take the full available width and start on a new line. <code>inline</code> elements — like <code>&lt;span&gt;</code> or <code>&lt;a&gt;</code> by default — flow within a line of text and ignore <code>width</code>/<code>height</code> and vertical margin entirely. <code>inline-block</code> is a hybrid: it flows inline like text, but respects <code>width</code>, <code>height</code>, and margin like a block does.</p>
+    <p>Three ways to make something disappear behave very differently for everything around them. <code>display: none</code> removes an element from layout entirely — and from the accessibility tree — as if it were never in the document. <code>visibility: hidden</code> keeps its space fully reserved in the layout but makes it invisible. <code>opacity: 0</code> makes it fully transparent, yet — unlike the other two — it still occupies space <em>and</em> remains clickable and focusable, a distinction that matters a great deal if what you actually want is to disable an interactive element rather than just visually fade it.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="display.css">.tooltip--hidden {
+  display: none;       /* gone from layout and the accessibility tree */
+}
+
+.placeholder-space {
+  visibility: hidden;   /* invisible, but its space stays reserved */
+}
+
+.fading-out {
+  opacity: 0;           /* invisible, but still occupies space and stays clickable */
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>display: none</code> removes an element from layout and accessibility entirely.</li>
+    <li><code>visibility: hidden</code> keeps the space reserved but hides the content.</li>
+    <li><code>opacity: 0</code> stays in the flow and remains interactive — pick based on what you need.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="cascade-specificity-inheritance" data-tier="beginner" data-title="The Cascade, Specificity, and Inheritance">
+  <div class="topic-body">
+    <p>When more than one rule targets the same element and sets the same property, the browser needs a way to pick a winner. Three things decide it, in order: importance (an <code>!important</code> rule beats a normal one), specificity (a more specific selector wins no matter where it sits in the file — roughly, ids beat classes and attributes, which beat plain elements), and finally source order — if specificity ties exactly, whichever rule appears later in the stylesheet wins.</p>
+    <p><code>!important</code> overrides normal specificity comparison entirely and should be treated as a last resort rather than a routine tool — reaching for it habitually is usually a sign of an underlying specificity problem that will keep resurfacing rule after rule.</p>
+    <p>Separately from the cascade, some properties inherit down to descendant elements automatically — mostly text-related ones, like <code>color</code>, <code>font-family</code>, and <code>line-height</code> — while most box-model properties, like <code>margin</code> and <code>width</code>, don't, since inheriting spacing would make layout unpredictable fast. Three keywords give explicit control over this: <code>inherit</code> forces a property to take its parent's value even when it normally wouldn't, <code>initial</code> resets it to that property's own built-in default, and <code>unset</code> acts like <code>inherit</code> for naturally-inheriting properties and like <code>initial</code> for everything else.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="specificity.css">p { color: blue; }              /* 1 element  -> loses */
+.note { color: green; }         /* 1 class    -> loses */
+#warning { color: red; }        /* 1 id       -> wins  */
+
+/* An element with class="note" and id="warning" renders red,
+   because an id selector outranks a class selector here. */</div>
+  <ul class="topic-keypoints">
+    <li>Specificity roughly ranks ids above classes/attributes above plain elements.</li>
+    <li>Exact specificity ties break by source order — whichever rule comes later wins.</li>
+    <li><code>!important</code> is a last resort, not a routine tool.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake">Reaching for <code>!important</code> to win a specificity fight usually just relocates the problem — the next override now needs its own <code>!important</code>, and the cascade becomes unmanageable.</div>
+</article>
+
+<article class="topic-tpl" data-id="positioning-basics" data-tier="beginner" data-title="Positioning Basics">
+  <div class="topic-body">
+    <p><code>position: static</code> is the default: the element sits in normal document flow, and <code>top</code>/<code>right</code>/<code>bottom</code>/<code>left</code> have no effect on it at all. <code>relative</code> keeps the element in normal flow but lets those offset properties nudge it visually from where it would otherwise sit, without affecting any surrounding element — it also creates a positioning anchor for any absolutely-positioned descendant.</p>
+    <p><code>absolute</code> removes the element from normal flow entirely and positions it relative to its nearest ancestor that has any position other than <code>static</code> — falling back to the page itself if no such ancestor exists. This is exactly why "relative parent, absolute child" is such a common pairing: give the parent <code>position: relative</code> purely so the child has something sensible to position against. <code>fixed</code> positions relative to the viewport itself, staying put even as the page scrolls. <code>sticky</code> behaves like <code>relative</code> until the element would scroll past a given threshold, then "sticks" like <code>fixed</code> within its containing block — the mechanism behind sticky headers.</p>
+    <p><code>z-index</code> controls stacking order among overlapping elements, but it only has an effect on elements that are positioned (anything other than <code>static</code>).</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="badge.css">.avatar {
+  position: relative;
+}
+
+.avatar .status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>static</code> is the default and ignores offset properties entirely.</li>
+    <li><code>absolute</code> positions relative to the nearest non-static ancestor — "relative parent, absolute child" is the common pattern.</li>
+    <li><code>sticky</code> toggles between relative and fixed behavior at a scroll threshold.</li>
+    <li><code>z-index</code> only affects elements that are positioned.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="pseudo-classes-elements" data-tier="beginner" data-title="Pseudo-Classes and Pseudo-Elements">
+  <div class="topic-body">
+    <p>A pseudo-class, written with a single colon, selects an element based on a state or position rather than anything present in the HTML itself: <code>:hover</code> while a pointer sits over it, <code>:focus</code> while it holds keyboard focus, <code>:active</code> while being pressed, <code>:first-child</code>/<code>:last-child</code> based on position among siblings, and <code>:nth-child(2)</code> or <code>:nth-child(odd)</code> for flexible positional matching — the classic technique for zebra-striping table rows.</p>
+    <p>A pseudo-element, written with a double colon by modern convention, targets a sub-part of an element that has no corresponding HTML node of its own. <code>::before</code> and <code>::after</code> insert generated content immediately before or after an element's real content — constantly used for decorative icons and small flourishes without adding any extra markup — but they require a <code>content</code> property, even an empty one (<code>content: "";</code>), or nothing renders at all. <code>::first-line</code> and <code>::first-letter</code> style just the opening line or letter of a block of text, familiar from editorial drop caps.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="pseudo.css">tr:nth-child(odd) {
+  background: #f6f3ea;
+}
+
+.card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.external-link::after {
+  content: " ↗";
+}</div>
+  <ul class="topic-keypoints">
+    <li>Pseudo-classes (single colon) target a state or position, not something in the HTML.</li>
+    <li>Pseudo-elements (double colon) target a sub-part that isn't a real HTML node.</li>
+    <li><code>::before</code>/<code>::after</code> need a <code>content</code> property, even empty, to render at all.</li>
+  </ul>
+</article>
+
+<!-- ===== INTERMEDIATE TIER ===== -->
+
+<article class="topic-tpl" data-id="flexbox-container" data-tier="intermediate" data-title="Flexbox: The Container">
+  <div class="topic-body">
+    <p><code>display: flex</code> turns an element into a flex container and every direct child into a flex item, laid out along a single axis. <code>flex-direction</code> sets that axis — <code>row</code> (the default, left to right) or <code>column</code> (top to bottom), plus reversed variants of each.</p>
+    <p><code>justify-content</code> aligns items along the <strong>main</strong> axis — for a row, that's horizontal alignment: <code>flex-start</code>, <code>center</code>, <code>space-between</code>, <code>space-around</code>, <code>space-evenly</code>. <code>align-items</code> aligns items along the <strong>cross</strong> axis, perpendicular to the main one — for a row, that's vertical alignment. <code>flex-wrap: wrap</code> lets items drop to a new line instead of squeezing or overflowing when they don't all fit on one. <code>gap</code> sets consistent spacing between items directly on the container, without needing margin hacks on individual children — and, notably, it doesn't add unwanted space before the first or after the last item the way margin-based spacing does.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="navbar.css">.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>flex-direction</code> sets the main axis; everything else aligns relative to it.</li>
+    <li><code>justify-content</code> aligns along the main axis, <code>align-items</code> across the cross axis.</li>
+    <li><code>gap</code> is the cleaner modern alternative to margin-based spacing between items.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="flexbox-items" data-tier="intermediate" data-title="Flexbox: The Items">
+  <div class="topic-body">
+    <p>Three properties, set on individual flex items rather than the container, decide how each one shares available space. <code>flex-grow</code> (a number, default <code>0</code>) says how much of any leftover space that item should absorb relative to its siblings. <code>flex-shrink</code> (default <code>1</code>) says how willing it is to shrink below its natural size when there isn't enough room. <code>flex-basis</code> sets its starting size before growing or shrinking kicks in. These three are almost always set together through the <code>flex</code> shorthand — <code>flex: 1 1 0;</code>, or the common shortcut <code>flex: 1;</code> meaning "grow and shrink equally, ignore natural content size."</p>
+    <p><code>align-self</code> overrides the container's <code>align-items</code> for one specific item. <code>order</code> changes an item's visual position without touching its position in the HTML — genuinely useful for responsive reordering, but worth using carefully, since it can desync what's visually first from what a screen reader announces first and from keyboard tab order, both of which still follow the underlying HTML.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="columns.css">.column {
+  flex: 1;             /* three of these split the row equally */
+}
+
+.column--wide {
+  flex: 2;             /* takes twice the share of the others */
+}
+
+.column--pinned {
+  align-self: flex-start;
+}</div>
+  <ul class="topic-keypoints">
+    <li>The <code>flex</code> shorthand (grow, shrink, basis) controls how an item shares space.</li>
+    <li><code>align-self</code> overrides <code>align-items</code> for a single item.</li>
+    <li><code>order</code> changes visual position only — DOM order and tab order don't follow it.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="grid-basics" data-tier="intermediate" data-title="CSS Grid: The Basics">
+  <div class="topic-body">
+    <p><code>display: grid</code> turns an element into a grid container, laying its children onto an explicit two-dimensional grid — rows and columns together — rather than flexbox's single axis. <code>grid-template-columns</code> and <code>grid-template-rows</code> define the track sizes: <code>grid-template-columns: 200px 1fr 1fr;</code> creates three columns — one fixed at 200px, and two that split whatever space remains equally, using the <code>fr</code> unit, grid's own "fraction of remaining space" measurement, distinct from a percentage of the container.</p>
+    <p><code>gap</code> works exactly as it does in flexbox, spacing rows and columns consistently. <code>grid-template-areas</code> lets you literally draw a layout as named regions directly in the CSS, then assign each child to one with <code>grid-area</code> — an unusually readable way to express a whole page's structure at a glance.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="layout.css">.page {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-areas:
+    "sidebar header"
+    "sidebar main";
+  gap: 1.5rem;
+}
+
+.sidebar { grid-area: sidebar; }
+.header  { grid-area: header; }
+.main    { grid-area: main; }</div>
+  <ul class="topic-keypoints">
+    <li>Grid lays out in two dimensions at once, unlike flexbox's single axis.</li>
+    <li>The <code>fr</code> unit divides whatever space is left after fixed-size tracks are subtracted.</li>
+    <li><code>grid-template-areas</code> lets you sketch a layout by name, right inside the CSS.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="grid-placement" data-tier="intermediate" data-title="CSS Grid: Placement">
+  <div class="topic-body">
+    <p>Every grid line — the boundary between tracks — is numbered starting at 1. <code>grid-column</code> and <code>grid-row</code> place an item using those line numbers, usually written as a start/end shorthand: <code>grid-column: 1 / 3;</code> spans from line 1 to line 3, covering two columns. <code>grid-column: 1 / -1;</code> is a common idiom meaning "span every column," since <code>-1</code> always refers to the last line no matter how many tracks exist. Items you don't explicitly place fill in automatically, following <code>grid-auto-flow</code>, which defaults to filling row by row.</p>
+    <p><code>repeat()</code> avoids writing out repetitive track lists — <code>repeat(3, 1fr)</code> is identical to <code>1fr 1fr 1fr</code>. Combined with <code>minmax()</code>, <code>repeat(auto-fit, minmax(200px, 1fr))</code> builds a genuinely responsive card grid with zero media queries: as many columns as currently fit at a minimum of 200px each, growing to fill any leftover space. Swapping <code>auto-fit</code> for <code>auto-fill</code> instead leaves empty tracks rather than stretching existing items when there's extra room — a subtle difference worth testing against your own content.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="card-grid.css">.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.card-grid .featured {
+  grid-column: 1 / -1;   /* spans every column, however many exist */
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>grid-column: 1 / -1</code> spans every column regardless of how many exist.</li>
+    <li><code>repeat()</code> + <code>minmax()</code> builds a responsive grid without a single media query.</li>
+    <li><code>auto-fit</code> collapses empty tracks; <code>auto-fill</code> preserves them.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="responsive-design" data-tier="intermediate" data-title="Responsive Design and Media Queries">
+  <div class="topic-body">
+    <p>A media query applies a block of CSS only when some condition about the browsing environment holds true — most commonly a viewport width threshold: <code>@media (min-width: 768px) { ... }</code>. Mobile-first design writes the base, unwrapped styles for the smallest and simplest layout first, then uses <code>min-width</code> queries to progressively add complexity as more space becomes available. Desktop-first does the reverse with <code>max-width</code>, starting complex and simplifying downward. Mobile-first is generally the better default, since it forces you to decide real content priority for the smallest screen instead of squeezing an already-complex desktop layout to fit later.</p>
+    <p>Conditions can combine with <code>and</code>: <code>@media (min-width: 768px) and (orientation: landscape) { ... }</code>. Choose your breakpoints — the specific widths where behavior changes — based on where your own content actually starts looking cramped or awkward, rather than copying a fixed list of device widths from somewhere else.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="responsive.css">.grid {
+  display: grid;
+  grid-template-columns: 1fr;    /* single column by default (mobile) */
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>min-width</code> queries suit mobile-first: add complexity as space grows.</li>
+    <li><code>max-width</code> queries suit desktop-first: remove complexity as space shrinks.</li>
+    <li>Pick breakpoints based on your own content, not a generic device-width list.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="css-variables" data-tier="intermediate" data-title="CSS Variables (Custom Properties)">
+  <div class="topic-body">
+    <p>A custom property is declared with a double-hyphen name and read back with <code>var()</code>: <code>--brand-color: #b3452f;</code>, then <code>color: var(--brand-color);</code>. Unlike a Sass or other preprocessor variable — which is a compile-time text substitution baked into plain CSS before it ever reaches the browser — a CSS custom property is a genuinely live value the browser tracks at runtime. It participates in the cascade and inheritance like any real property, can be read and changed by JavaScript, and can be reassigned to something different inside a single media query or component without recompiling anything.</p>
+    <p>Declaring one on <code>:root</code> makes it available, through inheritance, to the entire document — a common place for a small shared design-token palette. <code>var()</code> accepts an optional second argument as a fallback: <code>var(--gap, 16px)</code> uses <code>16px</code> if <code>--gap</code> isn't defined anywhere in scope. Because it's live, JavaScript can update it directly with <code>element.style.setProperty('--brand-color', 'seagreen')</code> — instantly changing every rule that reads it, with no rebuild step of any kind.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="tokens.css">:root {
+  --brand-color: #b3452f;
+  --gap: 16px;
+}
+
+.button {
+  background: var(--brand-color);
+  padding: var(--gap, 12px);
+}
+/* JavaScript can change --brand-color live, at any time:
+   document.documentElement.style.setProperty('--brand-color', 'seagreen'); */</div>
+  <ul class="topic-keypoints">
+    <li><code>--name: value;</code> declares; <code>var(--name, fallback)</code> reads, with an optional fallback.</li>
+    <li>Custom properties are live at runtime and readable/writable from JavaScript — unlike preprocessor variables.</li>
+    <li><code>:root</code> is the common place to define a shared token palette.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="transitions" data-tier="intermediate" data-title="Transitions">
+  <div class="topic-body">
+    <p>A transition smoothly animates a property between its old and new value whenever that value actually changes — triggered by something else, like a <code>:hover</code> state or a class toggled by JavaScript, rather than running on its own. The shorthand is <code>transition: property duration timing-function delay;</code>, for example <code>transition: transform 0.2s ease-out;</code>. Not every property can transition — only ones whose values can be meaningfully interpolated between two points, like colors, lengths, transforms, and opacity; a property like <code>display</code> cannot.</p>
+    <p>The timing function shapes the pace of change: <code>linear</code> (constant speed), the built-in <code>ease</code>/<code>ease-in</code>/<code>ease-out</code>/<code>ease-in-out</code> curves, or a fully custom <code>cubic-bezier()</code> curve. Transitioning <code>all</code> is convenient but animates every animatable property that happens to change, including ones you didn't intend — naming specific properties is more predictable, and for properties like <code>transform</code>/<code>opacity</code>, meaningfully cheaper for the browser to animate smoothly.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="button.css">.button {
+  background: #b3452f;
+  transform: scale(1);
+  transition: transform 0.2s ease-out, background 0.2s ease-out;
+}
+
+.button:hover {
+  transform: scale(1.04);
+  background: #96371f;
+}</div>
+  <ul class="topic-keypoints">
+    <li>Transitions animate between an old and new value, triggered by an actual change.</li>
+    <li>Name specific properties instead of <code>all</code> for predictability and performance.</li>
+    <li><code>ease-out</code> generally feels the most natural for everyday UI motion.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="transforms" data-tier="intermediate" data-title="Transforms">
+  <div class="topic-body">
+    <p><code>transform</code> repositions, resizes, or rotates an element visually without affecting the layout flow around it — neighboring elements behave as if the transformed element were still in its original position and size, unlike actually changing <code>width</code>, <code>top</code>, or <code>margin</code>. <code>translate(x, y)</code> moves it, <code>scale(x, y)</code> resizes it, <code>rotate(angle)</code> spins it, <code>skew(x, y)</code> slants it — and several functions can combine in one declaration, applied in the order written: <code>transform: translateX(10px) rotate(5deg);</code>.</p>
+    <p><code>transform-origin</code> sets the pivot point that functions like <code>scale</code>/<code>rotate</code> operate around, defaulting to the element's own center. Transforms carry a real performance advantage worth knowing even before the dedicated performance topic: because they don't affect layout, the browser can often animate them purely on the GPU compositor thread — smoother than animating properties like <code>top</code>/<code>left</code>/<code>width</code>, which force a full layout recalculation on every frame.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="transform.css">.icon-button:hover {
+  transform: scale(1.15) rotate(8deg);
+  transform-origin: center;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>transform</code> doesn't affect surrounding layout, unlike changing width/top/margin.</li>
+    <li>Multiple transform functions combine and apply in the order written.</li>
+    <li>Transform/opacity animate more cheaply than layout-affecting properties.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="css-animations" data-tier="intermediate" data-title="CSS Animations">
+  <div class="topic-body">
+    <p>Where a transition only knows a start and an end state, <code>@keyframes</code> defines an animation with any number of named steps in between, from <code>0%</code>/<code>from</code> to <code>100%</code>/<code>to</code>. The <code>animation</code> shorthand attaches it and configures playback — name, duration, timing function, and iteration count (<code>infinite</code> for a repeating loop). <code>animation-direction</code> can alternate back and forth each cycle instead of always restarting from the top.</p>
+    <p><code>animation-fill-mode: forwards</code> keeps the element in its final keyframe state after the animation completes, instead of snapping back to its original, pre-animation styles the instant it ends — a very common gotcha for a "fade in and stay visible" effect. Unlike transitions, keyframe animations can start automatically on page load without needing any triggering state change at all.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="fade-in.css">@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.toast {
+  animation: fade-in-up 0.4s ease-out 1 forwards;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>@keyframes</code> supports multiple named steps, not just a start and an end.</li>
+    <li><code>fill-mode: forwards</code> keeps the final state instead of resetting after the animation ends.</li>
+    <li>Animations can autoplay on load, unlike transitions, which need a triggering change.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake">Forgetting <code>animation-fill-mode: forwards</code> on a "reveal" animation makes the element snap back to invisible the instant the animation finishes.</div>
+</article>
+
+<article class="topic-tpl" data-id="working-with-fonts" data-tier="intermediate" data-title="Working with Fonts">
+  <div class="topic-body">
+    <p><code>@font-face</code> registers a custom font file for use in <code>font-family</code>, pointing at one or more files through <code>src</code>. <code>font-display: swap</code> tells the browser to show a fallback font immediately and swap to the custom one once it finishes loading, instead of leaving text invisible while it waits — generally the right default for readability.</p>
+    <p>A "system font stack" (<code>-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif</code>) uses whichever font the visitor's own operating system already ships, loading instantly with zero network request, at some cost to unique brand identity. Variable fonts pack many weights and widths into a single file that can be dialed to any value in between, rather than shipping a separate file per weight. For icons specifically, inline SVG has generally overtaken icon fonts, since SVG icons stay crisp, are individually stylable and colorable with plain CSS, and never risk showing a stray fallback glyph while loading.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="fonts.css">@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>font-display: swap</code> avoids invisible text while a custom font loads.</li>
+    <li>A system font stack trades brand uniqueness for zero-latency loading.</li>
+    <li>SVG icons have generally overtaken icon fonts for crispness and per-icon styling.</li>
+  </ul>
+</article>
+
+<!-- ===== ADVANCED TIER ===== -->
+
+<article class="topic-tpl" data-id="advanced-selectors" data-tier="advanced" data-title="Advanced Selectors and Combinators">
+  <div class="topic-body">
+    <p>Combinators describe a relationship between two selectors rather than matching purely by class, id, or type. A space is the descendant combinator — <code>.card p</code> matches any <code>&lt;p&gt;</code> anywhere inside a <code>.card</code>, no matter how deeply nested. <code>&gt;</code> is the child combinator — <code>.card &gt; p</code> matches only a <code>&lt;p&gt;</code> that's a direct child, not a grandchild. <code>+</code> is the adjacent sibling combinator — <code>.item + .item</code> matches an <code>.item</code> immediately following another at the same level, the classic trick for adding a border between items except before the very first one. <code>~</code> is the general sibling combinator, matching any later sibling at the same level, not just the immediately adjacent one.</p>
+    <p>Attribute selectors match by an attribute's presence or value: <code>[disabled]</code> matches any element carrying that attribute at all; <code>[href^="https"]</code> matches values starting with a string; <code>[href$=".pdf"]</code> matches values ending with one; <code>[class*="btn"]</code> matches values containing a substring anywhere.</p>
+    <p><code>:not(.excluded)</code> negates a selector. <code>:is(header, footer) a</code> is shorthand for "a link inside either a header or a footer," without writing two full selectors. <code>:where()</code> does the same grouping job as <code>:is()</code> but always contributes zero specificity, useful for broad reset-style rules that stay trivially easy to override later. <code>:has()</code> is the newest and most requested of the group — it matches a <em>parent</em> based on what's inside it: <code>.card:has(img)</code> selects only cards that actually contain an image, something CSS had no way to express at all until this arrived.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="selectors-advanced.css">.card:has(img) {
+  grid-template-rows: auto 1fr;
+}
+
+:is(header, footer) a {
+  color: inherit;
+}
+
+.item + .item {
+  border-top: 1px solid #e2ded2;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>&gt;</code> matches only direct children; a plain space matches any depth of descendant.</li>
+    <li><code>:is()</code>/<code>:where()</code> group alternatives, differing only in whether they add specificity.</li>
+    <li><code>:has()</code> finally lets CSS select a parent based on its contents.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="cascade-layers" data-tier="advanced" data-title="Specificity Deep Dive and Cascade Layers">
+  <div class="topic-body">
+    <p>Specificity is calculated, not judged by feel — commonly written as a tuple: count of id selectors, count of class/attribute/pseudo-class selectors, count of element/pseudo-element selectors (with inline styles and <code>!important</code> sitting entirely above this tuple, always winning regardless of count). Two selectors are compared left to right through that tuple — a single id selector beats any number of classes, and a single class beats any number of elements, no matter how many are stacked.</p>
+    <p><code>@layer</code> adds a second, explicit axis of control that sits above ordinary specificity comparisons: <code>@layer reset, base, components, utilities;</code> declares named layers in priority order — later layers always beat earlier ones, regardless of the specificity of the individual rules inside them — and each layer's actual rules are then written inside their own <code>@layer name { ... }</code> block. This solves a genuinely common problem: importing a third-party component library whose deeply-nested, high-specificity selectors would otherwise be a real fight to override. Placed in an earlier layer, even a single low-specificity class in a later layer beats it automatically, with no specificity war and no <code>!important</code> needed.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="layers.css">@layer reset, components, utilities;
+
+@layer reset {
+  * { margin: 0; }
+}
+
+@layer components {
+  .button { padding: 12px 20px; background: #ccc; }
+}
+
+@layer utilities {
+  .bg-brand { background: #b3452f; }
+}
+/* .bg-brand always wins over .button's background,
+   because "utilities" was declared after "components" —
+   regardless of either selector's specificity. */</div>
+  <ul class="topic-keypoints">
+    <li>Specificity compares id-count, then class-count, then element-count, left to right.</li>
+    <li>Declared <code>@layer</code> order overrides ordinary specificity comparisons between layers.</li>
+    <li>Layers guarantee your own overrides beat imported or third-party CSS, with no specificity war.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="advanced-grid" data-tier="advanced" data-title="Advanced Grid: Subgrid and Named Lines">
+  <div class="topic-body">
+    <p>Naming grid lines directly makes placement self-documenting: <code>grid-template-columns: [sidebar-start] 240px [sidebar-end content-start] 1fr [content-end];</code> lets you write <code>grid-column: sidebar-start / sidebar-end</code> instead of bare line numbers.</p>
+    <p><code>subgrid</code>, used as a value for <code>grid-template-columns</code>/<code>rows</code> on a nested grid item, lets a child grid align its own tracks to its parent grid's tracks instead of creating a completely independent set — solving the long-standing problem of getting nested grid items, like cards in a row each with their own internal grid, to line up their internal content across siblings even when each card's content differs in length.</p>
+    <p><code>grid-auto-flow: dense</code> backfills earlier empty gaps in the implicit grid with later items that fit them, instead of always placing strictly in source order — useful for masonry-like galleries with mixed-size items, though it does visually reorder content away from source order, the same accessibility trade-off flagged with flexbox's <code>order</code> earlier.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="subgrid.css">.row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;   /* aligns to the row's shared tracks */
+}</div>
+  <ul class="topic-keypoints">
+    <li>Named grid lines make <code>grid-column</code>/<code>row</code> self-documenting instead of numeric.</li>
+    <li><code>subgrid</code> lets nested grid items align to their parent's tracks rather than an independent grid.</li>
+    <li><code>grid-auto-flow: dense</code> reorders visually, with the same trade-offs as flexbox's <code>order</code>.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="container-queries" data-tier="advanced" data-title="Container Queries">
+  <div class="topic-body">
+    <p>A media query only ever knows about the viewport — a real limitation for a reusable component that might get dropped into a wide main column in one place and a narrow sidebar in another; a viewport-based breakpoint can't tell those two placements apart. Container queries respond to the size of a <em>containing</em> element instead.</p>
+    <p>First, opt an element into being a query container: <code>.card-wrapper { container-type: inline-size; }</code>, optionally naming it with <code>container-name</code> for clarity when containers nest. Then any descendant can query that container's width: <code>@container (min-width: 400px) { .card { flex-direction: row; } }</code> — the card lays out differently based on the space it's actually been given, regardless of the viewport size around it. This is the piece that finally makes truly reusable, self-contained responsive components realistic, rather than components that quietly assume they'll always live in one particular place on the page.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="container.css">.card-wrapper {
+  container-type: inline-size;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+@container (min-width: 400px) {
+  .card {
+    flex-direction: row;
+  }
+}</div>
+  <ul class="topic-keypoints">
+    <li>Container queries respond to a containing element's size, not the viewport.</li>
+    <li>Opting in requires setting <code>container-type</code> on an ancestor first.</li>
+    <li>This enables components that adapt correctly regardless of where they're placed on the page.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="logical-properties" data-tier="advanced" data-title="Logical Properties">
+  <div class="topic-body">
+    <p><code>margin-left</code>/<code>padding-right</code>/<code>width</code> describe physical directions tied to one specific screen orientation, which quietly breaks for languages read right-to-left, like Arabic and Hebrew, where "left" no longer means "the start of the line." Logical properties describe flow-relative direction instead: <code>margin-inline-start</code>/<code>margin-inline-end</code> mean "the start/end of the inline, reading direction," which automatically flips for a right-to-left page with no override rules needed on your part; <code>margin-block-start</code>/<code>margin-block-end</code> refer to the block direction, typically vertical.</p>
+    <p>Shorthands exist too: <code>margin-inline: 1rem;</code> sets both inline-start and inline-end at once, and the same pattern applies to <code>padding-inline</code>/<code>padding-block</code>. <code>inset</code> is the logical equivalent bundling <code>top</code>/<code>right</code>/<code>bottom</code>/<code>left</code> together for positioned elements, and <code>inline-size</code>/<code>block-size</code> are the logical equivalents of <code>width</code>/<code>height</code>. None of this only matters if you personally ship a right-to-left site — using logical properties by default costs nothing on a left-to-right-only page and simply avoids laying a trap for a future translation.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="logical.css">.card {
+  margin-inline: 1rem;
+  padding-block: 1.5rem;
+  border-inline-start: 3px solid #b3452f;
+}</div>
+  <ul class="topic-keypoints">
+    <li>Logical properties describe reading-direction-relative flow, not a fixed screen side.</li>
+    <li><code>margin-inline-*</code>/<code>margin-block-*</code> automatically flip correctly for RTL languages.</li>
+    <li>Adopting them by default is free, even on a page that never ships a RTL layout.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="css-functions" data-tier="advanced" data-title="CSS Functions: calc, min, max, clamp">
+  <div class="topic-body">
+    <p><code>calc()</code> lets you mix units in one expression the browser resolves at layout time: <code>width: calc(100% - 40px);</code> — perfect for "fill the space, minus a fixed gutter," something neither a raw percentage nor a raw pixel value can express alone. <code>min()</code> picks the smaller of its arguments and <code>max()</code> the larger — <code>width: min(90%, 600px);</code> caps a fluid width at a hard maximum with no separate media query needed.</p>
+    <p><code>clamp(minimum, preferred, maximum)</code> combines both directions at once, and has become the standard technique for fluid typography that scales smoothly with the viewport but never drops below a readable floor or grows past an oversized ceiling: <code>font-size: clamp(1rem, 0.9rem + 1vw, 1.75rem);</code> — the middle "preferred" value typically mixes a fixed unit with a viewport unit so it genuinely scales rather than staying fixed.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="fluid-type.css">h1 {
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 3rem);
+}
+
+.container {
+  width: min(90%, 1100px);
+  margin-inline: auto;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>calc()</code> mixes units in one expression, resolved by the browser.</li>
+    <li><code>min()</code>/<code>max()</code> cap a fluid value from one direction.</li>
+    <li><code>clamp(min, preferred, max)</code> is the standard modern tool for fluid, bounded scaling.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="modern-color" data-tier="advanced" data-title="Modern Color Features">
+  <div class="topic-body">
+    <p>Beyond <code>rgb()</code>/<code>hsl()</code>, newer color functions describe color closer to how displays and human perception actually work. <code>oklch(lightness chroma hue)</code> in particular is gaining adoption because, unlike <code>hsl()</code>, equal steps in its lightness value look genuinely equally light to the human eye across every hue — which makes generating a consistent color scale, say five shades of a brand color, far more predictable than nudging <code>hsl()</code> lightness by feel.</p>
+    <p><code>color-mix(in srgb, red 40%, blue)</code> blends two colors directly in CSS at a chosen ratio, with no need to precompute a hex value by hand or reach for a preprocessor. <code>accent-color</code> re-colors native form controls — checkboxes, radios, range sliders, progress bars — to match your brand without rebuilding them from scratch in custom markup. <code>currentColor</code>, met back in the units topic, remains the simplest way to keep something like an icon or border color permanently in sync with its element's text color.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="modern-color.css">:root {
+  --brand: oklch(55% 0.18 29);
+}
+
+.button {
+  background: color-mix(in srgb, var(--brand) 85%, black);
+  accent-color: var(--brand);
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>oklch</code> scales lightness in a way that looks perceptually even across hues, unlike <code>hsl</code>.</li>
+    <li><code>color-mix()</code> blends two colors directly in CSS at a given ratio.</li>
+    <li><code>accent-color</code> restyles native form controls without rebuilding them.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="modern-pseudo-elements" data-tier="advanced" data-title="More Pseudo-Elements: marker, selection, placeholder, backdrop">
+  <div class="topic-body">
+    <p>A handful of pseudo-elements style specific browser-owned pieces of UI you'd otherwise have no hook for. <code>::marker</code> styles a list item's bullet or number directly, with no need to wrap markers in extra spans just to color or resize them. <code>::selection</code> styles the highlight color of text a visitor has selected with their cursor. <code>::placeholder</code> styles an input's placeholder text specifically, separately from the text the visitor actually types.</p>
+    <p><code>::backdrop</code> styles the dimmed layer the browser automatically inserts behind a native <code>&lt;dialog&gt;</code> opened with <code>.showModal()</code>, or behind an element in fullscreen — without it, that backdrop is invisible and unstyled by default in most browsers.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="pseudo-elements.css">li::marker {
+  color: #b3452f;
+  font-weight: 600;
+}
+
+::selection {
+  background: #f0d9d2;
+}
+
+dialog::backdrop {
+  background: rgba(28, 35, 33, 0.6);
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>::marker</code> styles list bullets/numbers directly.</li>
+    <li><code>::selection</code> styles a visitor's highlighted text.</li>
+    <li><code>::backdrop</code> styles the dimming layer behind a native <code>&lt;dialog&gt;</code> or fullscreen element.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="performance-rendering" data-tier="advanced" data-title="Performance and Rendering">
+  <div class="topic-body">
+    <p>Not all CSS properties cost the same to animate or change. Properties like <code>transform</code> and <code>opacity</code> can usually be handled by the browser's compositor thread alone, without recomputing layout or repainting pixels — genuinely smooth even on modest hardware. Properties like <code>top</code>/<code>left</code>/<code>width</code>/<code>margin</code> force the browser to recalculate layout for the changed element and often its neighbors too, measurably slower and more prone to visible jank when it happens repeatedly in a tight loop.</p>
+    <p><code>will-change: transform;</code> is a hint you can give the browser ahead of an expected animation, letting it prepare an optimization early — but it carries a real memory cost, so it should be applied briefly, right before the change, and removed afterward, not left on permanently as a blanket "just in case" rule. The <code>contain</code> property (<code>contain: layout;</code>, <code>contain: paint;</code>, or the shorthand <code>contain: content;</code>) tells the browser that a subtree's internal changes won't affect anything outside its own box, letting it skip recalculating the rest of the page — valuable for independent, repeated UI chunks like cards in a long list.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="performance.css">.card {
+  contain: content;
+}
+
+.card.is-animating {
+  will-change: transform;
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>transform</code>/<code>opacity</code> animate on the compositor, cheaper than layout-affecting properties.</li>
+    <li><code>will-change</code> is a temporary hint, not a permanent setting.</li>
+    <li><code>contain</code> lets the browser skip recalculating unaffected parts of the page.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="css-architecture" data-tier="advanced" data-title="Architecture and Methodologies at Scale">
+  <div class="topic-body">
+    <p>As a project grows past a handful of pages, how you name and organize classes starts to matter as much as which properties you use. BEM (Block__Element--Modifier) encodes structure directly into class names — <code>.card</code>, <code>.card__title</code>, <code>.card--featured</code> — so relationships and states are readable from the class name alone, at the cost of some verbosity.</p>
+    <p>Utility-first frameworks, the Tailwind CSS approach, go the opposite direction: instead of naming semantic components, you compose small, single-purpose classes directly in the HTML (<code>flex items-center gap-4</code>), trading longer class lists on each element for near-total avoidance of the specificity and cascade problems this guide has spent several topics on, since utility classes are deliberately kept low-specificity and single-property. CSS Modules and other component-scoped styling approaches take a third path: styles are scoped to a specific component automatically by tooling, so a <code>.title</code> class in one file can never accidentally collide with an unrelated <code>.title</code> elsewhere in the app — sidestepping global-namespace clashes through tooling rather than naming discipline. None of these is objectively correct; they're different trade-offs between explicitness, verbosity, and how much tooling you're willing to depend on, and real codebases frequently combine more than one.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="bem.css">/* BEM */
+.card { }
+.card__title { font-weight: 600; }
+.card--featured { border-color: #b3452f; }
+
+/* The same idea, utility-first, lives in the HTML class list
+   instead of the stylesheet: class="rounded border p-4 font-semibold" */</div>
+  <ul class="topic-keypoints">
+    <li>BEM encodes relationships into the class name itself, at the cost of verbosity.</li>
+    <li>Utility-first CSS avoids cascade/specificity problems by keeping classes single-purpose.</li>
+    <li>Scoped/component styles solve naming collisions through tooling rather than naming convention.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="print-accessibility-css" data-tier="advanced" data-title="Print, Dark Mode, and Motion Preferences">
+  <div class="topic-body">
+    <p><code>@media print</code> applies only when a page is being printed or previewed for printing — commonly used to hide navigation and buttons that make no sense on paper. <code>prefers-color-scheme: dark</code> lets you respond to the operating system's dark-mode setting directly in CSS, commonly paired with the custom properties from earlier so an entire palette flips by redefining just a handful of variables in one place, rather than duplicating every rule.</p>
+    <p><code>prefers-reduced-motion: reduce</code> reports that a visitor has asked their system to minimize animation, often for vestibular or motion-sensitivity reasons — respecting it, by disabling or shortening non-essential transitions and animations inside that media query, is a genuine accessibility requirement, not a nice-to-have. <code>:focus-visible</code>, distinct from plain <code>:focus</code>, lets browsers show a focus ring specifically for keyboard navigation while suppressing it for a mouse click — solving the old complaint of unwanted focus outlines appearing on every mouse click, without removing them for keyboard users who genuinely need them.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="preferences.css">@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111;
+    --text: #eee;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--brand);
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>@media print</code> tailors output specifically for paper.</li>
+    <li><code>prefers-color-scheme</code> lets the OS's dark-mode setting drive your palette.</li>
+    <li><code>prefers-reduced-motion</code> is a real accessibility signal to respect, not optional polish.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="css-nesting" data-tier="advanced" data-title="Native CSS Nesting">
+  <div class="topic-body">
+    <p>Modern CSS now supports nesting rules directly, without a preprocessor. The <code>&amp;</code> symbol explicitly stands in for the parent selector — needed when combining with a pseudo-class or forming a compound selector — while a nested selector with no <code>&amp;</code> is treated as a descendant selector automatically, identical in meaning to writing the equivalent rule at the top level with a space.</p>
+    <p>This looks nearly identical to Sass's long-standing nesting syntax, but the underlying mechanism differs: native CSS nesting is parsed and resolved by the browser itself at runtime, with no build step required, while Sass nesting is flattened into plain CSS entirely at compile time before it ever reaches a browser. One genuine trade-off worth knowing: nesting still generates the equivalent long descendant selector under the hood, so it doesn't reduce specificity — it's a readability and organization win, not a specificity fix, and nesting too many levels deep can make the resulting selectors harder to reason about even as the source looks tidier.</p>
+  </div>
+  <div class="topic-code" data-lang="css" data-filename="nesting.css">.card {
+  color: #333;
+  border: 1px solid #e2ded2;
+
+  &:hover {
+    border-color: #b3452f;
+  }
+
+  .title {
+    font-weight: 600;
+  }
+}</div>
+  <ul class="topic-keypoints">
+    <li><code>&amp;</code> explicitly refers to the parent selector.</li>
+    <li>A bare nested selector implies a descendant combinator automatically.</li>
+    <li>Native nesting is a browser-native runtime feature and doesn't by itself reduce specificity.</li>
+  </ul>
+</article>
+
+<!-- ===== REFERENCE TIER ===== -->
+
+<article class="topic-tpl" data-id="interview-questions" data-tier="reference" data-title="Interview Question Bank">
+  <div class="topic-body">
+    <p>Sixteen questions that come up often in real interviews, drawn from across every tier of this guide. Click a question to reveal a concise model answer — try answering in your own words first.</p>
+
+    <details><summary>What does "cascading" in CSS actually mean?</summary><p>How the browser resolves multiple, possibly conflicting rules that target the same element into one final value — decided by importance, then specificity, then source order.</p></details>
+
+    <details><summary>What's the difference between margin and padding?</summary><p>Padding is inside the border, cushioning the content within the box. Margin is outside the border, separating the box from its neighbors. Adjacent vertical margins between block elements can collapse into one; padding never does.</p></details>
+
+    <details><summary>What does <code>box-sizing: border-box</code> change?</summary><p>It makes <code>width</code>/<code>height</code> include padding and border, instead of excluding them the way the default <code>content-box</code> does — so the box you declare is the box you actually get.</p></details>
+
+    <details><summary>Explain CSS specificity in one sentence.</summary><p>Id selectors outrank classes/attributes/pseudo-classes, which outrank plain elements and pseudo-elements, compared left to right as counts, with source order breaking exact ties.</p></details>
+
+    <details><summary>What's the difference between <code>em</code> and <code>rem</code>?</summary><p><code>em</code> is relative to the current element's own font-size and compounds when nested; <code>rem</code> is relative only to the root element's font-size and never compounds.</p></details>
+
+    <details><summary>Difference between <code>display: none</code>, <code>visibility: hidden</code>, and <code>opacity: 0</code>?</summary><p><code>display: none</code> removes the element from layout and the accessibility tree entirely; <code>visibility: hidden</code> keeps its space reserved but hides it; <code>opacity: 0</code> stays in the flow and remains interactive.</p></details>
+
+    <details><summary>What's the difference between flexbox and grid?</summary><p>Flexbox lays out along a single axis, well suited to a row or column of items whose sizes are somewhat content-driven. Grid lays out in two dimensions at once, better when rows and columns both need coordinated control, like a full page layout.</p></details>
+
+    <details><summary>What does the <code>fr</code> unit do in Grid?</summary><p>It distributes whatever space remains after fixed-size tracks are subtracted, proportionally — distinct from a percentage, which is relative to the container itself.</p></details>
+
+    <details><summary>What's a stacking context, briefly?</summary><p>A self-contained z-index ordering group. <code>z-index</code> only compares elements within the same stacking context, so a high z-index inside one context can still render behind a lower z-index in a different, higher-priority context.</p></details>
+
+    <details><summary>What does <code>!important</code> do, and why is it discouraged?</summary><p>It overrides normal specificity comparison and wins regardless of selector weight. It's discouraged because it doesn't fix the underlying specificity conflict — it just relocates the problem to whatever tries to override it next.</p></details>
+
+    <details><summary>How do CSS custom properties differ from Sass variables?</summary><p>Custom properties are live runtime values, read with <code>var()</code>, that participate in the cascade and inheritance and can be read or changed by JavaScript. Sass variables are compile-time text substitution with no presence at all once the CSS is built.</p></details>
+
+    <details><summary>What problem do container queries solve that media queries can't?</summary><p>Responding to a component's own container size rather than the viewport, so the same component adapts correctly regardless of where it's placed on the page.</p></details>
+
+    <details><summary>What's the difference between <code>:is()</code> and <code>:where()</code>?</summary><p>They group alternative selectors the same way functionally. <code>:is()</code> takes on the specificity of its most specific argument; <code>:where()</code> always contributes zero specificity.</p></details>
+
+    <details><summary>What does <code>clamp()</code> do?</summary><p>Returns a value bounded between a minimum and maximum, driven by a preferred value in between — the standard tool for fluid, bounded sizing like responsive typography.</p></details>
+
+    <details><summary>Why do logical properties like <code>margin-inline-start</code> matter?</summary><p>They describe flow-relative direction instead of a fixed physical side, so they automatically adapt for right-to-left or vertical writing modes without extra override rules.</p></details>
+
+    <details><summary>What's the difference between a transition and a keyframe animation?</summary><p>A transition only interpolates between two states, triggered by an actual change like <code>:hover</code>. A <code>@keyframes</code> animation can define multiple named steps and can autoplay on load with no trigger needed.</p></details>
+  </div>
+  <ul class="topic-keypoints">
+    <li>Model answers are a starting point — say them in your own words, with an example, in an actual interview.</li>
+    <li>If a question here feels shaky, that topic's full page earlier in this guide has the complete explanation.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="cheat-sheet" data-tier="reference" data-title="Cheat Sheet: Properties and Selectors at a Glance">
+  <div class="topic-body">
+    <p>A categorized quick reference for when you know roughly what you need but not the exact property or selector name.</p>
+    <table>
+      <thead><tr><th>Category</th><th>Properties / Selectors</th></tr></thead>
+      <tbody>
+        <tr><td>Box model</td><td><code>box-sizing</code>, <code>width</code>, <code>height</code>, <code>margin</code>, <code>padding</code>, <code>border</code>, <code>border-radius</code>, <code>box-shadow</code></td></tr>
+        <tr><td>Typography</td><td><code>font-family</code>, <code>font-size</code>, <code>font-weight</code>, <code>line-height</code>, <code>text-align</code>, <code>text-decoration</code>, <code>letter-spacing</code>, <code>color</code></td></tr>
+        <tr><td>Backgrounds</td><td><code>background-color</code>, <code>background-image</code>, <code>background-size</code>, <code>background-position</code>, <code>background-repeat</code></td></tr>
+        <tr><td>Display & position</td><td><code>display</code>, <code>position</code>, <code>top</code>/<code>right</code>/<code>bottom</code>/<code>left</code>, <code>inset</code>, <code>z-index</code>, <code>overflow</code></td></tr>
+        <tr><td>Flexbox</td><td><code>display: flex</code>, <code>flex-direction</code>, <code>justify-content</code>, <code>align-items</code>, <code>align-self</code>, <code>flex-wrap</code>, <code>flex</code>, <code>gap</code>, <code>order</code></td></tr>
+        <tr><td>Grid</td><td><code>display: grid</code>, <code>grid-template-columns</code>/<code>rows</code>, <code>grid-template-areas</code>, <code>grid-column</code>/<code>row</code>, <code>grid-area</code>, <code>gap</code></td></tr>
+        <tr><td>Motion</td><td><code>transition</code>, <code>transform</code>, <code>@keyframes</code>, <code>animation</code>, <code>will-change</code></td></tr>
+        <tr><td>Responsive & modern</td><td><code>@media</code>, <code>@container</code>, <code>container-type</code>, <code>clamp()</code>, <code>min()</code>, <code>max()</code>, <code>calc()</code></td></tr>
+        <tr><td>Variables & cascade</td><td><code>--custom-property</code>, <code>var()</code>, <code>@layer</code>, <code>!important</code></td></tr>
+        <tr><td>Selectors</td><td><code>:hover</code>, <code>:focus</code>, <code>:focus-visible</code>, <code>:nth-child()</code>, <code>:not()</code>, <code>:is()</code>, <code>:where()</code>, <code>:has()</code>, <code>::before</code>, <code>::after</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="topic-keypoints">
+    <li>Bookmark this page as a fast lookup once you already know the concepts, not as a starting point for learning them.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="common-mistakes" data-tier="reference" data-title="Common Mistakes and Misconceptions">
+  <div class="topic-body">
+    <p>Twelve recurring mistakes gathered from across this guide, in one place for a final pass before you consider yourself done.</p>
+    <dl>
+      <dt>Forgetting <code>box-sizing: border-box</code></dt>
+      <dd>Then being surprised that padding and border enlarge an element beyond its declared width.</dd>
+      <dt><code>em</code> compounding unexpectedly when nested</dt>
+      <dd>Use <code>rem</code> for most sizing to avoid the multiplicative surprise.</dd>
+      <dt>Setting <code>border-color</code>/<code>width</code> without <code>border-style</code></dt>
+      <dd>No border renders at all — the style value is required, not optional.</dd>
+      <dt>Reaching for <code>!important</code> to win a specificity fight</dt>
+      <dd>It just relocates the problem to whatever tries to override it next.</dd>
+      <dt>Using margin instead of <code>gap</code> for spacing flex/grid items</dt>
+      <dd>Needs extra "not the last child" selectors that <code>gap</code> never requires.</dd>
+      <dt>Forgetting <code>animation-fill-mode: forwards</code></dt>
+      <dd>The element snaps back to its pre-animation state the instant the animation ends.</dd>
+      <dt>Transitioning <code>all</code> instead of naming specific properties</dt>
+      <dd>Animates every property that happens to change, unpredictably and less efficiently.</dd>
+      <dt>Not accounting for margin collapsing</dt>
+      <dd>Adjacent vertical margins between block elements can combine into unexpected spacing.</dd>
+      <dt>Using <code>position: absolute</code> without a positioned ancestor</dt>
+      <dd>The element positions relative to the whole page instead of the intended parent.</dd>
+      <dt>Reordering visually with <code>order</code> or <code>grid-auto-flow: dense</code></dt>
+      <dd>Can desync what's visually first from DOM and keyboard tab order.</dd>
+      <dt>Rebuilding native form control styling from scratch</dt>
+      <dd>Check <code>accent-color</code> and other native styling hooks before reaching for custom markup.</dd>
+      <dt>Ignoring <code>prefers-reduced-motion</code></dt>
+      <dd>A real accessibility miss, not just a missed nicety.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="topic-tpl" data-id="further-practice" data-tier="reference" data-title="Keep Practicing">
+  <div class="topic-body">
+    <p>Reading a guide gets you to recognition; writing CSS from scratch gets you to fluency. A few ways to close that gap:</p>
+    <ul>
+      <li>Rebuild a simple layout — a pricing table or a blog post — with only flexbox, then rebuild the exact same layout with only grid, and compare.</li>
+      <li>Take one component, like a card, and make it genuinely responsive with container queries instead of a media query.</li>
+      <li>Build a small dark-mode toggle using custom properties together with <code>prefers-color-scheme</code>.</li>
+      <li>Recreate a loading spinner or a button hover effect entirely with <code>@keyframes</code>/transitions, no JavaScript.</li>
+      <li>Open browser devtools' Rendering panel and watch for layout thrashing while scrolling or animating a page you've built.</li>
+    </ul>
+    <p>Because CSS keeps gaining new features, treat MDN (developer.mozilla.org) as your ongoing reference for exact, current syntax whenever you need it — this guide is a foundation to build fluency on, not the last word on any single property.</p>
+  </div>
+</article>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var TIER_META = {
+    beginner:     { label: 'Beginner',     roman: 'I',   color: 'sage' },
+    intermediate: { label: 'Intermediate', roman: 'II',  color: 'blue' },
+    advanced:     { label: 'Advanced',     roman: 'III', color: 'red'  },
+    reference:    { label: 'Reference',    roman: 'IV',  color: 'gold' }
+  };
+  var TIER_ORDER = ['beginner','intermediate','advanced','reference'];
+
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function highlight(src, lang){
+    var s = escapeHtml(src);
+    if(lang === 'html'){
+      s = s.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="tk-cm">$1</span>');
+      s = s.replace(/(&lt;\/?)([a-zA-Z][a-zA-Z0-9-]*)([\s\S]*?)(\/?&gt;)/g, function(m, open, tag, attrs, close){
+        var attrHtml = attrs.replace(/([a-zA-Z_:][a-zA-Z0-9_:-]*)(=)("[^"]*"|'[^']*')/g,
+          '<span class="tk-at">$1</span>$2<span class="tk-str">$3</span>');
+        return '<span class="tk-pn">'+open+'</span><span class="tk-tg">'+tag+'</span>'+attrHtml+'<span class="tk-pn">'+close+'</span>';
+      });
+      return s;
+    }
+    if(lang === 'css'){
+      s = s.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tk-cm">$1</span>');
+      s = s.replace(/(@[a-zA-Z-]+)/g, '<span class="tk-kw">$1</span>');
+      s = s.replace(/([^\{\}\n;]+)(\{)/g, '<span class="tk-tg">$1</span>$2');
+      s = s.replace(/([a-zA-Z-]+)(\s*:)(\s*)([^;{}\n]+)(;)/g,
+        '<span class="tk-at">$1</span>$2$3<span class="tk-str">$4</span>$5');
+      return s;
+    }
+    if(lang === 'js'){
+      s = s.replace(/(\/\/[^\n]*)/g, '<span class="tk-cm">$1</span>');
+      s = s.replace(/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")/g, '<span class="tk-str">$1</span>');
+      s = s.replace(/\b(const|let|var|function|return|if|else|new|await|async|for|of|in|class|extends|import|from|export|default|true|false|null|undefined|this|document|addEventListener)\b/g,
+        '<span class="tk-kw">$1</span>');
+      return s;
+    }
+    return s;
+  }
+
+  function parseLibrary(){
+    var byTier = {}; TIER_ORDER.forEach(function(t){ byTier[t] = []; });
+    document.querySelectorAll('#library .topic-tpl').forEach(function(node){
+      var tier = node.getAttribute('data-tier');
+      if(!byTier[tier]) return;
+      var codeEl = node.querySelector('.topic-code');
+      var noteEl = node.querySelector('.topic-note');
+      var kp = Array.prototype.map.call(node.querySelectorAll('.topic-keypoints li'), function(li){ return li.innerHTML; });
+      byTier[tier].push({
+        id: node.getAttribute('data-id'),
+        title: node.getAttribute('data-title'),
+        tier: tier,
+        bodyHtml: node.querySelector('.topic-body').innerHTML,
+        code: codeEl ? { lang: codeEl.getAttribute('data-lang'), filename: codeEl.getAttribute('data-filename'), src: codeEl.textContent.trim() } : null,
+        keyPoints: kp,
+        note: noteEl ? { kind: noteEl.getAttribute('data-kind'), html: noteEl.innerHTML } : null
+      });
+    });
+    return byTier;
+  }
+
+  var byTier = parseLibrary();
+  var flat = [];
+  TIER_ORDER.forEach(function(t){ byTier[t].forEach(function(topic){ flat.push(topic); }); });
+  var indexById = {}; flat.forEach(function(t,i){ indexById[t.id] = i; });
+
+  var state = { completed: {}, lastViewed: null };
+
+  function loadState() {
+    return Promise.resolve().then(function () {
+      if (window.storage) {
+        return window.storage.get('css-guide-state').then(function (res) {
+          if (res && res.value) {
+            var parsed = JSON.parse(res.value);
+            if (parsed && typeof parsed === 'object') {
+              state.completed = parsed.completed || {};
+              state.lastViewed = parsed.lastViewed || null;
+            }
+          }
+        }).catch(function () { /* no saved state yet */ });
+      } else if (window.localStorage) {
+        try {
+          var raw = localStorage.getItem('css-guide-state');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              state.completed = parsed.completed || {};
+              state.lastViewed = parsed.lastViewed || null;
+            }
+          }
+        } catch (e) { /* localStorage access disabled or restricted */ }
+      }
+    });
+  }
+
+  function saveState() {
+    if (window.storage) {
+      try { window.storage.set('css-guide-state', JSON.stringify(state)).catch(function () { }); }
+      catch (e) { /* storage unavailable */ }
+    } else if (window.localStorage) {
+      try { localStorage.setItem('css-guide-state', JSON.stringify(state)); }
+      catch (e) { /* localStorage unavailable or quota exceeded */ }
+    }
+  }
+
+  var tocEl = document.getElementById('toc');
+  var pageEl = document.getElementById('page');
+  var pageInnerEl = document.getElementById('pageInner');
+  var searchEl = document.getElementById('search');
+  var progressTextEl = document.getElementById('progressText');
+  var progressBarEl = document.getElementById('progressBarFill');
+
+  var currentId = null;
+
+  function buildToc(filter){
+    var q = (filter||'').trim().toLowerCase();
+    tocEl.innerHTML = '';
+    TIER_ORDER.forEach(function(tierId){
+      var topics = byTier[tierId];
+      if(!topics.length) return;
+      var meta = TIER_META[tierId];
+      var matched = topics.filter(function(t){ return !q || t.title.toLowerCase().indexOf(q) !== -1; });
+      if(matched.length === 0) return;
+      var doneCount = topics.filter(function(t){ return state.completed[t.id]; }).length;
+      var tierWrap = document.createElement('div');
+      tierWrap.className = 'tier tier-' + meta.color;
+      var head = document.createElement('div');
+      head.className = 'tier-head';
+      head.innerHTML = '<span class="stamp">' + meta.roman + '</span><span class="tier-label">' + meta.label + '</span><span class="tier-count">' + doneCount + '/' + topics.length + '</span>';
+      tierWrap.appendChild(head);
+      var list = document.createElement('div');
+      list.className = 'tier-list';
+      matched.forEach(function(topic){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'toc-item' + (topic.id === currentId ? ' active' : '') + (state.completed[topic.id] ? ' done' : '');
+        btn.innerHTML = '<span class="chk">' + (state.completed[topic.id] ? '✓' : '') + '</span><span>' + topic.title + '</span>';
+        btn.addEventListener('click', function(){ goTo(topic.id); closeDrawer(); });
+        list.appendChild(btn);
+      });
+      tierWrap.appendChild(list);
+      tocEl.appendChild(tierWrap);
+    });
+  }
+
+  function updateProgressChrome(){
+    var total = flat.length;
+    var done = flat.filter(function(t){ return state.completed[t.id]; }).length;
+    progressTextEl.textContent = done + ' of ' + total + ' read';
+    progressBarEl.style.width = (total ? (done/total*100) : 0) + '%';
+  }
+
+  function flashCopied(btn){
+    var orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(function(){ btn.textContent = orig; }, 1400);
+  }
+  function fallbackCopy(text, btn){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      flashCopied(btn);
+    }catch(e){ /* clipboard unavailable */ }
+  }
+
+  function renderTopic(id, opts){
+    opts = opts || {};
+    var idx = indexById[id];
+    if(idx === undefined) return;
+    var topic = flat[idx];
+    currentId = id;
+    state.lastViewed = id;
+    var meta = TIER_META[topic.tier];
+    var prev = flat[idx-1];
+    var next = flat[idx+1];
+
+    var html = '';
+    html += '<div class="page-head">';
+    html += '<span class="tier-pill tier-pill-' + meta.color + '">' + meta.label + '</span>';
+    html += '<span class="page-count">Page ' + (idx+1) + ' of ' + flat.length + '</span>';
+    html += '</div>';
+    html += '<h1 class="topic-title">' + topic.title + '</h1>';
+    html += '<div class="topic-mark"><button type="button" class="mark-btn' + (state.completed[id] ? ' done':'') + '" id="markBtn">' +
+            (state.completed[id] ? '✓ Read' : 'Mark as read') + '</button></div>';
+    html += '<div class="prose">' + topic.bodyHtml + '</div>';
+
+    if(topic.code){
+      html += '<div class="code-panel">';
+      html += '<div class="code-head"><span class="code-dot dot-' + meta.color + '"></span><span class="code-filename">' + topic.code.filename + '</span>' +
+              '<button type="button" class="copy-btn" id="copyBtn">Copy</button></div>';
+      html += '<pre class="code-body"><code>' + highlight(topic.code.src, topic.code.lang) + '</code></pre>';
+      html += '</div>';
+    }
+
+    if(topic.keyPoints && topic.keyPoints.length){
+      html += '<div class="keypoints"><h2>Key points</h2><ul>' +
+              topic.keyPoints.map(function(k){ return '<li>' + k + '</li>'; }).join('') + '</ul></div>';
+    }
+
+    if(topic.note){
+      var kindLabel = topic.note.kind === 'mistake' ? 'Common mistake' : (topic.note.kind === 'tip' ? 'Try it' : 'Note');
+      html += '<div class="callout callout-' + topic.note.kind + '"><strong>' + kindLabel + '.</strong> ' + topic.note.html + '</div>';
+    }
+
+    html += '<div class="pager">';
+    html += prev ? '<button type="button" class="pager-btn pager-prev" data-id="'+prev.id+'"><span class="pager-arrow">←</span><span><span class="pager-label">Previous</span><span class="pager-title">'+prev.title+'</span></span></button>' : '<span></span>';
+    html += next ? '<button type="button" class="pager-btn pager-next" data-id="'+next.id+'"><span><span class="pager-label">Next</span><span class="pager-title">'+next.title+'</span></span><span class="pager-arrow">→</span></button>' : '<span></span>';
+    html += '</div>';
+
+    pageInnerEl.innerHTML = html;
+    if(!opts.skipScroll) pageEl.scrollTop = 0;
+
+    document.getElementById('markBtn').addEventListener('click', function(){ toggleComplete(id); });
+    var copyBtn = document.getElementById('copyBtn');
+    if(copyBtn){
+      copyBtn.addEventListener('click', function(){
+        var codeText = topic.code.src;
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(codeText).then(function(){ flashCopied(copyBtn); }).catch(function(){ fallbackCopy(codeText, copyBtn); });
+        } else {
+          fallbackCopy(codeText, copyBtn);
+        }
+      });
+    }
+    Array.prototype.forEach.call(pageInnerEl.querySelectorAll('.pager-btn'), function(b){
+      b.addEventListener('click', function(){ goTo(b.getAttribute('data-id')); });
+    });
+
+    buildToc(searchEl.value);
+    updateProgressChrome();
+    saveState();
+  }
+
+  function toggleComplete(id){
+    state.completed[id] = !state.completed[id];
+    renderTopic(id);
+  }
+
+  function goTo(id){ renderTopic(id); }
+
+  var drawerToggle = document.getElementById('drawerToggle');
+  var drawerClose = document.getElementById('drawerClose');
+  var backdrop = document.getElementById('backdrop');
+  var tocPanel = document.getElementById('tocPanel');
+  function openDrawer(){ tocPanel.classList.add('open'); backdrop.classList.add('show'); }
+  function closeDrawer(){ tocPanel.classList.remove('open'); backdrop.classList.remove('show'); }
+  drawerToggle.addEventListener('click', openDrawer);
+  drawerClose.addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  searchEl.addEventListener('input', function(){ buildToc(searchEl.value); });
+
+  document.addEventListener('keydown', function(e){
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var idx = indexById[currentId];
+    if(e.key === 'ArrowRight' && flat[idx+1]) goTo(flat[idx+1].id);
+    if(e.key === 'ArrowLeft' && flat[idx-1]) goTo(flat[idx-1].id);
+  });
+
+  loadState().then(function(){
+    buildToc('');
+    var startId = (state.lastViewed && indexById[state.lastViewed] !== undefined) ? state.lastViewed : flat[0].id;
+    renderTopic(startId);
+  });
+})();
+</script>
+</body>
+</html>

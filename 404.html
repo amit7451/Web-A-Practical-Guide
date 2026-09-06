@@ -43,6 +43,13 @@
       margin-bottom: 32px;
     }
 
+    .not-found-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
     .home-btn {
       display: inline-flex;
       align-items: center;
@@ -59,6 +66,12 @@
     .home-btn:hover {
       opacity: 0.9;
     }
+
+    .btn-secondary {
+      background: var(--ink-2);
+      border: 1px solid var(--ink-3);
+      color: var(--paper);
+    }
   </style>
 </head>
 
@@ -67,7 +80,11 @@
     <div class="not-found-code">404</div>
     <h1 class="not-found-title">Topic or Page Not Found</h1>
     <p class="not-found-desc">The manuscript page or topic you were looking for doesn't exist or has moved.</p>
-    <a href="index.html" class="home-btn">← Return to HTML Guide</a>
+    <div class="not-found-actions">
+      <a href="index.html" class="home-btn">← All Guides Portal</a>
+      <a href="html-guide/index.html" class="home-btn btn-secondary">HTML Guide</a>
+      <a href="css-guide/index.html" class="home-btn btn-secondary">CSS Guide</a>
+    </div>
   </div>
 </body>
 
