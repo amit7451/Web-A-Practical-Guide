@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runtime — The Machine Behind the Page</title>
+<meta name="description" content="A deep, theoretical guide to how HTML, CSS, and JavaScript actually run together, from browser architecture to application-layer patterns.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,480;0,9..144,600;0,9..144,680;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<meta property="og:title" content="Runtime — The Machine Behind the Page">
+<meta property="og:description" content="A deep, theoretical guide to how HTML, CSS, and JavaScript actually run together, from browser architecture to application-layer patterns.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Runtime — The Machine Behind the Page">
+<meta name="twitter:description" content="A deep, theoretical guide to how HTML, CSS, and JavaScript actually run together, from browser architecture to application-layer patterns.">
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+  :root{
+    --ink: #1c2321;
+    --ink-2: #232b27;
+    --ink-3: #313b35;
+    --ink-line: rgba(233,227,211,0.12);
+    --ink-text: #ece6d6;
+    --ink-text-dim: #a39c8c;
+
+    --paper: #f5efe1;
+    --paper-dim: #eae1c9;
+    --paper-line: rgba(36,33,26,0.14);
+    --paper-text: #24211a;
+    --paper-text-dim: #5c5646;
+
+    --red: #b3452f;
+    --red-dim: rgba(179,69,47,0.14);
+    --blue: #3a5b74;
+    --blue-dim: rgba(58,91,116,0.14);
+    --sage: #5c7a56;
+    --sage-dim: rgba(92,122,86,0.16);
+    --gold: #a1802f;
+    --gold-dim: rgba(161,128,47,0.17);
+    --plum: #7a4a6b;
+    --plum-dim: rgba(122,74,107,0.16);
+    --teal: #3f7268;
+    --teal-dim: rgba(63,114,104,0.16);
+
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+    --masthead-h: 68px;
+    --sidebar-w: 300px;
+    --radius: 3px;
+  }
+
+  *{ box-sizing: border-box; }
+  html, body{ margin:0; padding:0; }
+  body{
+    background: var(--ink);
+    color: var(--ink-text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3,h4{ font-family: var(--serif); font-weight: 600; margin: 0; }
+  button, input{ font-family: inherit; }
+  button{ cursor: pointer; background:none; border:none; color:inherit; }
+  a{ color: var(--blue); }
+  #app .prose a{ color: var(--blue); text-decoration-thickness: 1px; }
+
+  :focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+  .visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+  /* ===== Masthead ===== */
+  .masthead{
+    height: var(--masthead-h);
+    display:flex; align-items:center; gap:16px;
+    padding: 0 20px;
+    background: var(--ink);
+    border-bottom: 1px solid var(--ink-line);
+    position: relative;
+    z-index: 20;
+  }
+  .drawer-toggle{
+    display:none;
+    flex-direction:column; gap:4px;
+    padding:8px; margin-left:-8px;
+  }
+  .drawer-toggle span{ width:20px; height:2px; background:var(--ink-text); display:block; }
+  .wordmark{ display:flex; align-items:baseline; gap:10px; white-space:nowrap; }
+  .wordmark .mark{ font-family:var(--serif); font-weight:680; font-size:1.5rem; color:var(--paper); letter-spacing:0.01em; }
+  .wordmark .sub{ font-family:var(--serif); font-style:italic; font-weight:400; font-size:0.92rem; color:var(--ink-text-dim); }
+  .masthead-spacer{ flex:1; }
+  .search-wrap{ position:relative; width: 220px; }
+  .search-wrap input{
+    width:100%; background: var(--ink-2); border:1px solid var(--ink-3); color: var(--ink-text);
+    padding: 8px 12px 8px 30px; border-radius: var(--radius); font-size: 0.88rem;
+  }
+  .search-wrap input::placeholder{ color: var(--ink-text-dim); }
+  .search-wrap svg{ position:absolute; left:9px; top:50%; transform:translateY(-50%); opacity:0.6; }
+  .progress-wrap{ display:flex; flex-direction:column; gap:5px; min-width: 128px; }
+  .progress-text{ font-size:0.78rem; color: var(--ink-text-dim); text-align:right; white-space:nowrap; }
+  .progress-bar{ height:3px; background: var(--ink-3); border-radius:2px; overflow:hidden; }
+  .progress-bar-fill{ height:100%; background: var(--red); width:0%; }
+  @media (prefers-reduced-motion: no-preference){
+    .progress-bar-fill{ transition: width 0.4s ease; }
+  }
+
+  /* ===== Layout ===== */
+  .layout{ display:flex; height: calc(100vh - var(--masthead-h)); }
+
+  .toc-panel{
+    width: var(--sidebar-w); flex-shrink:0;
+    background: var(--ink-2);
+    border-right: 1px solid var(--ink-line);
+    overflow-y:auto;
+    padding: 18px 0 40px;
+  }
+  .toc-panel-head{ display:none; }
+  .toc{ display:flex; flex-direction:column; gap:22px; padding: 0 18px; }
+
+  .tier-head{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .stamp{
+    width:24px; height:24px; border-radius:50%; border:1.5px solid currentColor;
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--serif); font-size:0.72rem; font-weight:600; flex-shrink:0;
+  }
+  .tier-label{ font-weight:600; font-size:0.92rem; color: var(--ink-text); flex:1; }
+  .tier-count{ font-family: var(--mono); font-size:0.72rem; color: var(--ink-text-dim); }
+  .tier-sage .stamp, .tier-sage .tier-count{ color: var(--sage); }
+  .tier-blue .stamp, .tier-blue .tier-count{ color: var(--blue); }
+  .tier-red .stamp, .tier-red .tier-count{ color: var(--red); }
+  .tier-gold .stamp, .tier-gold .tier-count{ color: var(--gold); }
+  .tier-plum .stamp, .tier-plum .tier-count{ color: var(--plum); }
+  .tier-teal .stamp, .tier-teal .tier-count{ color: var(--teal); }
+
+  .tier-list{ display:flex; flex-direction:column; gap:1px; }
+  .toc-item{
+    display:flex; align-items:center; gap:9px;
+    text-align:left; width:100%; padding: 7px 10px 7px 8px;
+    border-left: 2px solid transparent;
+    color: var(--ink-text-dim); font-size: 0.87rem; border-radius: 0 var(--radius) var(--radius) 0;
+    line-height:1.35;
+  }
+  .toc-item:hover{ background: rgba(233,227,211,0.05); color: var(--ink-text); }
+  .toc-item.active{ background: rgba(233,227,211,0.08); color: var(--paper); border-left-color: var(--red); font-weight:500; }
+  .toc-item.done{ color: var(--ink-text-dim); }
+  .toc-item.done span:last-child{ opacity:0.75; }
+  .toc-item .chk{ width:13px; flex-shrink:0; color: var(--sage); font-size:0.8rem; }
+
+  .backdrop{ display:none; }
+
+  /* ===== Page ===== */
+  main.page{ flex:1; overflow-y:auto; padding: 48px 56px 90px; }
+  .page-inner{ max-width: 700px; margin:0 auto; }
+
+  .page-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .tier-pill{ font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:20px; }
+  .tier-pill-sage{ background: var(--sage-dim); color: var(--sage); }
+  .tier-pill-blue{ background: var(--blue-dim); color: var(--blue); }
+  .tier-pill-red{ background: var(--red-dim); color: var(--red); }
+  .tier-pill-gold{ background: var(--gold-dim); color: var(--gold); }
+  .tier-pill-plum{ background: var(--plum-dim); color: var(--plum); }
+  .tier-pill-teal{ background: var(--teal-dim); color: var(--teal); }
+  .page-count{ font-family: var(--mono); font-size:0.76rem; color: var(--ink-text-dim); }
+
+  .topic-title{ color: var(--paper); font-size: clamp(1.7rem, 3vw, 2.35rem); line-height:1.15; margin-bottom:18px; }
+
+  .topic-mark{ margin-bottom: 28px; }
+  .mark-btn{
+    font-size:0.82rem; font-weight:600; padding:8px 16px; border-radius:20px;
+    border:1px solid var(--ink-3); color: var(--ink-text-dim);
+  }
+  .mark-btn:hover{ border-color: var(--sage); color: var(--sage); }
+  .mark-btn.done{ background: var(--sage-dim); border-color: transparent; color: var(--sage); }
+
+  .prose{ background: var(--paper); color: var(--paper-text); border-radius: 4px; padding: 40px 48px; box-shadow: 0 18px 40px rgba(0,0,0,0.28); }
+  .prose p{ margin: 0 0 16px; max-width: 66ch; }
+  .prose p:last-child{ margin-bottom:0; }
+  .prose h4{ font-size:1.05rem; margin: 26px 0 10px; color: var(--paper-text); }
+  .prose ul, .prose ol{ margin: 0 0 16px; padding-left: 22px; max-width: 64ch; }
+  .prose li{ margin-bottom:6px; }
+  .prose li:last-child{ margin-bottom:0; }
+  .prose code{ font-family: var(--mono); background: var(--paper-dim); padding: 1px 5px; border-radius: 3px; font-size:0.88em; }
+  .prose strong{ color: var(--paper-text); }
+  .prose dt{ font-weight:600; margin-top:14px; }
+  .prose dt:first-child{ margin-top:0; }
+  .prose dd{ margin: 3px 0 0; color: var(--paper-text-dim); max-width: 62ch; }
+  .prose table{ width:100%; border-collapse: collapse; margin: 4px 0 16px; }
+  .prose th, .prose td{ text-align:left; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--paper-line); font-size:0.92rem; vertical-align:top; }
+  .prose thead th{ color: var(--paper-text-dim); font-weight:600; font-size:0.76rem; }
+  .prose details{ border: 1px solid var(--paper-line); border-radius: 3px; padding: 12px 16px; margin-bottom: 10px; }
+  .prose details[open]{ background: rgba(36,33,26,0.03); }
+  .prose summary{ cursor:pointer; font-weight:600; font-size:0.96rem; }
+  .prose details[open] summary{ margin-bottom: 8px; }
+  .prose details p{ margin: 0; color: var(--paper-text-dim); }
+  .prose kbd{ font-family: var(--mono); font-size:0.82em; background: var(--paper-dim); border: 1px solid var(--paper-line); border-radius: 3px; padding: 1px 6px; }
+  .prose pre.inline-code-block{ font-family: var(--mono); background: var(--paper-dim); padding: 14px 16px; border-radius: 3px; overflow-x:auto; font-size:0.85rem; margin: 0 0 16px; }
+  .diagram{ margin: 6px 0 24px; padding: 18px; background: var(--paper-dim); border-radius: 4px; overflow-x:auto; }
+  .diagram svg{ display:block; margin: 0 auto; max-width:100%; height:auto; }
+  .diagram-caption{ text-align:center; font-size:0.78rem; color: var(--paper-text-dim); margin-top:10px; font-style:italic; }
+
+  .code-panel{ margin-top: 22px; border-radius: 4px; overflow:hidden; border: 1px solid var(--ink-3); }
+  .code-head{ display:flex; align-items:center; gap:9px; background: var(--ink-2); padding: 9px 14px; }
+  .code-dot{ width:8px; height:8px; border-radius:50%; }
+  .dot-sage{ background: var(--sage); } .dot-blue{ background: var(--blue); } .dot-red{ background: var(--red); } .dot-gold{ background: var(--gold); }
+  .dot-plum{ background: var(--plum); } .dot-teal{ background: var(--teal); }
+  .code-filename{ font-family: var(--mono); font-size:0.78rem; color: var(--ink-text-dim); flex:1; }
+  .copy-btn{ font-family: var(--mono); font-size:0.72rem; color: var(--ink-text-dim); border:1px solid var(--ink-3); padding:3px 9px; border-radius: 3px; }
+  .copy-btn:hover{ color: var(--paper); border-color: var(--ink-text-dim); }
+  .code-body{ margin:0; background: #141815; padding: 18px 20px; overflow-x:auto; }
+  .code-body code{ font-family: var(--mono); font-size: 0.86rem; line-height:1.6; color: #d8d2c2; white-space:pre; }
+  .tk-cm{ color:#7d8c82; font-style:italic; }
+  .tk-tg{ color:#d68a6a; }
+  .tk-at{ color:#8fb5a8; }
+  .tk-str{ color:#c9a86f; }
+  .tk-pn{ color:#8a9490; }
+  .tk-kw{ color:#7fa3c9; }
+
+  .keypoints{ margin-top:26px; background: var(--paper); border-radius:4px; padding: 26px 30px; box-shadow: 0 10px 26px rgba(0,0,0,0.22); }
+  .keypoints h2{ font-size:1rem; color: var(--paper-text); margin-bottom:12px; }
+  .keypoints ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+  .keypoints li{ position:relative; padding-left:16px; color: var(--paper-text); font-size:0.94rem; max-width: 62ch; }
+  .keypoints li::before{ content:''; position:absolute; left:0; top:6px; width:6px; height:6px; border-radius:50%; background: var(--red); }
+
+  .callout{ margin-top:20px; padding: 16px 20px; border-radius: 3px; border-left: 3px solid; font-size:0.92rem; max-width: 66ch; }
+  .callout strong{ font-weight:600; }
+  .callout-note{ background: var(--blue-dim); border-color: var(--blue); color: #d7e4ec; }
+  .callout-mistake{ background: var(--red-dim); border-color: var(--red); color: #f0d9d2; }
+  .callout-tip{ background: var(--gold-dim); border-color: var(--gold); color: #eee0c2; }
+
+  .pager{ display:flex; justify-content:space-between; gap:16px; margin-top:40px; }
+  .pager-btn{ display:flex; align-items:center; gap:10px; max-width:48%; padding:14px 16px; border:1px solid var(--ink-3); border-radius:4px; }
+  .pager-btn:hover{ border-color: var(--red); }
+  .pager-next{ margin-left:auto; text-align:right; flex-direction:row-reverse; }
+  .pager-arrow{ color: var(--red); font-size:1.1rem; flex-shrink:0; }
+  .pager-btn span > .pager-label{ display:block; font-size:0.72rem; color: var(--ink-text-dim); margin-bottom:2px; }
+  .pager-btn span > .pager-title{ display:block; font-size:0.86rem; color: var(--ink-text); font-weight:500; line-height:1.3; }
+
+  @media (prefers-reduced-motion: no-preference){
+    main.page{ scroll-behavior:smooth; }
+    .prose, .keypoints{ animation: rise 0.25s ease; }
+    @keyframes rise{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform:none; } }
+  }
+
+  /* ===== Mobile ===== */
+  @media (max-width: 900px){
+    .search-wrap{ width: 150px; }
+    .drawer-toggle{ display:flex; }
+    .toc-panel{
+      position: fixed; top:0; left:0; bottom:0; z-index:40;
+      transform: translateX(-100%);
+      box-shadow: 20px 0 40px rgba(0,0,0,0.4);
+      padding-top:0;
+    }
+    @media (prefers-reduced-motion: no-preference){ .toc-panel{ transition: transform 0.25s ease; } }
+    .toc-panel.open{ transform: translateX(0); }
+    .toc-panel-head{ display:flex; align-items:center; justify-content:space-between; padding: 16px 18px; border-bottom:1px solid var(--ink-line); margin-bottom:14px; }
+    .toc-panel-head span{ font-family: var(--serif); font-weight:600; color:var(--paper); }
+    .drawer-close{ font-size:1.4rem; color: var(--ink-text-dim); line-height:1; }
+    .backdrop.show{ display:block; position:fixed; inset:0; background: rgba(0,0,0,0.5); z-index:30; }
+    main.page{ padding: 28px 18px 70px; }
+    .prose{ padding: 26px 22px; }
+    .keypoints{ padding: 20px 22px; }
+    .pager-btn span > .pager-title{ display:none; }
+    .wordmark .sub{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="masthead">
+    <button class="drawer-toggle" id="drawerToggle" aria-label="Open table of contents"><span></span><span></span><span></span></button>
+    <a href="../index.html" class="home-nav-link" title="Return to All Guides">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      <span>All Guides</span>
+    </a>
+    <div class="wordmark"><span class="mark">RUNTIME</span><span class="sub">the machine behind the page</span></div>
+    <div class="masthead-spacer"></div>
+    <div class="search-wrap">
+      <label for="search" class="visually-hidden">Search topics</label>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Search topics…" autocomplete="off">
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-text" id="progressText">0 of 0 read</span>
+      <div class="progress-bar"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc-panel" id="tocPanel">
+      <div class="toc-panel-head"><span>Contents</span><button class="drawer-close" id="drawerClose" aria-label="Close">×</button></div>
+      <nav class="toc" id="toc"></nav>
+    </aside>
+    <div class="backdrop" id="backdrop"></div>
+    <main class="page" id="page"><div class="page-inner" id="pageInner"></div></main>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONTENT LIBRARY — every topic lives here as plain HTML.
+     JS below reads this into structured data at load time.
+     ============================================================ -->
+<div id="library" hidden>
+
+<!-- ===== PART1 TIER ===== -->
+
+
+<article class="topic-tpl" data-id="big-picture" data-tier="part1" data-title="The Big Picture: From URL to Pixels">
+  <div class="topic-body">
+
+    <p>Every guide in this series so far has treated HTML, CSS, and JavaScript as three separate languages, each with its own syntax and rules. This guide asks a different question: when a browser actually loads a page, what really happens to those three languages, in what order, on what hardware, and how do they actually touch each other at runtime? Everything that follows builds toward one complete, accurate mental model — by the end, you should be able to trace, in detail, exactly what a browser does between the moment you press Enter on a URL and the moment pixels appear on your screen, and exactly how a modern JavaScript framework sits on top of that same machinery.</p>
+    <p>At the highest level, five broad phases happen, roughly in sequence but with real overlap between them, which later modules unpack one at a time:</p>
+    <ol>
+      <li><strong>Navigation</strong> — the browser resolves the URL's domain to an IP address (DNS), opens a secure connection (TCP and TLS), and sends an HTTP request.</li>
+      <li><strong>Parsing</strong> — as the HTML response streams in, the browser tokenizes and parses it into the DOM tree, discovering and fetching CSS and JavaScript along the way.</li>
+      <li><strong>Style and layout</strong> — CSS is parsed into the CSSOM, combined with the DOM into a render tree, and the browser computes the exact size and position of every visible box.</li>
+      <li><strong>Paint and composite</strong> — the browser turns those geometric boxes into actual pixels, often across several independently-managed layers that a separate thread composites together for the final image.</li>
+      <li><strong>Scripting and interaction</strong> — JavaScript executes throughout this whole process (not only at the end), reading and mutating the DOM and CSSOM, responding to events, and potentially triggering some or all of the steps above to run again.</li>
+    </ol>
+    <p>The crucial idea to hold onto from this first module, which the rest of this guide exists to justify in detail: HTML, CSS, and JavaScript are not three independent tracks that happen to run at the same time. They are three inputs into one shared, ongoing pipeline, and JavaScript in particular can reach into almost any stage of that pipeline and force it to re-run. Understanding <em>where</em> the pipeline's expensive steps are, and <em>which</em> JavaScript operations force them to re-run, is the single most practical payoff of everything covered here — it's the actual reasoning behind nearly every performance rule stated as a flat fact in the HTML, CSS, and JavaScript guides ("prefer <code>transform</code> over <code>top</code>," "batch your DOM reads and writes," "microtasks run before the next macrotask"). Those rules stop being things to memorize once you can see the machine that makes them true.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Navigation, parsing, style/layout, paint/composite, and scripting are the five broad phases — overlapping, not strictly sequential.</li>
+    <li>HTML, CSS, and JS feed into one shared rendering pipeline, not three independent tracks.</li>
+    <li>JavaScript can reach into nearly any stage of that pipeline and force it to re-run — this is the real reason behind most performance advice in the earlier guides.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="processes-threads-sandboxing" data-tier="part1" data-title="Inside the Browser: Processes, Threads, and Sandboxing">
+  <div class="topic-body">
+
+    <p>A modern browser is not one program — it's several separate operating-system processes working together, a design every major browser engine converged on for the same two reasons: stability (one crashed tab shouldn't take down the whole browser or your other tabs) and security (a compromised web page should be trapped in a heavily restricted sandbox, unable to touch your files or other tabs directly).</p>
+    <div class="diagram">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="260" y="16" width="200" height="56" rx="4" fill="#eae1c9" stroke="#b3452f" stroke-width="1.5"/>
+        <text x="360" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#24211a" font-weight="600">Browser Process</text>
+        <text x="360" y="58" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#5c5646">UI, tabs, address bar, disk, network policy</text>
+
+        <line x1="360" y1="72" x2="90" y2="150" stroke="#8a9490" stroke-width="1.5"/>
+        <line x1="360" y1="72" x2="270" y2="150" stroke="#8a9490" stroke-width="1.5"/>
+        <line x1="360" y1="72" x2="450" y2="150" stroke="#8a9490" stroke-width="1.5"/>
+        <line x1="360" y1="72" x2="630" y2="150" stroke="#8a9490" stroke-width="1.5"/>
+
+        <rect x="20" y="150" width="140" height="90" rx="4" fill="#f5efe1" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="90" y="175" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a" font-weight="600">Renderer</text>
+        <text x="90" y="190" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a" font-weight="600">Process (Tab 1)</text>
+        <text x="90" y="210" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">DOM · CSSOM</text>
+        <text x="90" y="224" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">JS engine</text>
+
+        <rect x="200" y="150" width="140" height="90" rx="4" fill="#f5efe1" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="270" y="175" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a" font-weight="600">Renderer</text>
+        <text x="270" y="190" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a" font-weight="600">Process (Tab 2)</text>
+        <text x="270" y="210" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">DOM · CSSOM</text>
+        <text x="270" y="224" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">JS engine</text>
+
+        <rect x="380" y="150" width="140" height="90" rx="4" fill="#f5efe1" stroke="#5c7a56" stroke-width="1.5"/>
+        <text x="450" y="180" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a" font-weight="600">GPU Process</text>
+        <text x="450" y="200" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">Compositing,</text>
+        <text x="450" y="214" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">rasterization</text>
+
+        <rect x="560" y="150" width="140" height="90" rx="4" fill="#f5efe1" stroke="#a1802f" stroke-width="1.5"/>
+        <text x="630" y="180" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a" font-weight="600">Network Process</text>
+        <text x="630" y="200" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">DNS, TCP/TLS,</text>
+        <text x="630" y="214" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">HTTP, cache</text>
+
+        <rect x="20" y="264" width="14" height="14" fill="none" stroke="#8a9490"/>
+        <text x="40" y="275" font-family="IBM Plex Mono, monospace" font-size="10" fill="#5c5646">Lines = inter-process communication (IPC) — no process reaches into another's memory directly.</text>
+      </svg>
+      <div class="diagram-caption">A simplified Chromium-style multi-process architecture. Each renderer process is sandboxed and typically isolated per site.</div>
+    </div>
+    <p>The <strong>browser process</strong> is the one true orchestrator: it owns the address bar, tab strip, bookmarks, and disk access, and it's the only process with unrestricted access to your operating system. The <strong>renderer process</strong> is where HTML parsing, CSS parsing, layout, and JavaScript execution actually happen — modern browsers give each site (not just each tab) its own renderer process where possible, a policy usually called <em>site isolation</em>, specifically so a malicious or buggy page in one tab can't read memory belonging to a different site open in another tab. The <strong>GPU process</strong> handles the final compositing and rasterization step (covered fully in the paint/composite module), offloading that work to graphics hardware. A <strong>network process</strong> centralizes DNS lookups, TLS handshakes, HTTP requests, and the disk cache, so every renderer process shares one consistent, centrally-managed cache and connection pool rather than each tab managing its own.</p>
+    <p>Every renderer process runs inside a strict OS-level sandbox: by design, it cannot directly open files, access arbitrary network sockets, or talk to other processes except through tightly controlled inter-process communication (IPC) channels back to the browser process. This is precisely why a web page cannot simply read a file from your hard drive, no matter what JavaScript runs inside it — the renderer process itself is physically incapable of the underlying system call, regardless of what the script tries to do.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>A browser is several cooperating OS processes, not one program — for crash isolation and security.</li>
+    <li>The renderer process is where HTML/CSS parsing, layout, and JS execution happen — and modern browsers isolate it per site.</li>
+    <li>A sandboxed renderer process cannot touch the filesystem or other processes directly, no matter what JavaScript inside it tries to do.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="renderer-main-thread" data-tier="part1" data-title="The Renderer's Main Thread">
+  <div class="topic-body">
+
+    <p>Inside a single renderer process, most of the work this entire guide is about — HTML parsing, CSS parsing, style calculation, layout, most of paint, and every line of your JavaScript — happens on one specific thread, universally called the <strong>main thread</strong> (this is the exact same "single thread" the JavaScript guide's event loop topic referred to; this module explains what else is competing for time on it). The main thread genuinely does one thing at a time — it cannot run two of your event handlers simultaneously, and it cannot run your JavaScript and recalculate layout at the same literal instant. Everything the main thread needs to do gets interleaved: a task here, a layout recalculation there, a paint step, a batch of microtasks, back to another task.</p>
+    <p>This single-thread design is a deliberate trade-off, not an oversight. It sidesteps an entire category of hard problems: your JavaScript never needs a lock or a mutex to safely read or write the DOM, because nothing else can possibly be touching it at the same instant your code runs. The cost of that simplicity is exactly what the JavaScript guide's memory/performance topic warned about: a slow synchronous function, a very large loop, or an expensive layout recalculation genuinely freezes everything else on that thread — the page stops responding to clicks, scrolling stutters, animations stop — because there is no other main-thread work happening concurrently to pick up the slack.</p>
+    <p>Two escape hatches exist, and both matter for the application-layer modules later in this guide. First, a small number of expensive operations — most notably compositing, covered in the paint module — are deliberately handed off to a separate <strong>compositor thread</strong> inside the same renderer process, specifically so that scrolling and certain animations can keep running smoothly even while the main thread is briefly busy. Second, genuinely heavy computation can be moved off the main thread entirely using a <strong>Web Worker</strong>, a real, separate thread with its own event loop that simply cannot touch the DOM directly — covered in full in this guide's application-layer part, once the DOM itself has been properly introduced.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>HTML/CSS parsing, layout, most paint work, and all your JavaScript share one main thread inside the renderer process.</li>
+    <li>Single-threaded execution avoids needing locks around the DOM, at the cost of one slow function freezing everything else.</li>
+    <li>A separate compositor thread and, for heavy computation, Web Workers are the two ways work escapes the main thread.</li>
+  </ul>
+  <div class="topic-note" data-kind="note">This is the same thread — and the same event loop — the JavaScript guide's event loop topic described. This guide adds the missing piece: that thread isn't only running your callbacks, it's running the entire rendering pipeline too, competing for the same time.</div>
+</article>
+
+
+<!-- ===== PART2 TIER ===== -->
+
+
+<article class="topic-tpl" data-id="html-parsing-to-dom" data-tier="part2" data-title="HTML Parsing: From Bytes to the DOM">
+  <div class="topic-body">
+
+    <p>An HTML response arrives at the browser as a stream of raw bytes, not text — the first real step is decoding those bytes into characters using the encoding declared by the <code>&lt;meta charset&gt;</code> tag (or an HTTP header), exactly the mechanism the HTML guide's entities topic assumed but didn't explain the origin of. From there, HTML parsing runs in two connected stages: <strong>tokenization</strong>, which scans the character stream and produces a sequence of tokens (start tag, end tag, text, comment, and so on), and <strong>tree construction</strong>, which consumes those tokens one at a time and builds the actual DOM tree — the same tree structure <code>document.querySelector</code> and every other DOM API in the JavaScript guide operate on.</p>
+    <p>The HTML guide mentioned, almost in passing, that HTML parsing is deliberately fault-tolerant — unknown tags are treated as unstyled inline elements, and the page keeps rendering. This module explains the mechanism behind that: the HTML specification defines an extremely detailed, exact algorithm for exactly how to recover from broken markup — a missing closing tag, mismatched nesting, text in the wrong place — and every major browser implements that same recovery algorithm identically. This is precisely why a page with genuinely invalid HTML still renders consistently, the same way, in every browser: fault tolerance isn't each browser guessing independently, it's a fully specified, standardized behavior.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 620 150" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="50" width="130" height="50" rx="4" fill="#eae1c9" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="75" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#24211a">Bytes</text>
+        <line x1="140" y1="75" x2="180" y2="75" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow1)"/>
+
+        <rect x="185" y="50" width="150" height="50" rx="4" fill="#eae1c9" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="260" y="72" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Tokenizer</text>
+        <text x="260" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">chars → tokens</text>
+        <line x1="335" y1="75" x2="375" y2="75" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow1)"/>
+
+        <rect x="380" y="50" width="150" height="50" rx="4" fill="#eae1c9" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="455" y="72" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Tree Construction</text>
+        <text x="455" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">tokens → DOM</text>
+        <line x1="535" y1="75" x2="575" y2="75" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow1)"/>
+
+        <rect x="10" y="50" width="0" height="0"/>
+        <text x="600" y="80" text-anchor="middle" font-family="Fraunces, serif" font-size="13" fill="#b3452f" font-weight="600">DOM</text>
+        <defs>
+          <marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8a9490"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <p>Critically, this parsing is <strong>incremental and streaming</strong>, not all-or-nothing: the browser begins tokenizing and building the DOM as soon as the first bytes arrive, without waiting for the entire HTML document to finish downloading — this is exactly why a large page's top content can appear before the rest has even arrived over the network, and it's the reason "placement in the document" (covered in the HTML guide's performance topic) has a real, physical effect on load time. While doing this, the browser also runs a <strong>preload scanner</strong> alongside the main parser — a lightweight secondary scan that looks ahead in the still-arriving HTML purely to spot references to other resources (images, stylesheets, scripts) and start fetching them immediately, before the main parser has even reached that point in the document. This is why a <code>&lt;script&gt;</code> or <code>&lt;link&gt;</code> near the top of a file doesn't have to fully block every other resource from starting its download, even though it may still block rendering — those are two genuinely separate concerns this module's later companions unpack fully.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="html" data-filename="malformed.html">&lt;p&gt;This paragraph is &lt;b&gt;never closed
+&lt;p&gt;The parser recovers and starts a new paragraph anyway,
+closing the previous one automatically — exactly as the spec requires.</div>
+  <ul class="topic-keypoints">
+    <li>HTML parsing is tokenization (chars → tokens) followed by tree construction (tokens → DOM).</li>
+    <li>Error recovery from broken markup is a fully specified algorithm, not per-browser guessing — which is why it renders the same everywhere.</li>
+    <li>Parsing is incremental and streaming, and a separate preload scanner starts fetching resources before the main parser even reaches them.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="css-parsing-cssom" data-tier="part2" data-title="CSS Parsing and the CSSOM">
+  <div class="topic-body">
+
+    <p>CSS is parsed in essentially the same two-stage shape as HTML — tokenizing raw text into meaningful pieces (selectors, properties, values), then building a tree — but the resulting structure is a separate tree entirely, the <strong>CSSOM</strong> (CSS Object Model), not part of the DOM. Every stylesheet a page loads (external, internal <code>&lt;style&gt;</code>, and inline <code>style</code> attributes, from the CSS guide's very first module) eventually feeds into this one shared CSSOM.</p>
+    <p>One detail explains a whole category of behavior from the CSS guide's cascade module: CSS parsing itself doesn't resolve the cascade, compute specificity winners, or decide inheritance — it just builds a structural tree of every rule exactly as written, selectors and all. The actual winner-picking (specificity comparison, source order, <code>!important</code>, cascade layers) happens later, during the style computation step (its own module shortly), applied against this already-built CSSOM combined with the DOM. This separation is also exactly why cascade layers and media queries can be represented directly inside the CSSOM as structural nodes, rather than needing to be evaluated during parsing itself.</p>
+    <p>CSS parsing carries no error-recovery drama the way HTML's does, for a simpler underlying reason: an unrecognized property or an invalid value is trivial to handle — the parser just discards that one declaration and moves on to the next, with no ambiguity about how to "recover" the way a mismatched HTML tag creates. This is exactly why browsers can ship experimental or vendor-specific CSS properties, and why using a property a given browser doesn't support fails silently and safely rather than breaking the rest of the stylesheet.</p>
+    <p>The consequence that actually matters for real performance, already stated as a flat rule in the HTML guide's performance module, finally gets its full explanation here: CSS is <strong>render-blocking</strong> by default. The browser deliberately withholds the very first paint until it has processed every stylesheet it currently knows about, specifically to avoid a visible "flash" where unstyled content briefly renders and then jumps once real styles apply a moment later. <code>&lt;link rel="preload"&gt;</code> and resource hints (from the CSS guide's performance module) don't remove this blocking behavior — they only make the required stylesheet arrive sooner, shrinking the delay rather than eliminating the underlying constraint.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>CSS parsing builds the CSSOM, a separate tree from the DOM, structurally mirroring every rule as written.</li>
+    <li>The cascade (specificity, source order, layers) is resolved later, during style computation — not during parsing itself.</li>
+    <li>CSS is render-blocking by design, specifically to prevent a flash of unstyled content — not an accidental limitation.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="style-computation-render-tree" data-tier="part2" data-title="Style Computation and the Render Tree">
+  <div class="topic-body">
+
+    <p>With both the DOM and the CSSOM built, the browser walks the DOM tree and, for every single node, computes its final, fully-resolved <strong>computed style</strong> — every CSS property that applies to it, after the cascade has picked a winner among every competing rule, after inheritance has filled in anything not explicitly set, and after relative values like <code>em</code>, <code>%</code>, or <code>var()</code> have been resolved against context. This is the exact value <code>getComputedStyle()</code> returns when called from JavaScript, a method covered in full in this guide's CSSOM-bridge module.</p>
+    <p>The DOM and the computed styles are then combined into a distinct structure called the <strong>render tree</strong> — and this is the first point in the whole pipeline where DOM nodes can be genuinely excluded rather than merely hidden. A node with <code>display: none</code> (from the CSS guide's display module) is left out of the render tree entirely — it gets no box, no layout, no paint, nothing — while a node styled with <code>visibility: hidden</code> still gets a full box in the render tree, reserving its layout space, just with nothing actually painted into it. This single distinction is the deep, structural reason those two properties behave so differently, beyond the flat rule stated back in the CSS guide.</p>
+    <p><code>::before</code> and <code>::after</code> pseudo-elements (also from the CSS guide) genuinely enter the render tree as real boxes at this exact stage, generated fresh from their <code>content</code> property — despite never existing as actual nodes anywhere in the DOM tree itself, which is exactly why <code>document.querySelectorAll('*')</code> from JavaScript will never find one: the DOM and the render tree are related but are not the same tree, and JavaScript's DOM APIs only ever see the former.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Computed style resolves the cascade, inheritance, and relative units into one final value per property, per element.</li>
+    <li>The render tree combines the DOM with computed styles — <code>display: none</code> nodes are excluded entirely; <code>visibility: hidden</code> nodes still get a box.</li>
+    <li><code>::before</code>/<code>::after</code> exist only in the render tree, never in the DOM — invisible to <code>querySelector</code> and friends.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="layout-geometry" data-tier="part2" data-title="Layout: Turning Boxes Into Geometry">
+  <div class="topic-body">
+
+    <p>The render tree knows <em>what</em> should appear and roughly what it should look like, but not yet <em>where</em>, or exactly how large. <strong>Layout</strong> — often still called <strong>reflow</strong>, its older name — is the step that walks the render tree and computes the exact pixel position and size of every single box: this is the stage where the CSS guide's box model, flexbox, and grid algorithms actually execute as real, concrete geometry, turning declarative rules like <code>flex: 1</code> or <code>grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))</code> into one specific, final rectangle per element.</p>
+    <p>Layout is one of the most expensive operations in the entire pipeline, because it's inherently relational rather than local: changing one element's width can shift its siblings, which can shift its parent's height, which can shift everything after it on the page. For this reason, an engine can rarely re-lay-out just the one element that changed — a change often forces recomputation across a meaningful portion of the tree, sometimes the whole page. This single fact is the actual mechanical justification behind "layout thrashing," a term used but not fully derived in the CSS and JavaScript performance modules — it happens when JavaScript alternates writing a style and then immediately reading a geometric property (like <code>offsetHeight</code> or <code>getBoundingClientRect()</code>) in a tight loop.</p>
+    <p>Reading a geometric property normally uses whatever layout the browser last computed — cheap. But if JavaScript has just written a style that could plausibly have changed the geometry, the browser can no longer trust its last layout, so it's forced to run an entire synchronous layout pass immediately, right there in the middle of your script, purely to answer that one read accurately — a "forced synchronous layout." Interleaving writes and reads, as in the first example below, forces this expensive recomputation on every single iteration; batching all reads before all writes, as in the second, allows one single layout pass to answer every read at once.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="layout-thrashing.js">// BAD: forces a fresh, synchronous layout on every single iteration
+boxes.forEach(box =&gt; {
+  box.style.width = box.offsetWidth + 10 + "px"; // write
+  console.log(box.offsetHeight);                  // read — forces layout NOW
+});
+
+// GOOD: all reads happen first, then all writes — one layout total
+const heights = boxes.map(box =&gt; box.offsetHeight);  // read, read, read
+boxes.forEach((box, i) =&gt; {
+  box.style.width = heights[i] + 10 + "px";           // write, write, write
+});</div>
+  <ul class="topic-keypoints">
+    <li>Layout computes the exact position and size of every box — where the box model, flexbox, and grid algorithms actually execute.</li>
+    <li>Layout is relational, not local — one change can force recomputation across much of the tree.</li>
+    <li>Interleaving style writes with geometry reads forces a synchronous layout on every iteration; batching reads before writes avoids it.</li>
+  </ul>
+  <div class="topic-note" data-kind="mistake">This is the real, underlying mechanism behind "layout thrashing" — a term used in earlier guides without fully explaining why alternating reads and writes is specifically what's expensive.</div>
+</article>
+
+<article class="topic-tpl" data-id="paint-layers-compositing" data-tier="part2" data-title="Paint, Layers, and Compositing">
+  <div class="topic-body">
+
+    <p>With exact geometry now known, <strong>paint</strong> turns each box into actual drawing instructions — fill this rectangle with this color, draw this text, apply this shadow — for every visible pixel. Rather than painting the entire page as one single flat image, the browser can split parts of the page into separate <strong>layers</strong>, promoting an element onto its own layer when it has a good reason to expect that element will change independently and often — a <code>position: fixed</code> header, an element with a CSS <code>transform</code> or <code>opacity</code> transition, or one explicitly hinted with <code>will-change</code>, exactly as covered in the CSS guide's performance module.</p>
+    <p>Layers matter because of what happens next: a separate <strong>compositor thread</strong> — distinct from the main thread that ran layout and most of paint — takes these independently-painted layers and combines them into the final on-screen image, and critically, it can do this combination work on the GPU without going back to the main thread at all. This is the complete, concrete answer to why <code>transform</code> and <code>opacity</code> are so much cheaper to animate than <code>top</code>/<code>left</code>/<code>width</code>: animating a transform or opacity on its own layer only requires the compositor thread to re-combine already-painted layers in a new position or with new transparency — no new layout, often no new paint at all — while animating <code>top</code> or <code>width</code> changes the actual geometry, forcing the full and expensive layout → paint → composite sequence to run again, on the main thread, every single frame.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="40" width="110" height="50" rx="4" fill="#eae1c9" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="65" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">DOM+CSSOM</text>
+        <line x1="120" y1="65" x2="150" y2="65" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+        <rect x="155" y="40" width="100" height="50" rx="4" fill="#eae1c9" stroke="#a1802f" stroke-width="1.5"/>
+        <text x="205" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Style</text>
+        <line x1="255" y1="65" x2="285" y2="65" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+        <rect x="290" y="40" width="100" height="50" rx="4" fill="#eae1c9" stroke="#b3452f" stroke-width="1.5"/>
+        <text x="340" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Layout</text>
+        <line x1="390" y1="65" x2="420" y2="65" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+        <rect x="425" y="40" width="100" height="50" rx="4" fill="#eae1c9" stroke="#5c7a56" stroke-width="1.5"/>
+        <text x="475" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Paint</text>
+        <line x1="525" y1="65" x2="555" y2="65" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+        <rect x="560" y="40" width="130" height="50" rx="4" fill="#eae1c9" stroke="#7a4a6b" stroke-width="1.5"/>
+        <text x="625" y="62" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#24211a">Composite</text>
+        <text x="625" y="78" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="#5c5646">(compositor thread + GPU)</text>
+        <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8a9490"/></marker></defs>
+      </svg>
+      <div class="diagram-caption">The full rendering pipeline, start to finish. A <code>transform</code>/<code>opacity</code> animation can often skip straight from Style to Composite.</div>
+    </div>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Paint converts sized-and-positioned boxes into drawing instructions, potentially split across independent layers.</li>
+    <li>A separate compositor thread combines layers on the GPU, without involving the main thread.</li>
+    <li>This is the full mechanical reason <code>transform</code>/<code>opacity</code> can skip layout and paint entirely, while <code>top</code>/<code>width</code> cannot.</li>
+  </ul>
+</article>
+
+
+<!-- ===== PART3 TIER ===== -->
+
+
+<article class="topic-tpl" data-id="inside-js-engine" data-tier="part3" data-title="Inside the JavaScript Engine">
+  <div class="topic-body">
+
+    <p>The JavaScript guide treated <code>console.log</code> and arrow functions as things you simply write; this module opens up what actually happens to that text between the moment it leaves your editor and the moment it executes. A JavaScript engine — V8 in Chrome and Node.js, SpiderMonkey in Firefox — is itself a small pipeline, mirroring the same "parse, then process" shape already seen twice in this guide for HTML and CSS.</p>
+    <p>First, a parser tokenizes and parses your source text into an <strong>AST</strong> (Abstract Syntax Tree) — a structural tree representation of your code's actual grammar: this expression is a function call, this is a binary addition, this is a variable declaration. From there, rather than interpreting that tree directly (which would be relatively slow), modern engines compile it down to a compact <strong>bytecode</strong> — V8 calls its bytecode interpreter <em>Ignition</em> — and execute that instead, already meaningfully faster than walking the raw AST on every single execution.</p>
+    <p>The genuinely clever part, and the real reason JavaScript performs competitively with far more traditionally "compiled" languages despite feeling like a casually interpreted scripting language, is the <strong>JIT (Just-In-Time) compiler</strong> — V8's is called <em>TurboFan</em>. While your bytecode runs, the engine quietly watches which functions get called repeatedly and, crucially, what <em>shapes</em> of data they're consistently called with — a function repeatedly called with plain objects that always have the same properties, in the same order, is an excellent optimization candidate. Once a function is identified as "hot" in this way, the JIT compiles it directly to genuine machine code, tailored to those specific observed shapes, entirely bypassing the bytecode interpreter for future calls. If that same function later gets called with a differently-shaped object than the JIT optimized for, the engine "deoptimizes," discarding the fast machine code and falling back to the safer, general bytecode path — a real, measurable performance cliff, and the concrete engineering reason a piece of advice sometimes offered for hot code paths is to keep object shapes consistent (the same properties, added in the same order, on every instance) rather than adding or removing properties dynamically after creation.</p>
+    <p>This entire process — parse, generate bytecode, execute, watch, optimize, occasionally deoptimize — happens automatically and invisibly, but it is the concrete reason a first call to a function is typically slower than the hundredth, and it's why genuinely reliable JavaScript performance measurement requires "warming up" the code being measured rather than trusting a single cold run.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>A JS engine parses source into an AST, compiles that to bytecode, and executes the bytecode — the same parse-then-process shape as HTML and CSS.</li>
+    <li>A JIT compiler (TurboFan in V8) promotes frequently-run, consistently-shaped code to real machine code for a large speedup.</li>
+    <li>A function later called with an inconsistently-shaped object can be "deoptimized" back to the slower path — a real, measurable cliff.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="memory-stack-heap-gc" data-tier="part3" data-title="Memory: The Stack, the Heap, and Garbage Collection">
+  <div class="topic-body">
+
+    <p>JavaScript's memory splits into two genuinely different regions, and understanding both explains exactly why the closures topic in the JavaScript guide works the way it does. The <strong>call stack</strong> holds function calls themselves — each call pushes a new "frame" containing its local variables and where to return to when it finishes; the frame is popped and its memory reclaimed immediately once the function returns. This stack is also exactly what a "stack trace" in an error actually traces, and exactly what "stack overflow" means literally: too many nested calls (commonly uncontrolled recursion) push more frames than the fixed stack space allows.</p>
+    <p>The <strong>heap</strong> is a much larger, less structured region where objects, arrays, and functions themselves actually live — anything whose size isn't known in advance or that needs to outlive the specific function call that created it. This is precisely where closures come from, mechanically: when the JavaScript guide's <code>makeCounter()</code> example returns an inner function that still references <code>count</code>, that <code>count</code> variable cannot live on the stack, since the stack frame for <code>makeCounter()</code> itself is popped the moment it returns — so the engine allocates it on the heap instead, and the returned function keeps a live reference to that heap location for as long as the function itself exists.</p>
+    <p><strong>Garbage collection</strong> is the process that reclaims heap memory automatically, and modern engines use a "mark and sweep" strategy at heart: periodically pause, walk every reachable reference starting from known roots (global variables, currently-executing call stacks), mark everything genuinely still reachable, then free everything left unmarked. This is the precise mechanical definition of a "memory leak" from the JavaScript guide's performance module: an object is not leaked because it's large or old, but specifically because some reference chain — often a forgotten event listener or an active <code>setInterval</code> — still connects it back to a root, keeping it perpetually "reachable" and therefore never eligible for collection, even though nothing in the program will ever meaningfully use it again.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="stack-vs-heap.js">function makeCounter() {
+  let count = 0;              // lives on the heap — referenced by the closure below
+  return function increment() {
+    count++;                  // reads/writes the heap-allocated 'count'
+    return count;
+  };
+}                              // makeCounter's own stack frame is popped here —
+                               // but 'count' survives, because the heap keeps it alive</div>
+  <ul class="topic-keypoints">
+    <li>The call stack holds function frames, popped immediately on return; the heap holds objects and closed-over variables that must outlive a single call.</li>
+    <li>A closure's captured variables physically live on the heap — that's the mechanical reason they survive after the outer function returns.</li>
+    <li>Garbage collection frees heap memory nothing can still reach — a leak is specifically a lingering reference chain, not an object being simply "old" or "large."</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="event-loop-in-context" data-tier="part3" data-title="The Event Loop: Async, Rendering, and Input on One Thread">
+  <div class="topic-body">
+
+    <p>The JavaScript guide's advanced tier explained microtasks fully draining before the next macrotask runs, and proved it with a <code>setTimeout</code>-versus-<code>Promise</code> ordering example. This module places that exact mechanism inside the bigger picture this guide has been building: the event loop isn't a JavaScript-only abstraction running in isolation — it's the same main thread from this guide's Part I, and the browser's own rendering work is interleaved into that identical loop, on genuinely equal footing with your callbacks.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+        <rect x="240" y="10" width="160" height="50" rx="4" fill="#eae1c9" stroke="#b3452f" stroke-width="1.5"/>
+        <text x="320" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#24211a" font-weight="600">Call Stack</text>
+
+        <rect x="20" y="120" width="170" height="60" rx="4" fill="#eae1c9" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="105" y="145" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Web APIs</text>
+        <text x="105" y="162" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">timers, fetch, DOM events</text>
+
+        <rect x="235" y="120" width="170" height="60" rx="4" fill="#eae1c9" stroke="#5c7a56" stroke-width="1.5"/>
+        <text x="320" y="145" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Microtask Queue</text>
+        <text x="320" y="162" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">promise callbacks</text>
+
+        <rect x="450" y="120" width="170" height="60" rx="4" fill="#eae1c9" stroke="#a1802f" stroke-width="1.5"/>
+        <text x="535" y="145" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Task Queue</text>
+        <text x="535" y="162" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">setTimeout, click events</text>
+
+        <rect x="235" y="230" width="170" height="60" rx="4" fill="#eae1c9" stroke="#7a4a6b" stroke-width="1.5"/>
+        <text x="320" y="255" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#24211a">Rendering Steps</text>
+        <text x="320" y="272" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">style · layout · paint</text>
+
+        <line x1="240" y1="35" x2="190" y2="145" stroke="#8a9490" stroke-width="1.2" stroke-dasharray="3,3"/>
+        <line x1="235" y1="145" x2="320" y2="60" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow3)"/>
+        <line x1="450" y1="145" x2="400" y2="60" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow3)"/>
+        <line x1="320" y1="180" x2="320" y2="230" stroke="#8a9490" stroke-width="1.2" stroke-dasharray="3,3"/>
+        <defs><marker id="arrow3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8a9490"/></marker></defs>
+      </svg>
+      <div class="diagram-caption">One loop iteration: run a task → drain the entire microtask queue → possibly run rendering steps → repeat.</div>
+    </div>
+    <p>Concretely, each pass of the loop looks roughly like this: run one task from the task queue (a <code>setTimeout</code> callback, a click handler) to completion; then fully drain the microtask queue — every promise callback, including any new ones added while draining; then, <em>if the browser judges it's a good moment</em> (typically once per frame, roughly every 16.7 milliseconds for a 60Hz screen), run the rendering steps covered across this guide's whole second part — recalculate style, run layout, paint, composite; then go back and pull the next task. This is exactly why a single JavaScript task that runs for hundreds of milliseconds — a large synchronous loop, an expensive computation with no <code>await</code> anywhere inside it — visibly freezes the page: rendering literally cannot run until that task finishes and control returns to the loop, because they share the exact same thread, taking turns rather than running concurrently.</p>
+    <p>Two APIs exist specifically to cooperate with this rhythm rather than fight it. <code>requestAnimationFrame(callback)</code> schedules a callback to run right before the browser's next paint — the correct, purpose-built tool for any JavaScript-driven visual animation, since it guarantees your code runs at exactly the moment it's actually useful, and the browser will skip calling it altogether for a tab that isn't currently visible, saving battery for free. <code>requestIdleCallback(callback)</code> schedules low-priority work to run only during genuine idle gaps in the loop, after higher-priority tasks and rendering have already had their turn — well suited to analytics reporting or background data prefetching that shouldn't be allowed to compete with anything the user can actually perceive.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Rendering steps (style, layout, paint) are interleaved into the exact same event loop as your JavaScript tasks — not a separate process.</li>
+    <li>A long-running synchronous JavaScript task blocks rendering entirely, because they share one thread and take turns.</li>
+    <li><code>requestAnimationFrame</code> and <code>requestIdleCallback</code> exist to cooperate with this rhythm for animation and low-priority work respectively.</li>
+  </ul>
+</article>
+
+
+<!-- ===== PART4 TIER ===== -->
+
+
+<article class="topic-tpl" data-id="dom-bridge" data-tier="part4" data-title="The DOM: JavaScript's Live Bridge to HTML">
+  <div class="topic-body">
+
+    <p>Every earlier module in this guide has referred to "the DOM" as the tree structure HTML parses into. This module makes the actual bridge explicit: the DOM is not just a rendering-engine-internal data structure — it is directly, live, exposed to JavaScript as real, ordinary objects, through exactly the API surface the JavaScript guide's DOM module introduced (<code>document.querySelector</code>, <code>.textContent</code>, <code>.classList</code>, and the rest). There is no serialization, no message-passing, no copying involved in an ordinary DOM read or write from your own page's script — your JavaScript variable <em>is</em> a genuine reference into the browser's actual live tree, the exact same tree the rendering pipeline reads from.</p>
+    <p>This is precisely why DOM collections returned by some methods are described as "live": <code>document.getElementsByClassName(...)</code> returns a collection that automatically reflects later changes to the document, because it isn't a snapshot copy at all — it's a continuously-updated view into the one real, shared tree. <code>querySelectorAll(...)</code>, by contrast, deliberately returns a static, one-time snapshot, precisely so that code iterating over its results doesn't have to reason about the list itself shifting mid-loop as the DOM changes underneath it — a deliberate design trade-off between "always current" and "safe and predictable to iterate," not an inconsistency.</p>
+    <p>Every DOM mutation from JavaScript — setting <code>.textContent</code>, adding a class, appending a new element — has the potential to invalidate some or all of the render tree, style, and layout computed in the earlier modules of this guide's second part, exactly as covered there: the engine doesn't necessarily recompute immediately on every single mutation, since a script often makes several DOM changes in a row before yielding control back to the browser, but by the time the browser actually needs to render the next frame, every one of those pending changes must be fully reconciled. This is the deep reason the CSS and JavaScript guides both recommend batching multiple DOM changes together (via a document fragment, or by changing one class rather than several individual inline styles) rather than triggering many small, separate mutations — from the pipeline's perspective, it isn't really about the number of JavaScript statements you write, but about how much invalidated work accumulates before the browser is next forced to reconcile it, and unnecessarily forcing that reconciliation mid-script (exactly as in the layout-thrashing example from Part II) is the one true performance trap to avoid.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>DOM reads/writes from your own page's JavaScript are direct references into the browser's real, live tree — not copies or messages.</li>
+    <li>"Live" collections (<code>getElementsByClassName</code>) reflect later changes automatically; <code>querySelectorAll</code> deliberately returns a static snapshot instead.</li>
+    <li>Every mutation can invalidate style/layout — batching changes together, rather than forcing reconciliation mid-script, is the real performance principle underneath.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="cssom-bridge" data-tier="part4" data-title="The CSSOM: JavaScript's Live Bridge to CSS">
+  <div class="topic-body">
+
+    <p>Just as the DOM bridges HTML to JavaScript, the CSSOM from Part II bridges CSS to JavaScript — through a smaller, more specialized set of APIs than the DOM's, but built on the exact same underlying tree this guide has already covered in depth. <code>element.style.color = 'red'</code> writes directly to that specific element's inline style, taking the highest-specificity path from the CSS guide's cascade module; <code>element.classList.toggle('active')</code> instead changes which CSS rules apply by changing which selectors match, leaving the actual rule resolution to the normal cascade — generally the better approach precisely because it keeps the actual visual decision-making inside your stylesheet rather than scattering inline overrides through your JavaScript.</p>
+    <p><code>getComputedStyle(element)</code> is worth understanding at the mechanism level, not just the API level: because it must return the fully-resolved final value — after the cascade, after inheritance, after relative units are resolved against real layout — calling it can force exactly the same "forced synchronous layout" penalty covered in Part II's layout module, if anything about the page has changed since the last layout pass. This is the precise, concrete reason it belongs on the same "expensive if misused" list as <code>offsetHeight</code> and <code>getBoundingClientRect()</code>, despite reading style information rather than obviously geometric information.</p>
+    <p>CSS custom properties, from the CSS guide's variables module, are the newest and most direct bridge of all: because a custom property is a genuinely live, runtime CSSOM value rather than a compile-time text substitution, <code>element.style.setProperty('--brand-color', 'seagreen')</code> changes the actual CSSOM immediately, and every rule anywhere in the cascade that reads that variable via <code>var()</code> picks up the new value on the very next style recalculation — a live, two-way conversation between JavaScript and CSS that a preprocessor variable, resolved and discarded before the browser ever sees the file, could never support.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="cssom-bridge.js">// Cheap: just changes which rule matches; the cascade decides the rest
+card.classList.toggle("is-featured");
+
+// Can force a synchronous layout if styles/DOM changed since the last frame
+const width = getComputedStyle(card).width;
+
+// Live CSSOM write — every var(--brand-color) rule updates immediately
+document.documentElement.style.setProperty("--brand-color", "seagreen");</div>
+  <ul class="topic-keypoints">
+    <li><code>element.style</code> writes inline styles directly; <code>classList</code> instead changes which cascade rules match — generally the better-separated approach.</li>
+    <li><code>getComputedStyle()</code> can force the same synchronous-layout penalty as reading <code>offsetHeight</code>, since it must return a fully-resolved value.</li>
+    <li>Custom properties are a genuinely live, two-way bridge — a JS write updates every rule reading that variable on the next style pass.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="events-user-os-code" data-tier="part4" data-title="Events: Where the User, the OS, and the Code Intersect">
+  <div class="topic-body">
+
+    <p>An event's actual journey starts further back than JavaScript can see: a physical click is first an operating-system-level input event, delivered to the browser process (from Part I) as the process that genuinely owns the window and receives OS input. The browser process determines which renderer process (and which specific frame within it) the click actually landed in, then forwards that information over IPC to the correct renderer's main thread — the exact same main thread already carrying every other responsibility covered throughout this guide.</p>
+    <p>Once inside the renderer, the browser must determine exactly which DOM element was actually hit, then dispatches the event by walking the DOM tree — and this is the literal, physical mechanism behind "bubbling" from the JavaScript guide's events module: it is not a metaphor. The event genuinely travels down from the document root to the target element first (the rarely-used capturing phase), then back up through every one of that element's ancestors in turn (the bubbling phase most code relies on), calling any matching listener registered at each step along the way. Event delegation works for exactly this reason — a listener on a distant ancestor is guaranteed to eventually be reached by the same event, on its way back up the very same tree.</p>
+    <p>One detail with real, measurable performance consequences: <code>addEventListener</code> accepts a <code>{ passive: true }</code> option specifically for scroll and touch events, and it exists because of exactly the main-thread contention covered in this guide's Part III. Without it, the browser must run your entire event handler and specifically wait to see whether it calls <code>event.preventDefault()</code> before it's safe to proceed with the native scroll — a mandatory delay on every single scroll event. Marking a listener passive is a promise, enforced by the browser, that it will never call <code>preventDefault()</code>, letting the browser start scrolling immediately on the compositor thread from Part II without waiting for your JavaScript to finish running at all.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="passive-listener.js">// Without { passive: true }, the browser must wait for this handler
+// to finish (and check for preventDefault) before it can scroll.
+window.addEventListener("scroll", onScroll, { passive: true });
+
+function onScroll() {
+  // Promising not to call event.preventDefault() lets the browser
+  // start scrolling immediately on the compositor thread.
+}</div>
+  <ul class="topic-keypoints">
+    <li>An input event travels OS → browser process → renderer process → main thread, before your JavaScript ever sees it.</li>
+    <li>Bubbling is a literal tree traversal — capturing phase down, then bubbling phase back up — not just a conceptual description.</li>
+    <li>Passive listeners let the browser start scrolling on the compositor thread immediately, without waiting to see if your handler calls <code>preventDefault()</code>.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="reflow-repaint-cost" data-tier="part4" data-title="Reflow and Repaint: The Real Cost of Touching the Page">
+  <div class="topic-body">
+
+    <p>This module exists to consolidate a fact that's been building across this entire guide into one explicit, practical mental model: every visible change to a page costs one of three genuinely different amounts of work, and knowing which one a given change triggers is the actual skill "web performance" mostly reduces to.</p>
+    <p>A change that affects an element's geometry — its size, its position, or anything that could ripple to a sibling or ancestor's geometry — forces layout (reflow), and then necessarily paint and composite after it, since the pixels are now wrong wherever the geometry changed. This is the most expensive category: changing <code>width</code>, adding or removing a DOM node, changing text content that reflows a paragraph, even just reading <code>offsetHeight</code> at the wrong moment, as covered in Part II.</p>
+    <p>A change that affects appearance without affecting geometry — a background color, a <code>box-shadow</code>, a border color — skips layout entirely but still forces paint and composite, since the actual pixels genuinely need to be redrawn even though nothing moved or resized.</p>
+    <p>A change that affects only an already-composited layer's transform or opacity — as covered in Part II's paint module — can skip both layout and paint, going straight to composite: the compositor thread simply recombines already-painted layers in a new position or with new transparency, on the GPU, without the main thread being involved in that specific step at all. This is the complete, three-tier version of a rule stated flatly and without justification in both the CSS and JavaScript guides' performance modules — every animation or frequent visual update should be evaluated against exactly this three-tier scale, and the cheapest tier that achieves the desired effect is the right one to reach for.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>Geometry changes force layout, then paint, then composite — the most expensive tier.</li>
+    <li>Appearance-only changes (background-color, box-shadow) skip layout but still force paint and composite.</li>
+    <li>Transform/opacity changes on an already-composited layer can skip straight to composite, on the GPU, off the main thread.</li>
+  </ul>
+  <div class="topic-note" data-kind="tip">When evaluating any animation or frequent visual update, ask which of these three tiers it actually needs — and reach for the cheapest one that achieves the effect.</div>
+</article>
+
+
+<!-- ===== PART5 TIER ===== -->
+
+
+<article class="topic-tpl" data-id="network-critical-rendering-path" data-tier="part5" data-title="The Network Layer and the Critical Rendering Path">
+  <div class="topic-body">
+
+    <p>Before any parsing from Part II can begin, the network process from Part I has real work to do, and each step has a real time cost that compounds with the ones after it. <strong>DNS resolution</strong> translates a domain name into an IP address. A <strong>TCP handshake</strong> establishes a reliable connection to that address. For any HTTPS site — effectively all of them today — a <strong>TLS handshake</strong> then negotiates encryption before a single byte of the actual page is exchanged. Only after all of that does the browser send its HTTP request and start receiving the HTML response — which, as Part II covered, the browser begins parsing incrementally as it streams in, rather than waiting for the download to finish.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+        <line x1="20" y1="100" x2="680" y2="100" stroke="#8a9490" stroke-width="1.5"/>
+        <circle cx="40" cy="100" r="4" fill="#3a5b74"/><text x="40" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">DNS</text>
+        <circle cx="130" cy="100" r="4" fill="#3a5b74"/><text x="130" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">TCP</text>
+        <circle cx="220" cy="100" r="4" fill="#3a5b74"/><text x="220" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">TLS</text>
+        <circle cx="320" cy="100" r="4" fill="#a1802f"/><text x="320" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">HTTP req/resp</text>
+        <circle cx="440" cy="100" r="4" fill="#b3452f"/><text x="440" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">HTML parsing starts</text>
+        <circle cx="560" cy="100" r="4" fill="#5c7a56"/><text x="560" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">CSSOM + Render Tree</text>
+        <circle cx="660" cy="100" r="5" fill="#7a4a6b"/><text x="660" y="125" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#24211a" font-weight="600">First Paint</text>
+        <text x="350" y="160" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">Streaming parse (Part II) overlaps with continued download — it doesn't wait for it to finish.</text>
+      </svg>
+      <div class="diagram-caption">A simplified critical rendering path timeline, left to right.</div>
+    </div>
+    <p>The <strong>critical rendering path</strong> is the specific, minimal sequence of steps that must complete before the browser can paint anything at all, and this is precisely where the HTML guide's seemingly simple advice about <code>defer</code>/<code>async</code> and the CSS guide's warning that stylesheets are render-blocking finally connect into one coherent story: a <code>&lt;script&gt;</code> with neither attribute pauses HTML parsing outright until it downloads and runs, directly lengthening the critical path; a stylesheet in the head is deliberately render-blocking by design, from Part II's CSS parsing module, because painting before it arrives risks a jarring flash of unstyled content. <code>defer</code>, <code>async</code>, and resource hints like <code>preload</code>/<code>preconnect</code> (also from earlier guides) don't remove any of these fundamental constraints — they change <em>when</em> and in what order the network process fetches things, and whether a given resource is allowed to block parsing, shrinking the critical path's real-world duration without changing what work it fundamentally requires.</p>
+    <p>Two named performance metrics you'll encounter constantly in real-world tooling map directly onto specific points on this exact timeline: <strong>First Contentful Paint (FCP)</strong> is the moment the browser paints the very first pixel of real content, sitting right at the end of the pipeline covered across this whole guide's Part II; <strong>Largest Contentful Paint (LCP)</strong> is the moment the single largest, most prominent element finishes rendering — often an image or a large block of text — and is widely used as the practical proxy for "does this page feel loaded" from an actual visitor's perspective.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>DNS, TCP, and TLS all complete before the first byte of HTML is even received — each adds real, compounding time.</li>
+    <li>The critical rendering path is the minimal sequence that must finish before first paint — render-blocking CSS and non-deferred scripts both lengthen it directly.</li>
+    <li>FCP and LCP are named checkpoints on this exact timeline, not separate concepts — they mark specific moments in the pipeline this guide has been building.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="mpa-vs-spa" data-tier="part5" data-title="Multi-Page vs Single-Page Applications">
+  <div class="topic-body">
+
+    <p>Every module up to this point describes what happens for one page load. A <strong>multi-page application (MPA)</strong> is simply a site that runs this entire process — network request, parse, style, layout, paint — again, completely from scratch, every time the visitor follows a link: a full navigation, a fresh HTML document, a fresh DOM, a fresh JavaScript environment with none of the previous page's in-memory state carried over.</p>
+    <p>A <strong>single-page application (SPA)</strong> instead loads this whole pipeline exactly once, for an initial shell page, and from then on uses JavaScript to intercept navigation entirely: instead of asking the browser to load a new document, an SPA's own code updates the URL using the History API's <code>pushState</code>, fetches whatever new data the next "page" needs (typically via the <code>fetch</code> API from the JavaScript guide), and directly manipulates the existing DOM — through the exact same DOM bridge covered in Part IV — to reflect the new view, all without the browser process ever tearing down and rebuilding the renderer process's DOM, CSSOM, or JavaScript execution context from Part I.</p>
+    <p>This distinction is precisely why an SPA can feel meaningfully faster for navigation between views after the first load — it skips the network request, HTML parsing, and full script re-execution entirely for subsequent "pages" — at the direct cost of a heavier, slower initial load, since the browser typically must download a much larger JavaScript bundle upfront (covered in this part's build-tools module) before anything meaningful can even be shown, and at the cost of needing to manually reimplement things a real browser navigation gives an MPA for free: back/forward button behavior, scroll-position restoration, and — most consequentially for the modules that follow — an actual, complete HTML document for a search engine crawler or a visitor with JavaScript disabled or failing to load.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="spa-routing.js">// A minimal SPA-style navigation, without a full page reload
+function navigateTo(path) {
+  history.pushState({}, "", path);   // updates the URL bar
+  renderView(path);                   // your own code re-renders the DOM directly
+}
+
+window.addEventListener("popstate", () =&gt; renderView(location.pathname));</div>
+  <ul class="topic-keypoints">
+    <li>An MPA re-runs the entire pipeline from Part I onward on every navigation; an SPA runs it once and then manages views with JavaScript.</li>
+    <li>SPA navigation skips the network request and full re-parse for subsequent views — faster after the first load, heavier before it.</li>
+    <li>An SPA must manually reimplement what real navigation gives for free: back/forward behavior, scroll restoration, and a complete document for crawlers or JS-disabled visitors.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="virtual-dom-reconciliation" data-tier="part5" data-title="Why Frameworks Exist: Virtual DOM and Reconciliation">
+  <div class="topic-body">
+
+    <p>Part IV's DOM-bridge module established that every DOM mutation is a potential trigger for style recalculation and layout. A real application with genuinely complex, frequently-changing UI can easily end up making many small, individually-triggered DOM mutations across a single logical update — and reasoning by hand about exactly which specific mutations are actually necessary, and batching them correctly yourself every time, becomes genuinely difficult to sustain as an application grows. This is the actual, concrete problem frameworks like React were built to solve — not an abstract preference for a particular coding style.</p>
+    <p>A <strong>virtual DOM</strong> is a lightweight, plain-JavaScript-object description of what the UI should look like — critically, not a real DOM node at all, just data, carrying none of the weight of an actual DOM element and forcing none of the invalidation covered in Part IV merely by being created or changed. When your application's state changes, the framework builds a brand new virtual DOM tree describing the desired next state, then compares it against the previous virtual DOM tree it kept from last time — a process called <strong>reconciliation</strong>, or informally "diffing" — to compute the smallest, most efficient set of actual DOM operations that would take the real, live DOM from its current state to the new one.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="180" height="140" rx="4" fill="#eae1c9" stroke="#3a5b74" stroke-width="1.5"/>
+        <text x="110" y="42" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#24211a" font-weight="600">Previous Virtual DOM</text>
+        <text x="35" y="70" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">&lt;ul&gt;</text>
+        <text x="50" y="88" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">&lt;li&gt;Apple&lt;/li&gt;</text>
+        <text x="50" y="106" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">&lt;li&gt;Mango&lt;/li&gt;</text>
+        <text x="35" y="124" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">&lt;/ul&gt;</text>
+
+        <rect x="230" y="20" width="180" height="140" rx="4" fill="#eae1c9" stroke="#a1802f" stroke-width="1.5"/>
+        <text x="320" y="42" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#24211a" font-weight="600">Next Virtual DOM</text>
+        <text x="245" y="70" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">&lt;ul&gt;</text>
+        <text x="260" y="88" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">&lt;li&gt;Apple&lt;/li&gt;</text>
+        <text x="260" y="106" font-family="IBM Plex Mono, monospace" font-size="9" fill="#b3452f" font-weight="600">&lt;li&gt;Guava&lt;/li&gt;</text>
+        <text x="245" y="124" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">&lt;/ul&gt;</text>
+
+        <line x1="410" y1="90" x2="450" y2="90" stroke="#8a9490" stroke-width="1.5" marker-end="url(#arrow4)"/>
+        <text x="430" y="75" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#5c5646">diff</text>
+
+        <rect x="455" y="55" width="165" height="70" rx="4" fill="#eae1c9" stroke="#b3452f" stroke-width="1.5"/>
+        <text x="537" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#24211a" font-weight="600">Minimal real</text>
+        <text x="537" y="96" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#24211a" font-weight="600">DOM patch</text>
+        <text x="537" y="112" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="#5c5646">update 1 text node only</text>
+        <defs><marker id="arrow4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8a9490"/></marker></defs>
+      </svg>
+      <div class="diagram-caption">Reconciliation: comparing two virtual DOM trees to find the smallest real-DOM patch needed.</div>
+    </div>
+    <p>This buys two genuinely different things at once, both grounded directly in earlier parts of this guide: it lets a developer write code that simply describes the desired end state — "the list should now contain these three items" — rather than manually tracking and issuing individual DOM mutation calls; and it lets the framework batch the resulting real DOM writes together into one consolidated update rather than many separate ones, directly avoiding the kind of repeated, piecemeal invalidation the DOM-bridge module warned about. The virtual DOM itself is not free — building and diffing two trees costs real CPU time — so it's specifically a trade: a framework bets that the cost of diffing in plain, cheap JavaScript objects is reliably smaller than the cost of the DOM operations it can therefore prevent, a bet that generally pays off for complex, frequently-updating UI and matters far less for a mostly-static page.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>A virtual DOM is a plain-object description of desired UI, carrying none of a real DOM node's weight or invalidation risk.</li>
+    <li>Reconciliation diffs the previous and next virtual trees to compute the smallest real DOM patch actually needed.</li>
+    <li>This is a genuine cost/benefit trade: diffing cheap JS objects to avoid more expensive, repeated real DOM mutation — not a free abstraction.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="csr-ssr-hydration" data-tier="part5" data-title="Rendering Strategies: CSR, SSR, and Hydration">
+  <div class="topic-body">
+
+    <p>Every module so far has quietly assumed the HTML arriving over the network is the actual content. That's <strong>server-side rendering (SSR)</strong>: the server computes the real, final markup for the current page — actual product names, actual article text, genuinely present in the HTML response itself — and the browser's Part II pipeline can begin building a meaningful DOM and painting real content immediately, without waiting on any JavaScript to run first.</p>
+    <p><strong>Client-side rendering (CSR)</strong> is the opposite arrangement, and it's how most single-page applications from this part's earlier module actually deliver their initial content: the server sends a nearly empty HTML shell — commonly just a single <code>&lt;div id="root"&gt;&lt;/div&gt;</code> — and only once the JavaScript bundle has downloaded, parsed (Part III), and executed does it build the real DOM from scratch and insert genuine content, entirely through the DOM bridge covered in Part IV. Applying the critical-rendering-path module directly: CSR's actual content depends on JavaScript finishing execution first, which is precisely why a CSR page's meaningful First Contentful Paint is, by construction, tied to how quickly its JavaScript bundle downloads and runs — not simply how fast the network can deliver bytes.</p>
+    <table>
+      <thead><tr><th>Moment</th><th>Pure CSR</th><th>SSR + hydration</th></tr></thead>
+      <tbody>
+        <tr><td>HTML arrives</td><td>Nearly empty shell</td><td>Real, complete content already present</td></tr>
+        <tr><td>First Contentful Paint</td><td>Blank or a loading spinner</td><td>Real content, immediately</td></tr>
+        <tr><td>JS bundle downloads &amp; runs</td><td>Builds the entire DOM from scratch</td><td>Attaches behavior to markup that already exists (hydration)</td></tr>
+        <tr><td>Becomes interactive</td><td>Only once JS finishes</td><td>Content visible earlier; interactivity follows once hydrated</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Hydration</strong> is the increasingly common middle path that tries to get the best of both: the server sends fully-rendered, real HTML exactly as in SSR, so the browser can paint genuine content immediately — but a JavaScript framework then runs on the client anyway, walking that already-painted DOM and attaching event listeners and internal state to it, "hydrating" static markup into a fully interactive application without discarding and rebuilding the DOM the server already so carefully produced. The unavoidable trade-off hydration introduces is a real, sometimes visible gap: a visitor can see fully-rendered content and yet have their click on a button do nothing at all, for the brief window between first paint and the moment hydration actually finishes attaching that button's real event listener.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>SSR sends real, final content in the HTML itself; CSR sends an empty shell and builds everything via JavaScript after the bundle runs.</li>
+    <li>CSR's First Contentful Paint is tied directly to JS download-and-execution time, not just network speed.</li>
+    <li>Hydration combines SSR's immediate real content with client-side JavaScript attaching interactivity afterward — at the cost of a real, sometimes-visible gap between paint and interactivity.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="workers-and-service-workers" data-tier="part5" data-title="Beyond the Main Thread: Web Workers and Service Workers">
+  <div class="topic-body">
+
+    <p>Part I established that heavy computation on the main thread blocks rendering and input handling outright, because they share one thread. A <strong>Web Worker</strong> is the direct, load-bearing solution: a genuinely separate JavaScript thread, with its own call stack, heap, and event loop entirely independent from the main thread's — capable of running real, sustained CPU-heavy work (parsing a huge dataset, running an image filter, a complex calculation) without ever blocking rendering, scrolling, or a single input event, precisely because it is a different thread altogether, not merely a different task scheduled on the same one.</p>
+    <p>The deliberate, non-negotiable trade-off: a Web Worker has no access whatsoever to the DOM — it cannot call <code>document.querySelector</code> or touch a single DOM node directly, specifically because the DOM (per Part IV) is not thread-safe, and allowing simultaneous access from two different threads would reopen exactly the class of concurrency bugs the single-threaded design from Part I exists to prevent in the first place. Instead, a worker communicates with the main thread exclusively by passing messages — <code>postMessage(data)</code> to send, a <code>message</code> event listener to receive — an explicit, deliberately limited channel, not a genuinely shared address space.</p>
+    <p>A <strong>Service Worker</strong> is a specialized kind of worker with a different job entirely: rather than raw computation, it acts as a scriptable proxy sitting between your page and the network layer from this part's first module, able to intercept every outgoing network request the page makes and decide whether to let it through, serve a cached response instead, or fabricate a response entirely — the exact mechanism behind offline-capable web apps and reliable, fine-grained caching strategies. Distinctively, a service worker's lifecycle is entirely independent of any one page being open at all: it can keep running in the background to handle a push notification or sync data, entirely detached from whether the tab that originally registered it is even still open.</p>
+    
+  </div>
+  <div class="topic-code" data-lang="js" data-filename="worker.js">// main.js
+const worker = new Worker("compute.js");
+worker.postMessage({ numbers: bigArray });
+worker.onmessage = (event) =&gt; console.log("Result:", event.data);
+
+// compute.js — runs on a genuinely separate thread; no DOM access at all
+self.onmessage = (event) =&gt; {
+  const total = event.data.numbers.reduce((a, b) =&gt; a + b, 0);
+  self.postMessage(total);
+};</div>
+  <ul class="topic-keypoints">
+    <li>A Web Worker is a genuinely separate thread with its own stack, heap, and event loop — capable of heavy computation without blocking the main thread.</li>
+    <li>Workers cannot touch the DOM directly at all — communication happens only through explicit <code>postMessage</code>/<code>message</code> passing.</li>
+    <li>A Service Worker instead proxies network requests, enabling offline support and caching, and can run independently of any open tab.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="build-tools-pipeline" data-tier="part5" data-title="Build Tools: From Source Code to What the Browser Parses">
+  <div class="topic-body">
+
+    <p>The JavaScript guide's modules module introduced <code>import</code>/<code>export</code> and mentioned, briefly, that a bundler typically combines files for production — this module explains exactly why that step exists and precisely what it's doing to your code before Part II's HTML/CSS/JS parsing ever sees it.</p>
+    <p>A real application is commonly written as dozens or hundreds of separate module files, often using syntax the browser cannot parse directly at all — TypeScript's type annotations from the JavaScript guide's TypeScript module, JSX (an HTML-like syntax embedded directly in JavaScript, common in React), or genuinely newer JavaScript syntax than a given visitor's browser supports. A <strong>transpiler</strong> (Babel is the most common) rewrites that source code into older, more widely-supported JavaScript that today's actual browsers can parse and run, exactly as covered in this guide's engine module — stripping TypeScript's types away entirely, and converting JSX into the underlying plain function calls it actually represents.</p>
+    <p>A <strong>bundler</strong> (Vite, webpack, and similar tools) then walks the entire graph of <code>import</code> statements starting from your application's entry point and combines every file that graph touches into a small number of actual output files — because, in practice, a browser making a hundred small, separate network requests for a hundred small modules is measurably slower than making one or a few requests for larger, combined files, directly due to the per-request network overhead covered in this part's first module. <strong>Tree-shaking</strong> is a related, deliberate optimization performed during this same bundling step: since ES modules declare their exports statically and explicitly (from the JavaScript guide), a bundler can reliably determine which exported functions are never actually imported anywhere in your application and simply exclude that genuinely unused code from the final bundle entirely, rather than shipping it to every visitor unused.</p>
+    <p>The end result, and the reason this module belongs in this guide at all: everything covered in Part II about HTML parsing, CSS parsing, and JavaScript engine behavior in Part III still applies exactly as described — but it applies to the bundler's transpiled, combined, tree-shaken <em>output</em>, a file that may look meaningfully different from any file you actually wrote by hand. Your authored source code and the bytes the browser's parser actually consumes are, in any real modern application, two genuinely different things connected by this build step.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>A transpiler rewrites newer syntax (TypeScript, JSX, newer JS) into older, widely-supported JavaScript the browser can actually parse.</li>
+    <li>A bundler combines many small module files into fewer, larger ones — fewer requests, directly reducing the network overhead covered earlier in this part.</li>
+    <li>Tree-shaking excludes genuinely unused exports from the final bundle, relying on ES modules' static, explicit export declarations.</li>
+  </ul>
+</article>
+
+
+<!-- ===== PART6 TIER ===== -->
+
+
+<article class="topic-tpl" data-id="complete-mental-model" data-tier="part6" data-title="Putting It All Together: The Complete Mental Model">
+  <div class="topic-body">
+
+    <p>Every module in this guide has deliberately built toward one single, connected story rather than a list of unrelated facts. This module tells that story once, straight through, as a single concrete journey — a visitor clicking a product link on an online store — with each step naming the exact mechanism from earlier in this guide that actually makes it happen. Nothing below is new; the only goal here is to show it all connected, in order.</p>
+    <ol>
+      <li>The click is first an OS-level input event. The browser process receives it, determines which renderer process and frame it landed in, and forwards it over IPC to that renderer's <strong>main thread</strong> <em>(Part I; Part IV's events module)</em>.</li>
+      <li>For a traditional full navigation, the <strong>network process</strong> now performs DNS resolution, a TCP handshake, and a TLS handshake before the HTML response even begins arriving <em>(Part V's network module)</em>. An SPA intercepting the click instead calls <code>history.pushState</code> and fetches only the data it needs, skipping this step almost entirely <em>(Part V's MPA/SPA module)</em>.</li>
+      <li>Assuming a real navigation: the HTML <strong>tokenizer</strong> and tree builder construct the <strong>DOM</strong> incrementally as bytes stream in, while a <strong>preload scanner</strong> looks ahead for referenced stylesheets, scripts, and images and starts fetching them immediately, in parallel <em>(Part II's HTML parsing module)</em>.</li>
+      <li>CSS arrives and is parsed into the <strong>CSSOM</strong> — deliberately render-blocking, specifically to avoid a flash of unstyled content <em>(Part II's CSS parsing module)</em>.</li>
+      <li>DOM and CSSOM combine into <strong>computed style</strong> and the <strong>render tree</strong>, excluding <code>display: none</code> nodes and materializing <code>::before</code>/<code>::after</code> as boxes that exist only here, never in the DOM itself <em>(Part II's render tree module)</em>.</li>
+      <li><strong>Layout</strong> computes the exact geometry of every visible box — the point where flexbox and grid algorithms become real, final numbers <em>(Part II's layout module)</em>.</li>
+      <li><strong>Paint</strong> converts that geometry into drawing instructions, potentially split across layers; the <strong>compositor thread</strong> combines them into the final image on the GPU — <strong>First Contentful Paint</strong> happens right here <em>(Part II's paint module; Part V's network module)</em>.</li>
+      <li>Any <code>&lt;script&gt;</code> without <code>defer</code>/<code>async</code> appearing earlier in the document would have paused step 3 entirely to download and run first, directly lengthening every step after it — the full justification behind the HTML guide's script-placement advice <em>(Part II; Part V's critical rendering path module)</em>.</li>
+      <li>Once interactive, JavaScript takes over: event listeners share the exact same main thread that just ran the pipeline above, taking turns with it through the <strong>event loop</strong> — draining microtasks between tasks, running rendering steps roughly once per frame <em>(Part III's event loop module)</em>.</li>
+      <li>The visitor adds the product to their cart. JavaScript mutates the DOM directly — a live reference into the very tree the renderer reads, not a copy — invalidating style and layout for the affected region <em>(Part IV's DOM bridge module)</em>. In a framework-based app, that same mutation flows through a <strong>virtual DOM</strong> diff first, reconciling down to the smallest real patch before touching the live tree at all <em>(Part V's virtual DOM module)</em>.</li>
+      <li>A price updates through a live CSS custom property write, picked up by every <code>var()</code>-referencing rule on the next style pass; a small animation uses <code>transform</code> rather than changing <code>width</code>, letting it skip straight to composite on the GPU instead of forcing a fresh layout <em>(Part IV's CSSOM bridge and reflow/repaint modules)</em>.</li>
+      <li>Behind the scenes, a <strong>service worker</strong> may have served a cached shell instantly on the very first request while quietly checking for updates, and a <strong>web worker</strong> may be recalculating shipping estimates on a genuinely separate thread, so none of this blocks the interaction actually happening on screen <em>(Part V's workers module)</em>.</li>
+    </ol>
+    <p>Every sentence above is a direct callback to a mechanism this guide already covered in full. That repetition is the entire point: HTML, CSS, and JavaScript were never three separate subjects running in parallel. They are three inputs into one continuous, physical machine — a specific sequence of processes, threads, trees, and queues — and every rule of thumb stated flatly in the earlier syntax-focused guides in this series ("prefer <code>transform</code> over <code>top</code>," "batch your DOM reads and writes," "put scripts at the bottom, or use <code>defer</code>") was always a description of how to work efficiently with that exact machine, offered before the machine itself had actually been shown.</p>
+    
+  </div>
+  <ul class="topic-keypoints">
+    <li>One concrete user action — a click — touches nearly every mechanism covered across all six parts of this guide, in a real, traceable sequence.</li>
+    <li>HTML, CSS, and JavaScript feed into one continuous physical machine, not three parallel, independent tracks.</li>
+    <li>The performance rules stated flatly in the earlier HTML/CSS/JS guides are all descriptions of this exact machine, given before the machine was fully explained.</li>
+  </ul>
+</article>
+
+<article class="topic-tpl" data-id="glossary" data-tier="part6" data-title="Glossary of Key Terms">
+  <div class="topic-body">
+
+    <p>Every term used across this guide, in one place, alphabetically, for quick lookup — nothing here should require looking anywhere else to understand.</p>
+    <dl>
+      <dt>AST (Abstract Syntax Tree)</dt>
+      <dd>A tree representation of source code's grammatical structure, produced by a parser before an engine compiles or interprets it.</dd>
+      <dt>Bundler</dt>
+      <dd>A build tool that combines many separate module files into a smaller number of output files, reducing network requests.</dd>
+      <dt>Bytecode</dt>
+      <dd>A compact, lower-level instruction format a JavaScript engine compiles source code to before execution, faster to run than walking a raw AST.</dd>
+      <dt>Call stack</dt>
+      <dd>The structure tracking active function calls; each call pushes a frame, popped and reclaimed the moment that function returns.</dd>
+      <dt>Composite / Compositor thread</dt>
+      <dd>The final pipeline stage that combines painted layers into the on-screen image; performed by a thread separate from the main thread, often on the GPU.</dd>
+      <dt>Computed style</dt>
+      <dd>The fully-resolved value of every CSS property for an element, after the cascade, inheritance, and unit resolution have all been applied.</dd>
+      <dt>Critical rendering path</dt>
+      <dd>The minimal sequence of steps — network, parsing, style, layout, paint — that must complete before a browser can paint anything at all.</dd>
+      <dt>CSR (Client-Side Rendering)</dt>
+      <dd>A rendering strategy where the server sends a near-empty HTML shell and JavaScript builds the real content in the browser after loading.</dd>
+      <dt>CSSOM (CSS Object Model)</dt>
+      <dd>The tree structure the browser builds by parsing CSS, combined with the DOM to compute style and build the render tree.</dd>
+      <dt>DOM (Document Object Model)</dt>
+      <dd>The tree structure built by parsing HTML, exposed live to JavaScript — a JS reference to a DOM node is a genuine reference into the browser's real tree.</dd>
+      <dt>Event bubbling / capturing</dt>
+      <dd>The two literal phases of DOM event dispatch: capturing travels root-to-target first, bubbling then travels target-to-root — the mechanism behind event delegation.</dd>
+      <dt>Event delegation</dt>
+      <dd>Attaching one listener to a shared ancestor instead of many listeners to individual children, relying on bubbling to still catch every relevant event.</dd>
+      <dt>Event loop</dt>
+      <dd>The mechanism that repeatedly runs a task, fully drains the microtask queue, and periodically runs rendering steps, all on one shared main thread.</dd>
+      <dt>FCP (First Contentful Paint)</dt>
+      <dd>The moment the browser paints the first pixel of real content — a specific point on the critical rendering path's timeline.</dd>
+      <dt>Garbage collection</dt>
+      <dd>The automatic process that frees heap memory no longer reachable from any root reference; a "leak" is a lingering reference chain that prevents this.</dd>
+      <dt>GPU process</dt>
+      <dd>The browser process responsible for rasterization and compositing, offloading that work to graphics hardware.</dd>
+      <dt>Heap</dt>
+      <dd>The memory region holding objects, arrays, functions, and closed-over variables that must outlive a single function call.</dd>
+      <dt>Hydration</dt>
+      <dd>Attaching JavaScript-driven interactivity to already server-rendered HTML, without rebuilding the DOM the server produced.</dd>
+      <dt>IPC (Inter-Process Communication)</dt>
+      <dd>The controlled channel through which sandboxed browser processes exchange information, since none can reach directly into another's memory.</dd>
+      <dt>JIT compiler (Just-In-Time)</dt>
+      <dd>Compiles frequently-run, consistently-shaped bytecode directly to machine code for a large speedup, with a real deoptimization penalty if shapes change.</dd>
+      <dt>LCP (Largest Contentful Paint)</dt>
+      <dd>The moment the largest visible element finishes rendering — a common practical proxy for whether a page feels loaded.</dd>
+      <dt>Layer (compositing layer)</dt>
+      <dd>An independently painted piece of the page, promoted for elements expected to change often — enables cheap, GPU-only transform/opacity animation.</dd>
+      <dt>Layout (Reflow)</dt>
+      <dd>The pipeline stage that computes the exact size and position of every box; relational rather than local, and one of the most expensive steps.</dd>
+      <dt>Main thread</dt>
+      <dd>The single thread inside a renderer process that runs HTML/CSS parsing, layout, most of paint, and all ordinary JavaScript — one thing at a time.</dd>
+      <dt>Microtask / microtask queue</dt>
+      <dd>Promise callbacks and code resumed by <code>await</code>; the entire microtask queue always drains completely before the next macrotask runs.</dd>
+      <dt>MPA (Multi-Page Application)</dt>
+      <dd>A site that runs the full navigation pipeline from scratch on every link click, with no state carried over between pages.</dd>
+      <dt>Network process</dt>
+      <dd>The browser process centralizing DNS, TCP/TLS, HTTP requests, and the shared disk cache for every open tab.</dd>
+      <dt>Paint</dt>
+      <dd>The stage that converts sized, positioned boxes into actual drawing instructions for pixels.</dd>
+      <dt>Passive event listener</dt>
+      <dd>A listener registered with <code>{ passive: true }</code>, promising never to call <code>preventDefault()</code>, letting the browser scroll immediately without waiting on it.</dd>
+      <dt>Preload scanner</dt>
+      <dd>A lightweight secondary HTML scan that starts fetching referenced resources before the main parser reaches them.</dd>
+      <dt>Reconciliation</dt>
+      <dd>A framework's process of diffing a previous and next virtual DOM tree to compute the smallest real DOM patch required.</dd>
+      <dt>Render tree</dt>
+      <dd>The DOM combined with computed style, excluding <code>display: none</code> nodes and including generated <code>::before</code>/<code>::after</code> boxes.</dd>
+      <dt>Renderer process</dt>
+      <dd>The sandboxed, typically per-site process where HTML/CSS parsing, layout, and JavaScript execution actually happen.</dd>
+      <dt>Sandboxing</dt>
+      <dd>OS-level restriction preventing a renderer process from directly accessing the filesystem or other processes, regardless of what code runs inside it.</dd>
+      <dt>Service worker</dt>
+      <dd>A worker that proxies network requests for a site, enabling offline support and custom caching, running independently of any open tab.</dd>
+      <dt>Site isolation</dt>
+      <dd>The policy of giving each site its own renderer process, preventing one site's script from reading another site's memory.</dd>
+      <dt>SPA (Single-Page Application)</dt>
+      <dd>An app that loads the full pipeline once, then manages subsequent views with JavaScript and the History API instead of full navigations.</dd>
+      <dt>SSR (Server-Side Rendering)</dt>
+      <dd>A rendering strategy where the server sends complete, final HTML content, letting the browser paint real content without waiting on JavaScript.</dd>
+      <dt>Task / task queue (macrotask)</dt>
+      <dd>Discrete units of work like a <code>setTimeout</code> callback or an input event; one runs per event loop iteration, after which microtasks fully drain.</dd>
+      <dt>Tokenization</dt>
+      <dd>The first parsing stage, converting a character stream into meaningful tokens, shared conceptually by HTML, CSS, and JavaScript parsing.</dd>
+      <dt>Transpiler</dt>
+      <dd>A tool that rewrites newer or non-standard syntax (TypeScript, JSX) into older JavaScript a browser can parse directly.</dd>
+      <dt>Tree-shaking</dt>
+      <dd>A bundler optimization that excludes exported code nothing ever actually imports, relying on ES modules' static export declarations.</dd>
+      <dt>Virtual DOM</dt>
+      <dd>A lightweight plain-object description of desired UI, diffed against its previous version to batch real DOM updates efficiently.</dd>
+      <dt>Web worker</dt>
+      <dd>A genuinely separate JavaScript thread with its own stack, heap, and event loop, unable to touch the DOM, communicating only via message passing.</dd>
+    </dl>
+    
+  </div>
+</article>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var TIER_META = {
+    part1: { label: 'The Browser as a Platform',        roman: 'I',   color: 'sage' },
+    part2: { label: 'Turning Markup Into Pixels',        roman: 'II',  color: 'blue' },
+    part3: { label: 'The JavaScript Runtime',            roman: 'III', color: 'red'  },
+    part4: { label: 'Where HTML, CSS & JS Meet',         roman: 'IV',  color: 'gold' },
+    part5: { label: 'From Platform to Application',      roman: 'V',   color: 'plum' },
+    part6: { label: 'Synthesis',                         roman: 'VI',  color: 'teal' }
+  };
+  var TIER_ORDER = ['part1','part2','part3','part4','part5','part6'];
+
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  var JS_KEYWORDS = /^(const|let|var|function|return|if|else|new|await|async|for|of|in|class|extends|import|from|export|default|true|false|null|undefined|this|typeof|instanceof|try|catch|finally|throw|switch|case|break|continue|do|while|static|get|set|yield|delete|void|super)$/;
+  var JS_BUILTINS = /^(document|window|console|Array|Object|Promise|Math|JSON|Number|String|Boolean|Map|Set|Symbol|Error|fetch|localStorage|sessionStorage|Infinity|NaN|setTimeout|setInterval|clearTimeout|clearInterval|IntersectionObserver|MutationObserver|describe|it|test|expect)$/;
+  var JS_TOKEN_RE = /(\/\*[\s\S]*?\*\/)|(\/\/[^\n]*)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)|(\b[a-zA-Z_$][a-zA-Z0-9_$]*\b)/g;
+
+  function highlight(src, lang){
+    var s = escapeHtml(src);
+    if(lang === 'html'){
+      s = s.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="tk-cm">$1</span>');
+      s = s.replace(/(&lt;\/?)([a-zA-Z][a-zA-Z0-9-]*)([\s\S]*?)(\/?&gt;)/g, function(m, open, tag, attrs, close){
+        var attrHtml = attrs.replace(/([a-zA-Z_:][a-zA-Z0-9_:-]*)(=)("[^"]*"|'[^']*')/g,
+          '<span class="tk-at">$1</span>$2<span class="tk-str">$3</span>');
+        return '<span class="tk-pn">'+open+'</span><span class="tk-tg">'+tag+'</span>'+attrHtml+'<span class="tk-pn">'+close+'</span>';
+      });
+      return s;
+    }
+    if(lang === 'css'){
+      s = s.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tk-cm">$1</span>');
+      s = s.replace(/(@[a-zA-Z-]+)/g, '<span class="tk-kw">$1</span>');
+      s = s.replace(/([^\{\}\n;]+)(\{)/g, '<span class="tk-tg">$1</span>$2');
+      s = s.replace(/([a-zA-Z-]+)(\s*:)(\s*)([^;{}\n]+)(;)/g,
+        '<span class="tk-at">$1</span>$2$3<span class="tk-str">$4</span>$5');
+      return s;
+    }
+    if(lang === 'js'){
+      s = s.replace(JS_TOKEN_RE, function(m, blockComment, lineComment, str, word){
+        if(blockComment !== undefined) return '<span class="tk-cm">'+blockComment+'</span>';
+        if(lineComment !== undefined) return '<span class="tk-cm">'+lineComment+'</span>';
+        if(str !== undefined) return '<span class="tk-str">'+str+'</span>';
+        if(word !== undefined){
+          if(JS_KEYWORDS.test(word)) return '<span class="tk-kw">'+word+'</span>';
+          if(JS_BUILTINS.test(word)) return '<span class="tk-tg">'+word+'</span>';
+          return word;
+        }
+        return m;
+      });
+      return s;
+    }
+    return s;
+  }
+
+  function parseLibrary(){
+    var byTier = {}; TIER_ORDER.forEach(function(t){ byTier[t] = []; });
+    document.querySelectorAll('#library .topic-tpl').forEach(function(node){
+      var tier = node.getAttribute('data-tier');
+      if(!byTier[tier]) return;
+      var codeEl = node.querySelector('.topic-code');
+      var noteEl = node.querySelector('.topic-note');
+      var kp = Array.prototype.map.call(node.querySelectorAll('.topic-keypoints li'), function(li){ return li.innerHTML; });
+      byTier[tier].push({
+        id: node.getAttribute('data-id'),
+        title: node.getAttribute('data-title'),
+        tier: tier,
+        bodyHtml: node.querySelector('.topic-body').innerHTML,
+        code: codeEl ? { lang: codeEl.getAttribute('data-lang'), filename: codeEl.getAttribute('data-filename'), src: codeEl.textContent.trim() } : null,
+        keyPoints: kp,
+        note: noteEl ? { kind: noteEl.getAttribute('data-kind'), html: noteEl.innerHTML } : null
+      });
+    });
+    return byTier;
+  }
+
+  var byTier = parseLibrary();
+  var flat = [];
+  TIER_ORDER.forEach(function(t){ byTier[t].forEach(function(topic){ flat.push(topic); }); });
+  var indexById = {}; flat.forEach(function(t,i){ indexById[t.id] = i; });
+
+  var state = { completed: {}, lastViewed: null };
+
+  function loadState(){
+    return Promise.resolve().then(function(){
+      if (window.storage) {
+        return window.storage.get('runtime-guide-state').then(function(res){
+          if(res && res.value){
+            var parsed = JSON.parse(res.value);
+            if(parsed && typeof parsed === 'object'){
+              state.completed = parsed.completed || {};
+              state.lastViewed = parsed.lastViewed || null;
+            }
+          }
+        }).catch(function(){});
+      } else if (window.localStorage) {
+        try {
+          var raw = localStorage.getItem('runtime-guide-state');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              state.completed = parsed.completed || {};
+              state.lastViewed = parsed.lastViewed || null;
+            }
+          }
+        } catch (e) { /* localStorage access disabled or restricted */ }
+      }
+    });
+  }
+
+  function saveState(){
+    if (window.storage) {
+      try { window.storage.set('runtime-guide-state', JSON.stringify(state)).catch(function(){}); }
+      catch(e){}
+    } else if (window.localStorage) {
+      try { localStorage.setItem('runtime-guide-state', JSON.stringify(state)); }
+      catch (e) { /* localStorage unavailable or quota exceeded */ }
+    }
+  }
+
+  var tocEl = document.getElementById('toc');
+  var pageEl = document.getElementById('page');
+  var pageInnerEl = document.getElementById('pageInner');
+  var searchEl = document.getElementById('search');
+  var progressTextEl = document.getElementById('progressText');
+  var progressBarEl = document.getElementById('progressBarFill');
+
+  var currentId = null;
+
+  function buildToc(filter){
+    var q = (filter||'').trim().toLowerCase();
+    tocEl.innerHTML = '';
+    TIER_ORDER.forEach(function(tierId){
+      var topics = byTier[tierId];
+      if(!topics.length) return;
+      var meta = TIER_META[tierId];
+      var matched = topics.filter(function(t){ return !q || t.title.toLowerCase().indexOf(q) !== -1; });
+      if(matched.length === 0) return;
+      var doneCount = topics.filter(function(t){ return state.completed[t.id]; }).length;
+      var tierWrap = document.createElement('div');
+      tierWrap.className = 'tier tier-' + meta.color;
+      var head = document.createElement('div');
+      head.className = 'tier-head';
+      head.innerHTML = '<span class="stamp">' + meta.roman + '</span><span class="tier-label">' + meta.label + '</span><span class="tier-count">' + doneCount + '/' + topics.length + '</span>';
+      tierWrap.appendChild(head);
+      var list = document.createElement('div');
+      list.className = 'tier-list';
+      matched.forEach(function(topic){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'toc-item' + (topic.id === currentId ? ' active' : '') + (state.completed[topic.id] ? ' done' : '');
+        btn.innerHTML = '<span class="chk">' + (state.completed[topic.id] ? '✓' : '') + '</span><span>' + topic.title + '</span>';
+        btn.addEventListener('click', function(){ goTo(topic.id); closeDrawer(); });
+        list.appendChild(btn);
+      });
+      tierWrap.appendChild(list);
+      tocEl.appendChild(tierWrap);
+    });
+  }
+
+  function updateProgressChrome(){
+    var total = flat.length;
+    var done = flat.filter(function(t){ return state.completed[t.id]; }).length;
+    progressTextEl.textContent = done + ' of ' + total + ' read';
+    progressBarEl.style.width = (total ? (done/total*100) : 0) + '%';
+  }
+
+  function flashCopied(btn){
+    var orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(function(){ btn.textContent = orig; }, 1400);
+  }
+  function fallbackCopy(text, btn){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      flashCopied(btn);
+    }catch(e){ /* clipboard unavailable */ }
+  }
+
+  function renderTopic(id, opts){
+    opts = opts || {};
+    var idx = indexById[id];
+    if(idx === undefined) return;
+    var topic = flat[idx];
+    currentId = id;
+    state.lastViewed = id;
+    var meta = TIER_META[topic.tier];
+    var prev = flat[idx-1];
+    var next = flat[idx+1];
+
+    var html = '';
+    html += '<div class="page-head">';
+    html += '<span class="tier-pill tier-pill-' + meta.color + '">' + meta.label + '</span>';
+    html += '<span class="page-count">Page ' + (idx+1) + ' of ' + flat.length + '</span>';
+    html += '</div>';
+    html += '<h1 class="topic-title">' + topic.title + '</h1>';
+    html += '<div class="topic-mark"><button type="button" class="mark-btn' + (state.completed[id] ? ' done':'') + '" id="markBtn">' +
+            (state.completed[id] ? '✓ Read' : 'Mark as read') + '</button></div>';
+    html += '<div class="prose">' + topic.bodyHtml + '</div>';
+
+    if(topic.code){
+      html += '<div class="code-panel">';
+      html += '<div class="code-head"><span class="code-dot dot-' + meta.color + '"></span><span class="code-filename">' + topic.code.filename + '</span>' +
+              '<button type="button" class="copy-btn" id="copyBtn">Copy</button></div>';
+      html += '<pre class="code-body"><code>' + highlight(topic.code.src, topic.code.lang) + '</code></pre>';
+      html += '</div>';
+    }
+
+    if(topic.keyPoints && topic.keyPoints.length){
+      html += '<div class="keypoints"><h2>Key points</h2><ul>' +
+              topic.keyPoints.map(function(k){ return '<li>' + k + '</li>'; }).join('') + '</ul></div>';
+    }
+
+    if(topic.note){
+      var kindLabel = topic.note.kind === 'mistake' ? 'Common mistake' : (topic.note.kind === 'tip' ? 'Try it' : 'Note');
+      html += '<div class="callout callout-' + topic.note.kind + '"><strong>' + kindLabel + '.</strong> ' + topic.note.html + '</div>';
+    }
+
+    html += '<div class="pager">';
+    html += prev ? '<button type="button" class="pager-btn pager-prev" data-id="'+prev.id+'"><span class="pager-arrow">←</span><span><span class="pager-label">Previous</span><span class="pager-title">'+prev.title+'</span></span></button>' : '<span></span>';
+    html += next ? '<button type="button" class="pager-btn pager-next" data-id="'+next.id+'"><span><span class="pager-label">Next</span><span class="pager-title">'+next.title+'</span></span><span class="pager-arrow">→</span></button>' : '<span></span>';
+    html += '</div>';
+
+    pageInnerEl.innerHTML = html;
+    if(!opts.skipScroll) pageEl.scrollTop = 0;
+
+    document.getElementById('markBtn').addEventListener('click', function(){ toggleComplete(id); });
+    var copyBtn = document.getElementById('copyBtn');
+    if(copyBtn){
+      copyBtn.addEventListener('click', function(){
+        var codeText = topic.code.src;
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(codeText).then(function(){ flashCopied(copyBtn); }).catch(function(){ fallbackCopy(codeText, copyBtn); });
+        } else {
+          fallbackCopy(codeText, copyBtn);
+        }
+      });
+    }
+    Array.prototype.forEach.call(pageInnerEl.querySelectorAll('.pager-btn'), function(b){
+      b.addEventListener('click', function(){ goTo(b.getAttribute('data-id')); });
+    });
+
+    buildToc(searchEl.value);
+    updateProgressChrome();
+    saveState();
+  }
+
+  function toggleComplete(id){
+    state.completed[id] = !state.completed[id];
+    renderTopic(id);
+  }
+
+  function goTo(id){ renderTopic(id); }
+
+  var drawerToggle = document.getElementById('drawerToggle');
+  var drawerClose = document.getElementById('drawerClose');
+  var backdrop = document.getElementById('backdrop');
+  var tocPanel = document.getElementById('tocPanel');
+  function openDrawer(){ tocPanel.classList.add('open'); backdrop.classList.add('show'); }
+  function closeDrawer(){ tocPanel.classList.remove('open'); backdrop.classList.remove('show'); }
+  drawerToggle.addEventListener('click', openDrawer);
+  drawerClose.addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  searchEl.addEventListener('input', function(){ buildToc(searchEl.value); });
+
+  document.addEventListener('keydown', function(e){
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var idx = indexById[currentId];
+    if(e.key === 'ArrowRight' && flat[idx+1]) goTo(flat[idx+1].id);
+    if(e.key === 'ArrowLeft' && flat[idx-1]) goTo(flat[idx-1].id);
+  });
+
+  loadState().then(function(){
+    buildToc('');
+    var startId = (state.lastViewed && indexById[state.lastViewed] !== undefined) ? state.lastViewed : flat[0].id;
+    renderTopic(startId);
+  });
+})();
+</script>
+</body>
+</html>

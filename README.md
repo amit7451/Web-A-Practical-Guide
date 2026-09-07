@@ -1,10 +1,11 @@
 # 📖 Web Guides — Practical Learning Manuscripts
 
-A modern, interactive, tiered reference and learning manuscript series for modern web craftsmanship: **HTML — A Practical Guide**, **CSS — A Working Style Sheet**, and **JavaScript — A Working Script**, built from first principles to advanced browser APIs, layout architectures, asynchronous systems, and Web Components.
+A modern, interactive, tiered reference and learning manuscript series for modern web craftsmanship: **HTML — A Practical Guide**, **CSS — A Working Style Sheet**, **JavaScript — A Working Script**, and **Runtime — The Machine Behind the Page**, built from first principles to advanced browser APIs, layout architectures, asynchronous systems, Web Components, and browser runtime execution engines.
 
 ![HTML5](https://img.shields.io/badge/HTML5-Living_Standard-orange?style=for-the-badge&logo=html5)
 ![CSS3](https://img.shields.io/badge/CSS3-Modern_Specs-blue?style=for-the-badge&logo=css3)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES2024%2FES6%2B-yellow?style=for-the-badge&logo=javascript)
+![Runtime](https://img.shields.io/badge/Web_Runtime-Browser_Architecture-purple?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Production_Ready-success?style=for-the-badge)
 ![Deployment](https://img.shields.io/badge/Deployment-GitHub_Pages-blue?style=for-the-badge&logo=github)
 
@@ -12,15 +13,18 @@ A modern, interactive, tiered reference and learning manuscript series for moder
 
 ## ✨ Features
 
-- **🏛️ Trio Curriculum Paths (96 Topics Total):**
+- **🏛️ Quartet Curriculum Paths (119 Topics Total):**
   - **HTML Guide (`html-guide/`):** 28 sequential topics covering semantic outlines, form validation, accessible media, Shadow DOM, Custom Elements, and storage APIs.
   - **CSS Guide (`css-guide/`):** 32 sequential topics covering cascade mechanics, the box model, Flexbox, CSS Grid, custom properties, container queries, cascade layers, and animation.
   - **JS Guide (`js-guide/`):** 36 sequential topics covering variables, DOM manipulation, closures, event loop, promises, async/await, prototypes, browser APIs, design patterns, and engineering testing.
+  - **Runtime Guide (`runtime-guide/`):** 23 sequential topics explaining how HTML, CSS, and JS actually run together—browser process models, the Critical Rendering Path, DOM/CSSOM tree construction, style recalculation, layout geometry, GPU paint & compositing, JS engine execution (V8/SpiderMonkey), heap/call stack, the Event Loop, reflow/repaint performance costs, MPA vs SPA, SSR/hydration, and Web Workers.
 - **📚 Tiered Learning Curriculum:**
-  - **Tier I: Beginner** — Syntax, selectors, box model, outlines, and fundamental units.
-  - **Tier II: Intermediate** — Responsive layouts, forms, media queries, flexbox, closures, and async patterns.
-  - **Tier III: Advanced** — Web Components, Shadow DOM, container queries, prototypal inheritance, and storage.
-  - **Tier IV: Reference** — Complete sitemaps, technical interview banks, common anti-patterns & debugging best practices.
+  - **Tier I: Beginner / The Browser Platform** — Syntax, selectors, box model, outlines, browser processes, and renderer main thread.
+  - **Tier II: Intermediate / Markup Into Pixels** — Responsive layouts, forms, media queries, flexbox, DOM, CSSOM, Render Tree, layout geometry, and paint.
+  - **Tier III: Advanced / JS Runtime Engine** — Web Components, Shadow DOM, container queries, prototypal inheritance, V8 engine, stack/heap memory, and the Event Loop.
+  - **Tier IV: Where They Meet** — Complete sitemaps, technical interview banks, DOM/CSSOM bridges, event dispatch pipelines, and reflow/repaint costs.
+  - **Tier V: Application Architecture** — Critical Rendering Path optimization, MPA vs SPA, Virtual DOM & reconciliation, SSR/hydration, Web Workers, and build pipelines.
+  - **Tier VI: Synthesis & Unified Mental Model** — The complete end-to-end mental model and a 23-definition architectural glossary.
 - **⚡ Interactive Search & Filtering:** Filter topics dynamically by title or keyword in real time.
 - **✅ Progress Tracking & Persistence:** Mark topics as read with progress bars; progress automatically saves in browser `localStorage`.
 - **💻 Syntax-Highlighted Code Blocks:** Copy runnable code examples directly with one-click clipboard copying.
@@ -48,9 +52,14 @@ Web-Guide/
 ├── js-guide/
 │   ├── index.html              # JavaScript Practical Guide manuscript (main entry)
 │   └── js-guide.html           # Secondary entry satisfying direct file requests
-├── index.html                  # Main Home Portal entry page (links to all guides)
+├── runtime-guide/
+│   ├── index.html              # Runtime & Architecture manuscript (main entry)
+│   └── runtime-guide.html      # Secondary entry satisfying direct file requests
+├── index.html                  # Main Home Portal entry page (links to all 4 guides)
 ├── js-guide.html               # Backwards-compatible canonical redirect forwarder
+├── runtime-guide.html          # Backwards-compatible canonical redirect forwarder
 ├── 404.html                    # Custom 404 error page with multi-guide routing
+├── .nojekyll                   # Disables Jekyll processing for GitHub Pages deployment
 ├── .gitignore                  # Git ignore rules for clean repository state
 └── README.md                   # Repository documentation
 ```

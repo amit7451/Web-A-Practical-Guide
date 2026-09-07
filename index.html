@@ -30,6 +30,7 @@
       <a href="html-guide/index.html" class="portal-nav-btn" id="navHtmlBtn">HTML Guide</a>
       <a href="css-guide/index.html" class="portal-nav-btn" id="navCssBtn">CSS Guide</a>
       <a href="js-guide/index.html" class="portal-nav-btn" id="navJsBtn">JS Guide</a>
+      <a href="runtime-guide/index.html" class="portal-nav-btn" id="navRuntimeBtn">Runtime Guide</a>
       <a href="#curriculum" class="portal-nav-btn">Curriculum</a>
       <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="portal-nav-btn"
         title="View Source on GitHub">
@@ -47,23 +48,23 @@
         <span>A Practical Guide to New Web Development</span>
       </div>
       <h1 class="portal-hero-title" id="heroHeading">
-        Master the Web from <em>Structure</em> to <em>Style</em> to <em>Behavior</em>.
+        Master the Web from <em>Structure</em> to <em>Style</em> to <em>Behavior</em> to <em>Runtime</em>.
       </h1>
       <p class="portal-hero-desc">
-        Sequential, tiered working practical guide designed to build foundational fluency and engineering confidence.
+        Sequential, tiered working practical guides designed to build foundational fluency and engineering confidence.
         Choose your curriculum to begin.
       </p>
 
       <!-- Meta stats chips -->
       <div class="portal-meta-row" role="list">
         <div class="portal-meta-chip" role="listitem">
-          <strong>96</strong> Total Topics
+          <strong>119</strong> Total Topics
         </div>
         <div class="portal-meta-chip" role="listitem">
-          <strong>3</strong> Core Disciplines
+          <strong>4</strong> Core Disciplines
         </div>
         <div class="portal-meta-chip" role="listitem">
-          <strong>4</strong> Progressive Tiers
+          <strong>6</strong> Progressive Tiers
         </div>
         <div class="portal-meta-chip" role="listitem">
           <strong>100%</strong> Native Web Standards
@@ -74,11 +75,11 @@
       </div>
     </section>
 
-    <!-- Guide Selection Paths (Three Core Paths) -->
+    <!-- Guide Selection Paths (Four Core Paths) -->
     <section class="portal-guides-section" id="guidesSelection" aria-labelledby="pathsHeading">
       <div class="portal-section-header">
         <h2 class="portal-section-title" id="pathsHeading">Choose Your Path</h2>
-        <span class="portal-section-sub">Three Comprehensive Practical Guides</span>
+        <span class="portal-section-sub">Four Comprehensive Practical Guides</span>
       </div>
 
       <div class="portal-cards-grid">
@@ -279,6 +280,85 @@
             </svg>
           </a>
         </article>
+
+        <!-- PATH 4: RUNTIME & ARCHITECTURE GUIDE -->
+        <article class="guide-card guide-card-runtime" id="runtimeGuideCard">
+          <div class="guide-card-top">
+            <span class="guide-badge-pill badge-runtime">Execution &amp; Architecture</span>
+            <div class="guide-card-glyph" aria-hidden="true">{ ⚙ }</div>
+          </div>
+
+          <div class="guide-card-body">
+            <h3 class="guide-card-title">Runtime — The Machine Behind the Page</h3>
+            <div class="guide-card-subtitle">How HTML, CSS &amp; JavaScript Actually Run Together</div>
+            <p class="guide-card-desc">
+              Understand the physical engine of the modern browser. Demystify multi-process sandboxing, the Critical
+              Rendering Path, DOM &amp; CSSOM compilation, Render Tree synthesis, layout geometry, GPU rasterization,
+              V8 call stacks &amp; heap memory, Event Loop microtask scheduling, reflow/repaint costs, and modern application lifecycles (MPA vs SPA, SSR/hydration &amp; Web Workers).
+            </p>
+          </div>
+
+          <!-- Tiers Overview -->
+          <div class="guide-tiers-list" aria-label="Runtime Curriculum Tiers">
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-i">I</span>
+              <span class="guide-tier-name">The Browser Platform</span>
+              <span class="guide-tier-focus">Processes, Threads &amp; Sandboxing</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-ii">II</span>
+              <span class="guide-tier-name">Markup Into Pixels</span>
+              <span class="guide-tier-focus">DOM, CSSOM, Render Tree, Layout, Paint</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-iii">III</span>
+              <span class="guide-tier-name">JavaScript Runtime</span>
+              <span class="guide-tier-focus">V8 Engine, Stack, Heap, Event Loop</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-iv">IV</span>
+              <span class="guide-tier-name">Where They Meet</span>
+              <span class="guide-tier-focus">DOM/CSSOM Bridges, Events, Reflow Costs</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-v">V</span>
+              <span class="guide-tier-name">App Architecture</span>
+              <span class="guide-tier-focus">Critical Path, MPA vs SPA, Hydration, Workers</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-vi">VI</span>
+              <span class="guide-tier-name">Synthesis</span>
+              <span class="guide-tier-focus">Complete Mental Model &amp; Glossary</span>
+            </div>
+          </div>
+
+          <!-- Quick tags -->
+          <div class="guide-tags-row" aria-label="Key Runtime Topics">
+            <span class="guide-tag">Browser Engine</span>
+            <span class="guide-tag">DOM &amp; CSSOM</span>
+            <span class="guide-tag">Render Tree</span>
+            <span class="guide-tag">Event Loop</span>
+            <span class="guide-tag">Reflow &amp; Repaint</span>
+            <span class="guide-tag">Critical Rendering Path</span>
+            <span class="guide-tag">Hydration</span>
+            <span class="guide-tag">Web Workers</span>
+          </div>
+
+          <!-- Dynamic Reading Progress Tracker -->
+          <div id="runtimeProgressSummary" class="portal-meta-chip" style="margin-top: -8px; width: fit-content;">
+            <span id="runtimeProgressText">23 Topics in Curriculum</span>
+          </div>
+
+          <!-- Enter Button -->
+          <a href="runtime-guide/index.html" class="guide-action-btn btn-runtime" id="enterRuntimeBtn">
+            <span>Enter Runtime Guide</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </article>
       </div>
     </section>
 
@@ -439,6 +519,49 @@
             </li>
           </ul>
         </div>
+
+        <!-- Runtime Track -->
+        <div class="compare-col">
+          <div class="compare-col-header col-runtime-head">Runtime Track Syllabus</div>
+          <ul class="compare-topics-list">
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part I: URL to Pixels &bull; Browser Processes &bull; Renderer Main Thread</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part II: HTML to DOM &bull; CSSOM &bull; Render Tree &bull; Layout Geometry &bull; Paint</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part III: JS Engine &bull; Memory Stack/Heap &bull; Garbage Collection &bull; Event Loop</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part IV: DOM/CSSOM Bridges &bull; Event Dispatch &bull; Reflow vs Repaint Costs</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part V: Critical Path &bull; MPA vs SPA &bull; Virtual DOM &bull; SSR/Hydration &bull; Workers</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part VI: Complete Mental Model &bull; Architectural Glossary (23 Definitions)</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
@@ -452,6 +575,7 @@
       <a href="html-guide/index.html">HTML Guide</a>
       <a href="css-guide/index.html">CSS Guide</a>
       <a href="js-guide/index.html">JS Guide</a>
+      <a href="runtime-guide/index.html">Runtime Guide</a>
       <a href="404.html">404 Page</a>
       <a href="README.md">Documentation</a>
     </div>
@@ -495,6 +619,18 @@
               if (count > 0) {
                 var el = document.getElementById('jsProgressText');
                 if (el) el.textContent = '✓ ' + count + ' of 36 Topics Read';
+              }
+            }
+          }
+          // Runtime Guide Progress
+          var runtimeRaw = localStorage.getItem('runtime-guide-state');
+          if (runtimeRaw) {
+            var runtimeState = JSON.parse(runtimeRaw);
+            if (runtimeState && runtimeState.completed) {
+              var count = Object.keys(runtimeState.completed).filter(function (k) { return runtimeState.completed[k]; }).length;
+              if (count > 0) {
+                var el = document.getElementById('runtimeProgressText');
+                if (el) el.textContent = '✓ ' + count + ' of 23 Topics Read';
               }
             }
           }
