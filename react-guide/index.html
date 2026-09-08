@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React — In Depth: A Complete Reference Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   REACT — IN DEPTH
+   Design tokens: dark ink-on-paper, Fraunces / Inter / IBM Plex Mono
+   ============================================================ */
+
+:root{
+  --bg:          #14130f;
+  --bg-raised:   #1c1a15;
+  --bg-card:     #201d17;
+  --bg-code:     #100f0c;
+  --rule:        #34302a;
+  --rule-soft:   #2a2721;
+
+  --ink:         #e8e2d4;
+  --ink-dim:     #a39c8c;
+  --ink-faint:   #6b6558;
+
+  --accent:      #7fd4c4;   /* muted verdigris — nods to React's cyan, desaturated for ink-on-paper */
+  --accent-dim:  #4f8b80;
+  --accent-soft: rgba(127, 212, 196, 0.12);
+
+  --amber:       #c98a4b;   /* key-points / definitions */
+  --amber-soft:  rgba(201, 138, 75, 0.12);
+
+  --brick:       #c1584a;   /* warnings / limitations */
+  --brick-soft:  rgba(193, 88, 74, 0.12);
+
+  --sage:        #8fae7c;   /* tips / good practice */
+  --sage-soft:   rgba(143, 174, 124, 0.12);
+
+  --violet:      #a091c9;   /* history / narrative asides */
+  --violet-soft: rgba(160, 145, 201, 0.12);
+
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  --content-max: 760px;
+  --masthead-h: 64px;
+  --progress-h: 3px;
+  --sidebar-w: 300px;
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+html.no-smooth{ scroll-behavior:auto; }
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+
+::selection{ background:var(--accent-soft); color:var(--ink); }
+
+a{ color:var(--accent); text-decoration-color: var(--accent-dim); }
+a:hover{ text-decoration-color: var(--accent); }
+
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-track{ background:var(--bg); }
+::-webkit-scrollbar-thumb{ background:var(--rule); border-radius:6px; }
+::-webkit-scrollbar-thumb:hover{ background:var(--ink-faint); }
+
+/* ---------------- Masthead ---------------- */
+
+.masthead{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(20,19,15,0.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--rule);
+}
+.masthead-top{
+  height:var(--masthead-h);
+  display:flex; align-items:center; gap:16px;
+  padding:0 18px;
+  max-width:1400px; margin:0 auto;
+}
+.sidebar-toggle{
+  background:none; border:1px solid var(--rule); color:var(--ink-dim);
+  width:36px; height:36px; border-radius:8px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; flex:none;
+}
+.sidebar-toggle:hover{ color:var(--ink); border-color:var(--ink-faint); }
+
+.home-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  color: var(--ink-dim);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  flex: none;
+}
+.home-nav-link:hover {
+  background: var(--bg-card);
+  color: var(--ink);
+  border-color: var(--accent-dim);
+}
+.home-nav-link svg {
+  transition: transform 0.2s ease;
+}
+.home-nav-link:hover svg {
+  transform: translateX(-2px);
+}
+@media (max-width: 600px) {
+  .home-nav-link span { display: none; }
+  .home-nav-link { padding: 8px; }
+}
+
+.masthead-title{
+  font-family:var(--font-display);
+  font-size:19px; font-weight:600; letter-spacing:0.2px;
+  margin:0; white-space:nowrap; color:var(--ink);
+}
+.masthead-title .accent{ color:var(--accent); font-style:italic; font-weight:500; }
+.masthead-title .book-icon{ color: var(--accent); margin-right: 2px; }
+
+.search-wrap{ position:relative; margin-left:auto; width:min(360px, 42vw); }
+#searchInput{
+  width:100%; background:var(--bg-raised); border:1px solid var(--rule);
+  color:var(--ink); border-radius:8px; padding:8px 12px; font-family:var(--font-body);
+  font-size:14px; outline:none;
+}
+#searchInput::placeholder{ color:var(--ink-faint); }
+#searchInput:focus{ border-color:var(--accent-dim); }
+
+.search-results{
+  position:absolute; top:calc(100% + 8px); left:0; right:0;
+  background:var(--bg-card); border:1px solid var(--rule); border-radius:10px;
+  max-height:60vh; overflow-y:auto; display:none; box-shadow:0 14px 40px rgba(0,0,0,0.45);
+}
+.search-results.open{ display:block; }
+.search-result{
+  display:block; padding:10px 14px; border-bottom:1px solid var(--rule-soft);
+  cursor:pointer; text-decoration:none;
+}
+.search-result:last-child{ border-bottom:none; }
+.search-result:hover, .search-result.active{ background:var(--accent-soft); }
+.search-result .sr-part{ font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:0.6px; }
+.search-result .sr-title{ display:block; color:var(--ink); font-size:14px; margin-top:2px; font-weight:600; }
+.search-result .sr-snippet{ display:block; color:var(--ink-dim); font-size:12.5px; margin-top:2px; }
+.search-empty{ padding:16px 14px; color:var(--ink-faint); font-size:13px; }
+
+.progress-track{ height:var(--progress-h); background:var(--rule-soft); }
+.progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--accent-dim), var(--accent)); transition:width 0.15s ease-out; }
+
+/* ---------------- Layout ---------------- */
+
+.layout{ display:flex; max-width:1400px; margin:0 auto; padding-top:calc(var(--masthead-h) + var(--progress-h)); }
+
+.sidebar{
+  width:var(--sidebar-w); flex:none;
+  position:fixed; top:calc(var(--masthead-h) + var(--progress-h)); left:calc(50% - 700px);
+  height:calc(100vh - var(--masthead-h) - var(--progress-h));
+  overflow-y:auto; padding:22px 14px 60px 4px;
+  transition:transform 0.22s ease;
+}
+@media (max-width:1400px){ .sidebar{ left:0; } }
+
+body.sidebar-collapsed .sidebar{ transform:translateX(-330px); }
+body.sidebar-collapsed .content{ margin-left:0; }
+
+.toc-part{ margin-bottom:4px; }
+.toc-part-label{
+  display:flex; align-items:center; gap:8px; cursor:pointer;
+  padding:8px 10px; border-radius:8px; user-select:none;
+}
+.toc-part-label:hover{ background:var(--bg-raised); }
+.toc-part-num{ font-family:var(--font-mono); font-size:11px; color:var(--accent); flex:none; width:22px; }
+.toc-part-title{ font-size:13.5px; font-weight:600; color:var(--ink); flex:1; }
+.toc-caret{ color:var(--ink-faint); font-size:10px; transition:transform 0.15s; }
+.toc-part.open .toc-caret{ transform:rotate(90deg); }
+
+.toc-subs{ display:none; padding-left:32px; margin:2px 0 8px; }
+.toc-part.open .toc-subs{ display:block; }
+.toc-sub{
+  display:flex; align-items:center; gap:7px;
+  padding:5px 8px; border-radius:6px; font-size:12.5px; color:var(--ink-dim);
+  text-decoration:none; cursor:pointer;
+}
+.toc-sub:hover{ background:var(--bg-raised); color:var(--ink); }
+.toc-sub.active{ background:var(--accent-soft); color:var(--accent); }
+.toc-sub .dot{ width:5px; height:5px; border-radius:50%; background:var(--rule); flex:none; }
+.toc-sub.read .dot{ background:var(--accent); }
+.toc-sub.placeholder{ opacity:0.45; font-style:italic; }
+
+.toc-progress{
+  margin-top:14px; padding:10px 12px; border-top:1px solid var(--rule);
+  font-size:11.5px; color:var(--ink-faint); font-family:var(--font-mono);
+}
+
+.content{
+  flex:1; min-width:0; margin-left:var(--sidebar-w);
+  padding:40px 48px 140px; max-width:calc(var(--content-max) + 96px);
+  transition:margin-left 0.22s ease;
+}
+@media (max-width:900px){
+  .content{ margin-left:0; padding:28px 20px 120px; }
+  .sidebar{ left:0; z-index:90; background:var(--bg); box-shadow:0 0 0 100vmax rgba(0,0,0,0); }
+  body:not(.sidebar-collapsed) .sidebar{ box-shadow: 20px 0 40px rgba(0,0,0,0.5); }
+  body.sidebar-collapsed .sidebar{ transform:translateX(-100%); }
+}
+
+/* ---------------- Typography ---------------- */
+
+.part-eyebrow{
+  font-family:var(--font-mono); font-size:12.5px; color:var(--accent);
+  letter-spacing:0.4px; margin:0 0 6px;
+}
+h1.part-title{
+  font-family:var(--font-display); font-size:clamp(28px, 4vw, 40px);
+  font-weight:600; line-height:1.15; margin:0 0 14px; color:var(--ink);
+  max-width:var(--content-max);
+}
+.part-dek{
+  font-family:var(--font-display); font-style:italic; font-weight:400;
+  font-size:18px; color:var(--ink-dim); max-width:var(--content-max);
+  margin:0 0 40px; line-height:1.5;
+}
+
+h2.sub-title{
+  font-family:var(--font-display); font-size:26px; font-weight:600;
+  color:var(--ink); margin:56px 0 16px; max-width:var(--content-max);
+  padding-top:8px; scroll-margin-top:calc(var(--masthead-h) + 24px);
+}
+h2.sub-title .sub-num{ color:var(--accent); font-style:italic; margin-right:8px; font-weight:500; }
+
+h3{
+  font-family:var(--font-body); font-size:16.5px; font-weight:700;
+  color:var(--ink); margin:30px 0 10px; max-width:var(--content-max);
+}
+
+p, li{ max-width:var(--content-max); color:var(--ink); }
+p{ margin:0 0 18px; }
+strong{ color:var(--ink); font-weight:700; }
+em{ color:var(--ink); }
+
+ul.plain, ol.plain{ padding-left:22px; margin:0 0 18px; }
+ul.plain li, ol.plain li{ margin-bottom:9px; }
+ul.plain{ list-style:none; padding-left:2px; }
+ul.plain > li{ position:relative; padding-left:20px; }
+ul.plain > li::before{ content:'—'; position:absolute; left:0; color:var(--ink-faint); }
+
+.section-divider{ border:none; border-top:1px solid var(--rule); max-width:var(--content-max); margin:48px 0; }
+
+/* ---------------- Code panels ---------------- */
+
+.code-panel{
+  max-width:var(--content-max); background:var(--bg-code);
+  border:1px solid var(--rule); border-radius:10px; overflow:hidden;
+  margin:20px 0 26px;
+}
+.code-panel-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 14px; background:var(--bg-raised); border-bottom:1px solid var(--rule);
+}
+.lang-badge{ font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; }
+.code-panel-header .file-label{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint); margin-right:auto; margin-left:12px; }
+.copy-btn{
+  background:none; border:1px solid var(--rule); color:var(--ink-faint);
+  font-family:var(--font-mono); font-size:11px; padding:4px 9px; border-radius:6px; cursor:pointer;
+}
+.copy-btn:hover{ color:var(--ink); border-color:var(--ink-faint); }
+.code-panel pre{
+  margin:0; padding:16px 18px; overflow-x:auto;
+  font-family:var(--font-mono); font-size:13px; line-height:1.65;
+}
+.code-panel code{ font-family:inherit; white-space:pre; }
+code.inline{
+  font-family:var(--font-mono); font-size:0.87em; background:var(--bg-code);
+  border:1px solid var(--rule-soft); padding:1px 6px; border-radius:5px; color:var(--ink);
+}
+
+/* token colors */
+.tok-kw{ color:#e2a3c9; }         /* keywords */
+.tok-str{ color:#a8c98a; }        /* strings */
+.tok-com{ color:var(--ink-faint); font-style:italic; } /* comments */
+.tok-num{ color:#d7a86e; }        /* numbers */
+.tok-tag{ color:var(--accent); font-weight:600; }  /* JSX tags */
+.tok-attr{ color:#d7b7e0; }       /* JSX attribute names */
+.tok-fn{ color:#8ec9e6; }         /* function / hook calls */
+.tok-punc{ color:var(--ink-dim); }
+
+/* code diff annotations */
+.code-panel .line-add{ background:rgba(143,174,124,0.10); display:inline-block; width:100%; }
+.code-panel .line-rem{ background:rgba(193,88,74,0.10); display:inline-block; width:100%; text-decoration:line-through; text-decoration-color:rgba(193,88,74,0.5); }
+
+/* ---------------- Callouts & cards ---------------- */
+
+.callout{
+  max-width:var(--content-max); border-radius:10px; padding:16px 18px;
+  margin:22px 0; border-left:3px solid var(--rule);
+}
+.callout-title{ font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:0.6px; margin:0 0 8px; font-weight:700; }
+.callout p:last-child, .callout ul:last-child{ margin-bottom:0; }
+
+.callout.note{ background:var(--accent-soft); border-color:var(--accent-dim); }
+.callout.note .callout-title{ color:var(--accent); }
+
+.callout.history{ background:var(--violet-soft); border-color:var(--violet); }
+.callout.history .callout-title{ color:var(--violet); }
+
+.callout.warn{ background:var(--brick-soft); border-color:var(--brick); }
+.callout.warn .callout-title{ color:var(--brick); }
+
+.callout.tip{ background:var(--sage-soft); border-color:var(--sage); }
+.callout.tip .callout-title{ color:var(--sage); }
+
+.keypoints{
+  max-width:var(--content-max); background:var(--bg-card); border:1px solid var(--rule);
+  border-radius:12px; padding:18px 20px; margin:28px 0;
+}
+.keypoints-title{
+  font-family:var(--font-display); font-style:italic; color:var(--amber);
+  font-size:15px; margin:0 0 12px; font-weight:600;
+}
+.keypoints ul{ margin:0; padding-left:0; list-style:none; }
+.keypoints li{ position:relative; padding-left:22px; margin-bottom:10px; font-size:15px; }
+.keypoints li:last-child{ margin-bottom:0; }
+.keypoints li::before{ content:'✓'; position:absolute; left:0; color:var(--amber); font-size:13px; top:2px; }
+
+.compare-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  max-width:var(--content-max); margin:20px 0 26px;
+}
+@media (max-width:700px){ .compare-grid{ grid-template-columns:1fr; } }
+.compare-col{ border:1px solid var(--rule); border-radius:10px; overflow:hidden; background:var(--bg-code); }
+.compare-col .compare-label{
+  padding:8px 14px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.4px;
+  text-transform:uppercase; border-bottom:1px solid var(--rule);
+}
+.compare-col.bad .compare-label{ color:var(--brick); background:var(--brick-soft); }
+.compare-col.good .compare-label{ color:var(--sage); background:var(--sage-soft); }
+.compare-col pre{ margin:0; padding:14px; font-family:var(--font-mono); font-size:12.5px; line-height:1.6; overflow-x:auto; }
+
+table.ref-table{ width:100%; max-width:var(--content-max); border-collapse:collapse; margin:20px 0 28px; font-size:14px; }
+table.ref-table th, table.ref-table td{ text-align:left; padding:9px 12px; border-bottom:1px solid var(--rule-soft); vertical-align:top; }
+table.ref-table th{ color:var(--ink-dim); font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:0.4px; font-weight:600; }
+table.ref-table td code.inline{ font-size:0.82em; }
+
+.requirement-list{ max-width:var(--content-max); margin:20px 0 28px; padding:0; list-style:none; }
+.requirement-list li{
+  display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--rule-soft);
+}
+.requirement-list li:last-child{ border-bottom:none; }
+.req-letter{ font-family:var(--font-display); font-style:italic; color:var(--accent); font-size:20px; flex:none; width:26px; }
+
+.placeholder-section{
+  max-width:var(--content-max); border:1px dashed var(--rule); border-radius:12px;
+  padding:22px 24px; margin:40px 0; color:var(--ink-faint);
+}
+.placeholder-section h3{ color:var(--ink-dim); margin-top:0; }
+
+.glossary-term{ max-width:var(--content-max); margin-bottom:18px; }
+.glossary-term dt{ font-family:var(--font-mono); font-weight:700; color:var(--accent); font-size:14.5px; }
+.glossary-term dd{ margin:4px 0 0; color:var(--ink-dim); }
+
+.part-nav{
+  max-width:var(--content-max); display:flex; justify-content:space-between;
+  margin-top:60px; padding-top:24px; border-top:1px solid var(--rule); gap:20px;
+}
+.part-nav a{ text-decoration:none; color:var(--ink-dim); font-size:13.5px; }
+.part-nav a:hover{ color:var(--accent); }
+.part-nav .pn-label{ display:block; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; color:var(--ink-faint); margin-bottom:3px; }
+.part-nav .pn-next{ text-align:right; margin-left:auto; }
+
+svg.diagram{ max-width:var(--content-max); width:100%; height:auto; margin:24px 0; }
+svg.diagram text{ font-family:var(--font-body); fill:var(--ink); }
+svg.diagram .mono{ font-family:var(--font-mono); }
+
+kbd{
+  font-family:var(--font-mono); font-size:11px; background:var(--bg-raised);
+  border:1px solid var(--rule); border-bottom-width:2px; border-radius:5px; padding:1px 6px; color:var(--ink-dim);
+}
+
+@media print{
+  .masthead, .sidebar{ display:none; }
+  .content{ margin-left:0; }
+}
+
+</style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="masthead-top">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation">&#9776;</button>
+      <a href="../index.html" class="home-nav-link" title="Return to All Guides">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        <span>All Guides</span>
+      </a>
+      <h1 class="masthead-title"><span class="book-icon">&#8983;</span>React <span class="accent">&mdash; In Depth</span></h1>
+      <div class="search-wrap">
+        <input type="search" id="searchInput" placeholder="Search the guide…  (press /)" autocomplete="off">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="toc" id="toc"></div>
+      <div class="toc-progress" id="tocProgress">0 / 0 sections read</div>
+    </nav>
+
+    <main class="content" id="content">
+<section class="part" id="part-0" data-num="0" data-title="The World Before React">
+  <p class="part-eyebrow">Part 0</p>
+  <h1 class="part-title">The World Before React</h1>
+  <p class="part-dek">Why an entire industry decided the old way of building UI needed to be replaced &mdash; told through the actual bugs, not a marketing pitch.</p>
+  <h2 class="sub-title" id="p0-dom-truth" data-short="The DOM as source of truth"><span class="sub-num">0.1</span>The DOM Was the Only Source of Truth</h2>
+
+<p>Before you can appreciate what React changed, you have to sit inside the world it was built to escape. In that
+world, there was exactly one place your application's truth lived: the browser's live DOM tree. Not a JavaScript
+variable, not a data model, not a store &mdash; the actual rendered nodes on the page. If you wanted to know
+"what does the user currently see," the honest answer was: whatever <code class="inline">document</code> says
+right now.</p>
+
+<p>The entire toolkit for building an interactive page was three primitives, used directly:</p>
+
+<ul class="plain">
+  <li><code class="inline">document.querySelector</code> / <code class="inline">getElementById</code> &mdash; find a node</li>
+  <li><code class="inline">element.innerHTML</code> / <code class="inline">textContent</code> &mdash; mutate a node</li>
+  <li><code class="inline">element.addEventListener</code> &mdash; react to something the user did</li>
+</ul>
+
+<p>Here is a complete, working counter built from nothing but those three tools:</p>
+
+<div class="code-panel">
+  <div class="code-panel-header">
+    <span class="lang-badge">JavaScript</span>
+    <span class="file-label">counter.js</span>
+    <button class="copy-btn">Copy</button>
+  </div>
+  <pre><code data-lang="javascript">let count = 0;
+
+const countLabel = document.querySelector('#count');
+const incrementBtn = document.querySelector('#increment');
+
+incrementBtn.addEventListener('click', () =&gt; {
+  count = count + 1;
+  countLabel.textContent = count; // you must remember to do this
+});</code></pre>
+</div>
+
+<p>Read that last line again: <code class="inline">countLabel.textContent = count</code>. Nothing about the
+language or the browser enforces that this line exists. <code class="inline">count</code> is just a number
+sitting in memory; the on-screen text is a <em>separate</em> piece of state that happens to currently agree with
+it, because a human being remembered to write the synchronization by hand. The moment you forget that line, or
+write it in the wrong order, or attach it to the wrong button, the number in memory and the number on screen
+silently diverge. The page will look wrong, but nothing will throw an error, because nothing was ever wired to
+guarantee they matched in the first place.</p>
+
+<p>This is not a criticism of the programmers who worked this way &mdash; it's a description of the only model
+available. HTML gave you a document. JavaScript gave you a way to poke at that document. Keeping the poking
+consistent with your data was entirely your job, every single time, everywhere your data was displayed.</p>
+<h2 class="sub-title" id="p0-jquery" data-short="jQuery's real contribution"><span class="sub-num">0.2</span>jQuery Solved the Browser, Not the Architecture</h2>
+
+<p>By the mid-2000s, the practical pain of front-end development wasn't really "how do I update the DOM" &mdash;
+it was "how do I update the DOM without Internet Explorer 6 throwing a different error than Firefox, on an API
+that Netscape and Microsoft had implemented slightly differently on purpose." <strong>jQuery's actual
+contribution was cross-browser normalization</strong>: one consistent API for selecting elements, binding
+events, making AJAX requests, and animating properties, that quietly papered over years of incompatible browser
+quirks.</p>
+
+<div class="code-panel">
+  <div class="code-panel-header">
+    <span class="lang-badge">JavaScript</span>
+    <span class="file-label">counter.jquery.js</span>
+    <button class="copy-btn">Copy</button>
+  </div>
+  <pre><code data-lang="javascript">$('#increment').on('click', function () {
+  count = count + 1;
+  $('#count').text(count);
+});</code></pre>
+</div>
+
+<p>Notice what did <em>not</em> change: this is the exact same shape of program as the vanilla version. Find a
+node, mutate a node, on an event. jQuery made each of those three operations shorter and more reliable across
+browsers &mdash; a genuinely huge win for its time &mdash; but it did nothing to change the underlying
+architecture. You still had to know, by memory, every place in the DOM that reflected a piece of state, and you
+still had to write an explicit statement to update each one, by hand, forever.</p>
+
+<div class="callout history">
+  <p class="callout-title">Worth Remembering</p>
+  
+<p>jQuery is frequently mocked in retrospect as "the old, bad way to build web apps." That's an unfair
+reading of history. jQuery solved a real and painful problem &mdash; browser incompatibility &mdash;
+extremely well. It simply wasn't trying to solve the problem React was later built for. Judging jQuery
+by React's goals is judging a hammer for not being a screwdriver.</p>
+
+</div>
+<h2 class="sub-title" id="p0-nxm" data-short="The N×M problem"><span class="sub-num">0.3</span>The N × M Synchronization Problem</h2>
+
+<p>The real trouble doesn't show up in a counter demo. It shows up once an application has more than one piece
+of state, displayed in more than one place. Consider a shopping cart. As the app grows, "how many items are in
+the cart" ends up rendered in the header badge, in a mini-cart dropdown, and in the checkout summary &mdash;
+three places, and counting.</p>
+
+<div class="code-panel">
+  <div class="code-panel-header">
+    <span class="lang-badge">JavaScript</span>
+    <span class="file-label">cart.js</span>
+    <button class="copy-btn">Copy</button>
+  </div>
+  <pre><code data-lang="javascript">let cartItems = [];
+
+function addToCart(item) {
+  cartItems.push(item);
+
+  updateHeaderBadge();       // update #1: the little number by the cart icon
+  updateMiniCartDropdown();  // update #2: the preview list when you hover the icon
+  updateCheckoutTotal();     // update #3: the running total on the checkout page
+  // ...and whichever future feature also happens to display cart data,
+  // whoever builds it must remember to call their own update function here too.
+}
+
+function removeFromCart(itemId) {
+  cartItems = cartItems.filter(i =&gt; i.id !== itemId);
+
+  updateHeaderBadge();       // ...and all three calls have to be repeated here.
+  updateMiniCartDropdown();  // If you edit one function's list and forget the
+  updateCheckoutTotal();     // other, the two call sites now silently disagree.
+}</code></pre>
+</div>
+
+<p>Generalize this and you get the actual technical shape of "spaghetti code": if a codebase has <strong>N</strong>
+places that change some piece of state and <strong>M</strong> places that display it, a fully correct
+implementation needs on the order of <strong>N &times; M</strong> hand-written, hand-remembered connections. Every
+new feature that touches existing state has to rediscover every place that state is shown, and every new place
+that shows existing state has to rediscover every place that state can change. Nothing in the language stops you
+from missing one. This is not a discipline problem. It is what happens, mechanically, when "the view reflects the
+data" is a promise developers keep by memory instead of a guarantee the system enforces.</p>
+
+<div class="keypoints">
+  <p class="keypoints-title">Why this matters</p>
+  <ul>
+    <li>State living only in the DOM means there is no single place to ask "what is true right now" other than the rendered page itself.</li>
+    <li>Every additional display location for the same state multiplies the number of update call-sites a developer must remember.</li>
+    <li>Bugs from this pattern don't throw errors &mdash; the UI just quietly shows stale or wrong data, which is often worse, because nothing tells you it happened.</li>
+  </ul>
+</div>
+<h2 class="sub-title" id="p0-frameworks" data-short="Pre-React frameworks"><span class="sub-num">0.4</span>Early Attempts: Backbone, Knockout, and Angular's Digest Cycle</h2>
+
+<p>The industry noticed the N&times;M problem well before React existed, and several serious attempts were made
+to solve it.</p>
+
+<p><strong>Backbone.js</strong> (2010) introduced Models and Views as first-class concepts: a Model held data and
+emitted a <code class="inline">change</code> event, and a View listened for that event and re-rendered itself.
+This was real progress &mdash; state and display were now explicitly connected through an event, not through
+whatever the developer remembered to type. But the connection was still manual: you wrote the listener, you wrote
+the re-render function, and for every new View that cared about a Model, you wrote that wiring again.</p>
+
+<p><strong>Knockout.js</strong> pushed further with <em>observables</em> and declarative bindings written directly
+in HTML:</p>
+
+<div class="code-panel">
+  <div class="code-panel-header">
+    <span class="lang-badge">HTML</span>
+    <span class="file-label">template.html</span>
+    <button class="copy-btn">Copy</button>
+  </div>
+  <pre><code data-lang="html">&lt;span data-bind="text: cartCount"&gt;&lt;/span&gt;</code></pre>
+</div>
+
+<p>This is a genuinely different idea: instead of writing an explicit update statement, you declare, once, "this
+element's text should always equal this observable's value," and the library keeps that promise for you. That's
+the first real appearance of a principle React would later take much further: <em>make the display a declared
+consequence of the data, not a series of manual instructions.</em></p>
+
+<p><strong>AngularJS</strong> (2010, what's now called "Angular 1.x" or "AngularJS" to distinguish it from the
+unrelated Angular 2+) generalized two-way binding across an entire application using a mechanism called the
+<em>digest cycle</em>. You'd write <code class="inline">{{ cartCount }}</code> in a template, and whenever
+anything in the app might have changed, Angular would run a "digest": walk every expression it was watching,
+re-evaluate it, and compare the new value to the last one it recorded, repeating this walk until nothing changed
+between passes (dirty-checking).</p>
+
+<div class="callout warn">
+  <p class="callout-title">Where the digest cycle hit a ceiling</p>
+  
+<p>Dirty-checking works by brute force: on every possible change, re-check <em>everything</em> being watched,
+and keep re-checking in a loop until a full pass produces no differences. As an application accumulated more
+watched expressions &mdash; which happens naturally as it grows &mdash; each digest pass got more expensive,
+and a poorly structured page could trigger multiple digest passes per user interaction. Developers writing
+large AngularJS applications learned to watch their watcher count the way you'd watch a budget, because
+performance degraded in a way that was directly tied to app size, not to how much had actually changed.</p>
+
+</div>
+
+<p>The pattern across all three: each one made real progress toward "declare the connection once, let the
+system maintain it," but each hit a different ceiling &mdash; Backbone's wiring was still manual per-view,
+Knockout's bindings were tightly coupled to specific DOM structure, and AngularJS's whole-app dirty-checking
+didn't scale cleanly as applications grew. The idea was right. The execution hadn't found a fast, general
+mechanism yet.</p>
+<h2 class="sub-title" id="p0-facebook" data-short="Facebook's actual motivating bug"><span class="sub-num">0.5</span>The Bug That Started It All</h2>
+
+<p>React's origin is a specific, well-documented story, not a generic "we wanted something better." Facebook's
+engineers were fighting a recurring class of bug in the News Feed and, especially, chat: notification counts and
+unread-message indicators would drift out of sync with reality. A message would be read in one part of the UI,
+but a badge somewhere else on the page &mdash; updated by a different code path, written by a different engineer,
+possibly months apart &mdash; wouldn't get the memo. This is the N&times;M problem from section 0.3, playing out
+at the scale of one of the largest JavaScript codebases in the world.</p>
+
+<p>Jordan Walke, an engineer at Facebook, had been experimenting with an idea borrowed partly from
+<strong>XHP</strong>, an extension to PHP (Facebook's server-side language at the time) that let you embed markup
+directly as a first-class value inside PHP code, rather than building HTML through string concatenation. Walke's
+insight was to bring that same idea to the client: what if a UI component were just a function that you called
+again, every time something changed, and which simply <em>described</em> what the screen should look like right
+now &mdash; and a separate mechanism figured out how to reconcile that description with whatever was actually on
+the page?</p>
+
+<p>That prototype became React. It was first used internally on Facebook's News Feed, then on Instagram's website
+after Facebook acquired Instagram, and it was open-sourced at JSConf US in May 2013. The initial public reaction
+was, by most accounts, mixed to skeptical &mdash; mixing markup and logic in the same file (see Part 2) looked, to
+eyes trained on "separation of concerns," like a step backwards. The technical bet underneath it took a few years
+to fully land.</p>
+
+<div class="callout history">
+  <p class="callout-title">Why this history actually matters</p>
+  
+<p>It's tempting to treat "why was X invented" as trivia. It isn't, here. Every non-obvious design decision
+covered later in this guide &mdash; why JSX mixes markup into JavaScript instead of the reverse, why React
+insists you not touch the DOM directly, why hooks have the strict rules they have &mdash; traces back to this
+one goal: make "the UI matches the data" a guarantee the library enforces, not a discipline the developer
+maintains by hand across an unbounded number of call sites.</p>
+
+</div>
+<h2 class="sub-title" id="p0-requirements" data-short="The requirements list"><span class="sub-num">0.6</span>What a Real Solution Needed to Do</h2>
+
+<p>Put together, the failures and near-misses above amount to a fairly precise specification. Whatever replaced
+manual DOM wiring had to satisfy all five of the following at once &mdash; and note that no single prior attempt
+had managed all five together:</p>
+
+<ul class="requirement-list">
+  <li>
+    <span class="req-letter">a</span>
+    <div><strong>Be declarative</strong><br>Developers describe <em>what</em> the UI should look like for a given piece of state, not the step-by-step instructions for mutating it from its previous look to its new one.</div>
+  </li>
+  <li>
+    <span class="req-letter">b</span>
+    <div><strong>Be predictable</strong><br>The same state should always produce the same UI, regardless of the sequence of events that led to that state. No accumulated drift, no "depends what order things happened in."</div>
+  </li>
+  <li>
+    <span class="req-letter">c</span>
+    <div><strong>Scale without N×M wiring</strong><br>Adding a new display location for existing state, or a new way to change existing state, should not require hunting down and editing every other place that state is touched.</div>
+  </li>
+  <li>
+    <span class="req-letter">d</span>
+    <div><strong>Stay fast without naive full re-renders</strong><br>Recomputing "what should this look like" on every change is only useful if turning that description into real DOM updates is cheap — you can't just throw away and rebuild the entire page every time a checkbox is ticked; you'd lose scroll position, input focus, and performance.</div>
+  </li>
+  <li>
+    <span class="req-letter">e</span>
+    <div><strong>Compose from small, reusable pieces</strong><br>Large UIs need to be built out of independent, nameable, reusable parts — not one monolithic template or one giant imperative script.</div>
+  </li>
+</ul>
+
+<p>Requirement (d) is the one every earlier attempt either ignored or hadn't solved efficiently: it's easy to be
+declarative if you're willing to be slow (just re-render everything, every time). React's actual technical
+contribution &mdash; the piece that made the other four requirements viable in practice &mdash; is a fast,
+general algorithm for turning "here is what I want now" into "here is the minimal set of real DOM operations to
+get there." That algorithm is the Virtual DOM and its reconciliation process, and it's the subject of Part 4.
+Part 1, next, starts with the idea in its simplest form: <strong>UI as a function of state.</strong></p>
+
+  <div class="part-nav"><span></span><a class="pn-next" href="#part-1"><span class="pn-label">Next</span>What React Actually Is</a></div>
+</section>
+<section class="part" id="part-1" data-num="1" data-title="What React Actually Is">
+  <p class="part-eyebrow">Part 1</p>
+  <h1 class="part-title">What React Actually Is</h1>
+  <p class="part-dek">Not a templating language, not a framework, not magic — a specific, deliberate answer to the requirements Part 0 laid out.</p>
+  <h2 class="sub-title" id="p1-thesis" data-short="UI = f(state)"><span class="sub-num">1.1</span>React's Core Thesis: UI as a Function of State</h2>
+
+<p>Strip away every implementation detail &mdash; JSX, hooks, the virtual DOM, all of it &mdash; and React reduces
+to one sentence: <strong>the UI you see should be a pure, predictable output of your current data, not an
+accumulated history of manual instructions.</strong> Formally, this is often written as:</p>
+
+<div class="code-panel">
+  <div class="code-panel-header">
+    <span class="lang-badge">Text</span>
+    <span class="file-label">the whole idea, in one line</span>
+    <button class="copy-btn">Copy</button>
+  </div>
+  <pre><code data-lang="text">UI = f(state)</code></pre>
+</div>
+
+<p>Read this the way you'd read a math function, not a metaphor. A function takes an input and returns an output;
+given the same input, it always returns the same output; and it does this without caring how it got called or
+what happened before. React asks you to write your UI the same way: a component is a function that takes the
+current state (and props) as input, and returns a description of what the screen should look like &mdash; not a
+set of steps for changing what's already there.</p>
+
+<p>This is the direct, engineered answer to the N&times;M problem from Part 0. If the badge, the dropdown, and the
+checkout total are each just functions of <code class="inline">cartItems</code>, then there is no separate
+"remember to update the badge" step. There is one place cart data lives, and three functions that each say "given
+this data, here's what I look like" &mdash; and something else entirely (Part 4) is responsible for noticing what
+changed and updating only that.</p>
+<h2 class="sub-title" id="p1-declarative" data-short="Declarative vs imperative"><span class="sub-num">1.2</span>Declarative vs. Imperative, Rewriting the Badge</h2>
+
+<p>"Declarative" and "imperative" get thrown around loosely, so let's ground them in the exact cart badge example
+from Part 0.3. The imperative version says <em>how</em> to get from the old screen to the new one:</p>
+
+<div class="code-panel">
+  <div class="code-panel-header">
+    <span class="lang-badge">JavaScript</span>
+    <span class="file-label">imperative.js</span>
+    <button class="copy-btn">Copy</button>
+  </div>
+  <pre><code data-lang="javascript">function addToCart(item) {
+  cartItems.push(item);
+  document.querySelector('#badge').textContent = cartItems.length; // HOW to update
+}</code></pre>
+</div>
+
+<p>A declarative version says <em>what</em> the screen should look like, full stop, and never mentions the
+previous screen at all:</p>
+
+<div class="code-panel">
+  <div class="code-panel-header">
+    <span class="lang-badge">JavaScript</span>
+    <span class="file-label">declarative.js</span>
+    <button class="copy-btn">Copy</button>
+  </div>
+  <pre><code data-lang="javascript">function CartBadge({ count }) {
+  return React.createElement('span', { className: 'badge' }, count); // WHAT it should look like
+}</code></pre>
+</div>
+
+<p>That second function does not know or care whether the badge previously showed <code class="inline">2</code>
+or <code class="inline">200</code> or never existed at all. It only knows how to answer one question: "given a
+count, what should this look like?" You call it again whenever <code class="inline">count</code> changes, and
+something else &mdash; React itself &mdash; is responsible for comparing this description to whatever's actually
+on the page and making the minimum number of real changes.</p>
+
+<div class="callout note">
+  <p class="callout-title">React.createElement, before JSX</p>
+  
+<p><code class="inline">React.createElement('span', { className: 'badge' }, count)</code> is real, runnable
+React &mdash; and it's exactly what JSX compiles into. Part 2 introduces the <code class="inline">&lt;span
+className="badge"&gt;{count}&lt;/span&gt;</code> syntax you've likely already seen, but it's worth seeing the
+function-call form first: JSX has zero magic underneath it. It's markup-shaped syntax for ordinary function
+calls that build plain JavaScript objects.</p>
+
+</div>
+
+<div class="keypoints">
+  <p class="keypoints-title">The actual difference, precisely stated</p>
+  <ul>
+    <li>Imperative code contains a reference to the *previous* state of the world ("take what's there and change it"). Declarative code does not — it only ever describes the *current* desired state.</li>
+    <li>This is why declarative code can't accumulate drift: there's no history to get out of sync with, because nothing refers to history.</li>
+    <li>The cost you accept in exchange is that *something* still has to figure out the efficient path from the old screen to the new one — that's not free, it's just no longer your problem to hand-write. That something is the reconciler (Part 4).</li>
+  </ul>
+</div>
+<h2 class="sub-title" id="p1-library-not-framework" data-short="Library vs. framework"><span class="sub-num">1.3</span>A Library, Not a Framework &mdash; and What That Costs You</h2>
+
+<p>React describes itself as "a library for building user interfaces," and the word choice is deliberate and
+consequential. A <strong>framework</strong> (AngularJS was one; so are Vue and Angular 2+, and, on the server,
+Rails or Django) hands you an opinionated, mostly-complete set of answers for routing, data fetching, form
+handling, state management, and build tooling &mdash; you work inside its structure. A <strong>library</strong>
+solves one problem well and stays quiet about everything else.</p>
+
+<p>React solves exactly one problem: turning component state into DOM updates efficiently and predictably. It
+has no built-in opinion about:</p>
+
+<ul class="plain">
+  <li><strong>Routing</strong> &mdash; which URL shows which component. (You reach for React Router, or a
+  framework built on React like Next.js or Remix, which bundle this in.)</li>
+  <li><strong>Data fetching</strong> &mdash; how you get data from a server into state. (Plain
+  <code class="inline">fetch</code>, or a library like TanStack Query, or a framework's built-in data layer.)</li>
+  <li><strong>Global state management</strong> beyond what a single component tree needs. (Context, covered in
+  Part 7, gets you fairly far; Redux, Zustand, and others exist for the rest.)</li>
+  <li><strong>Build tooling</strong> &mdash; something still has to compile JSX into
+  <code class="inline">React.createElement</code> calls and bundle your files. That's Babel and a bundler
+  (Vite, webpack, etc.), not React itself.</li>
+</ul>
+
+<p>This is not a gap or an oversight &mdash; it's the entire design philosophy, and it's exactly why the React
+ecosystem is large and occasionally overwhelming: you assemble the rest yourself, or you adopt a framework built
+on top of React (Next.js is the most common) that makes those choices for you. Part 13 returns to this as a
+genuine, honestly-stated limitation. For now, hold onto the distinction: <strong>everything this guide covers
+through Part 9 is React itself.</strong> Part 10 onward starts describing decisions the wider ecosystem makes
+<em>using</em> React.</p>
+<h2 class="sub-title" id="p1-vdom-teaser" data-short="Virtual DOM (first look)"><span class="sub-num">1.4</span>The Virtual DOM, in One Paragraph</h2>
+
+<p>You cannot get away with calling a function that rebuilds "the whole UI description" on every keystroke unless
+turning that description into real DOM changes is extremely cheap. React's answer is to never touch the real DOM
+directly as its first move. Instead, calling a component function produces a lightweight, plain JavaScript object
+tree describing the UI &mdash; the <strong>virtual DOM</strong>. Real DOM nodes are comparatively expensive to
+create and mutate (the browser has to run layout, style, and paint machinery on them); plain JS objects are
+essentially free. React keeps the previous object tree around, compares it to the new one whenever state changes,
+computes the minimal set of real differences, and only then touches the actual DOM &mdash; and only the parts
+that actually changed.</p>
+
+<svg class="diagram" viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-dim)"/>
+    </marker>
+  </defs>
+  <style>
+    .diag-box{ fill:var(--bg-card); stroke:var(--rule); stroke-width:1; rx:10; }
+    .diag-label{ font-size:12px; }
+    .diag-sub{ font-size:10.5px; fill:var(--ink-faint); }
+    .diag-line{ stroke:var(--accent-dim); stroke-width:1.5; fill:none; marker-end:url(#arrow); }
+  </style>
+  <rect class="diag-box" x="10" y="70" width="130" height="64"/>
+  <text class="diag-label" x="75" y="98" text-anchor="middle">State changes</text>
+  <text class="diag-sub" x="75" y="114" text-anchor="middle">e.g. setCount(3)</text>
+
+  <path class="diag-line" d="M140,102 L172,102"/>
+
+  <rect class="diag-box" x="176" y="60" width="150" height="84"/>
+  <text class="diag-label" x="251" y="94" text-anchor="middle">Component function</text>
+  <text class="diag-sub" x="251" y="110" text-anchor="middle">runs again</text>
+  <text class="diag-sub" x="251" y="124" text-anchor="middle">(just a JS function call)</text>
+
+  <path class="diag-line" d="M326,102 L358,102"/>
+
+  <rect class="diag-box" x="362" y="60" width="150" height="84"/>
+  <text class="diag-label" x="437" y="94" text-anchor="middle">New UI description</text>
+  <text class="diag-sub" x="437" y="110" text-anchor="middle">a plain JS object tree</text>
+  <text class="diag-sub" x="437" y="124" text-anchor="middle">("virtual DOM")</text>
+
+  <path class="diag-line" d="M512,102 L544,102"/>
+
+  <rect class="diag-box" x="548" y="60" width="200" height="84"/>
+  <text class="diag-label" x="648" y="86" text-anchor="middle">Diffed against the</text>
+  <text class="diag-label" x="648" y="102" text-anchor="middle">previous description</text>
+  <text class="diag-sub" x="648" y="118" text-anchor="middle">(Part 4 covers this in full)</text>
+
+  <path class="diag-line" d="M648,144 L648,168 L 400,168 L400,168" />
+  <path class="diag-line" d="M648,150 C 648,185 250,185 130,150" />
+  <rect class="diag-box" x="15" y="150" width="220" height="46" />
+  <text class="diag-label" x="125" y="178" text-anchor="middle">Only the real changes are</text>
+  <text class="diag-sub" x="125" y="192" text-anchor="middle" style="display:none"></text>
+</svg>
+
+<p>That's the whole idea at the altitude Part 1 needs. The actual comparison algorithm, the rules about
+<code class="inline">key</code> props, and the Fiber architecture that makes this interruptible for large updates
+are substantial enough to deserve their own full treatment &mdash; that's all of Part 4. What matters here is the
+shape of the bargain: <strong>you get to write simple, throwaway-and-redescribe code, and React does the harder
+job of figuring out the cheap way to make it real.</strong></p>
+<h2 class="sub-title" id="p1-truth-shift" data-short="Where truth lives now"><span class="sub-num">1.5</span>The Shift in Where Truth Lives</h2>
+
+<p>Section 0.1 opened with a specific claim: in the pre-React world, the DOM itself was the only source of truth.
+React inverts this completely. <strong>State is the source of truth; the DOM is a disposable, derived projection
+of it that React is free to throw away and rebuild at will.</strong> You are meant to stop thinking of the
+rendered page as a thing you maintain, and start thinking of it as a byproduct React generates on demand from
+data you actually care about.</p>
+
+<p>The practical, load-bearing consequence of this shift is a rule that will resurface constantly for the rest of
+this guide: <strong>if you find yourself reaching for <code class="inline">document.querySelector</code> or
+directly mutating a DOM node inside a React component, that is almost always a sign you're fighting the model
+instead of using it.</strong> There are legitimate, narrow exceptions &mdash; focus management, text selection,
+integrating a non-React library &mdash; and React provides a deliberate escape hatch for exactly those cases
+(refs, covered in Part 8). But they're escape hatches precisely because the default path is supposed to be
+"change the state, and let React figure out the DOM."</p>
+
+<div class="callout tip">
+  <p class="callout-title">A one-question test</p>
+  
+<p>When you're unsure whether some piece of information belongs in React state, ask: "if I threw away the
+current DOM and asked a component to render fresh from scratch, would this information still be
+recoverable?" If the honest answer is no &mdash; the information only exists because of some sequence of
+manual DOM edits &mdash; it's a sign that information should have been state all along.</p>
+
+</div>
+<h2 class="sub-title" id="p1-timeline" data-short="A brief timeline"><span class="sub-num">1.6</span>How We Got From 2013 to Now</h2>
+
+<p>React did not arrive complete and hasn't stood still since. Knowing the rough shape of its evolution will make
+several later design decisions (especially around Hooks in Part 5, and rendering environments in Part 10) make
+much more sense, because each major shift was a response to a specific, named limitation of what came before it.</p>
+
+<table class="ref-table">
+  <thead><tr><th>Year</th><th>Milestone</th><th>What it actually solved</th></tr></thead>
+  <tbody>
+<tr><td>2013</td><td>React open-sourced (JSConf US)</td><td>The declarative, component-function model described in this Part, made public.</td></tr><tr><td>2015</td><td>React Native announced</td><td>The same component + reconciliation model, targeting native mobile views instead of the DOM &mdash; proof the core idea wasn't DOM-specific.</td></tr><tr><td>2017</td><td>React 16: the “Fiber” rewrite</td><td>Replaced the original reconciler with an architecture that can pause, resume, and prioritize rendering work instead of blocking the browser until a full tree diff finishes. Full mechanics in Part 4.</td></tr><tr><td>2019</td><td>React 16.8: Hooks</td><td>Let function components hold state and side effects directly, removing the need for class components for the vast majority of use cases. All of Part 5.</td></tr><tr><td>2022</td><td>React 18: concurrent rendering, official</td><td>Made Fiber's interruptible rendering something you can opt into deliberately (<code class=\"inline\">startTransition</code>, <code class=\"inline\">useDeferredValue</code>), plus automatic batching and Suspense on the server. Part 9.</td></tr><tr><td>2022–2023</td><td>React Server Components popularized</td><td>A model for rendering components on the server with zero client-side JS cost for the parts that don't need interactivity, mainstreamed through Next.js's App Router. Part 10.</td></tr><tr><td>2024</td><td>React 19</td><td>Stabilized Server Components in core, added Actions and related hooks for handling form submissions and pending/optimistic UI, and simplified ref handling.</td></tr>
+  </tbody>
+</table>
+
+<p>Notice the pattern: nearly every major version exists because something earlier in this list ran into a
+concrete wall. Fiber exists because the original synchronous reconciler could freeze the browser on large updates.
+Hooks exist because class components made sharing stateful logic between components awkward (Part 5 covers this
+history in detail). Server Components exist because sending every byte of JavaScript to every client, even for
+content that never changes after the server renders it, is wasteful. Nothing here is change for its own sake
+&mdash; it's the same core thesis from section 1.1, re-applied every time its previous implementation revealed a
+new limit.</p>
+
+<div class="keypoints">
+  <p class="keypoints-title">Part 1, wrapped up</p>
+  <ul>
+    <li>React's core thesis is UI = f(state): components are functions from data to a description of the screen, not scripts that mutate a previous screen.</li>
+    <li>It is deliberately a library, not a framework — it owns rendering and leaves routing, data fetching, and global state architecture to you or to a framework built on top of it.</li>
+    <li>The virtual DOM exists to make “just redescribe everything, every time” cheap enough to actually do — full mechanics in Part 4.</li>
+    <li>State is now the source of truth; the DOM is a derived, disposable output — which is why directly touching the DOM inside a component is a code smell, not a shortcut.</li>
+  </ul>
+</div>
+
+  <div class="part-nav"><a href="#part-0"><span class="pn-label">Previous</span>The World Before React</a><a class="pn-next" href="#part-2"><span class="pn-label">Next</span>JSX: Syntax and Semantics</a></div>
+</section>
+<section class="part is-placeholder" id="part-2" data-num="2" data-title="JSX: Syntax and Semantics">
+  <p class="part-eyebrow">Part 2</p>
+  <h1 class="part-title">JSX: Syntax and Semantics</h1>
+  <p class="part-dek">Markup that isn't HTML, compiling into function calls that aren't magic.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-2-s1" data-short="JSX Is Not HTML"><span class="sub-num">2.1</span>JSX Is Not HTML</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Where JSX's syntax actually diverges from HTML, and why those divergences exist.</p><h2 class="sub-title" id="part-2-s2" data-short="Expressions vs. Statements Inside {}"><span class="sub-num">2.2</span>Expressions vs. Statements Inside {}</h2>
+<p style="color:var(--ink-faint); font-style:italic;">What you can and can't put inside curly braces, and why.</p><h2 class="sub-title" id="part-2-s3" data-short="How JSX Compiles: Babel and React.createElement"><span class="sub-num">2.3</span>How JSX Compiles: Babel and React.createElement</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Tracing a JSX file through the actual compiler transform.</p><h2 class="sub-title" id="part-2-s4" data-short="Attribute Differences: className, htmlFor, camelCase, style objects"><span class="sub-num">2.4</span>Attribute Differences: className, htmlFor, camelCase, style objects</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Every naming divergence from HTML attributes, explained by its cause.</p><h2 class="sub-title" id="part-2-s5" data-short="Children, Fragments, and Conditional Rendering"><span class="sub-num">2.5</span>Children, Fragments, and Conditional Rendering</h2>
+<p style="color:var(--ink-faint); font-style:italic;">&&, ternaries, and the fragment shorthand, with the pitfalls of each.</p><h2 class="sub-title" id="part-2-s6" data-short="Keys: What They Are and Why They're Required"><span class="sub-num">2.6</span>Keys: What They Are and Why They're Required</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The exact role a key plays in the diffing algorithm from Part 4.</p><h2 class="sub-title" id="part-2-s7" data-short="JSX Gotchas and Edge Cases"><span class="sub-num">2.7</span>JSX Gotchas and Edge Cases</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Whitespace handling, boolean attributes, and other surprises.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-3" data-num="3" data-title="Components & Composition">
+  <p class="part-eyebrow">Part 3</p>
+  <h1 class="part-title">Components & Composition</h1>
+  <p class="part-dek">The unit of reuse in React, and the rules that make composing them safe.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-3-s1" data-short="Function Components, the Modern Default"><span class="sub-num">3.1</span>Function Components, the Modern Default</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Why the entire ecosystem converged on function components.</p><h2 class="sub-title" id="part-3-s2" data-short="Class Components (Legacy, Still Worth Knowing)"><span class="sub-num">3.2</span>Class Components (Legacy, Still Worth Knowing)</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Reading older codebases and understanding lifecycle methods.</p><h2 class="sub-title" id="part-3-s3" data-short="Props: Read-Only Data Flowing Down"><span class="sub-num">3.3</span>Props: Read-Only Data Flowing Down</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Immutability, default values, and the spread pattern.</p><h2 class="sub-title" id="part-3-s4" data-short="Children as Props, Composition Over Inheritance"><span class="sub-num">3.4</span>Children as Props, Composition Over Inheritance</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Why React has no component inheritance model, on purpose.</p><h2 class="sub-title" id="part-3-s5" data-short="The Component Tree and Unidirectional Data Flow"><span class="sub-num">3.5</span>The Component Tree and Unidirectional Data Flow</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Why data only flows one way, and what that buys you.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-4" data-num="4" data-title="The Virtual DOM & Reconciliation">
+  <p class="part-eyebrow">Part 4</p>
+  <h1 class="part-title">The Virtual DOM & Reconciliation</h1>
+  <p class="part-dek">The full mechanics behind the Part 1 teaser: how React decides what actually changed.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-4-s1" data-short="What the Virtual DOM Actually Is, Precisely"><span class="sub-num">4.1</span>What the Virtual DOM Actually Is, Precisely</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The real object shape, not just the metaphor.</p><h2 class="sub-title" id="part-4-s2" data-short="The Diffing Algorithm: Type and Key Rules"><span class="sub-num">4.2</span>The Diffing Algorithm: Type and Key Rules</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The exact rules React uses to match old nodes to new ones.</p><h2 class="sub-title" id="part-4-s3" data-short="Render, Reconciliation, and Commit: the Three Phases"><span class="sub-num">4.3</span>Render, Reconciliation, and Commit: the Three Phases</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Which phase can be interrupted, and which can't.</p><h2 class="sub-title" id="part-4-s4" data-short="Fiber: Why the Reconciler Was Rewritten"><span class="sub-num">4.4</span>Fiber: Why the Reconciler Was Rewritten</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The specific limitation of the pre-2017 stack reconciler.</p><h2 class="sub-title" id="part-4-s5" data-short="Interruptible Rendering and Priority Lanes"><span class="sub-num">4.5</span>Interruptible Rendering and Priority Lanes</h2>
+<p style="color:var(--ink-faint); font-style:italic;">How urgent updates can cut in line ahead of background work.</p><h2 class="sub-title" id="part-4-s6" data-short="Batching: Why Multiple setState Calls Can Become One Update"><span class="sub-num">4.6</span>Batching: Why Multiple setState Calls Can Become One Update</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The performance reasoning behind batched updates.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-5" data-num="5" data-title="Hooks: Mechanics and Rules">
+  <p class="part-eyebrow">Part 5</p>
+  <h1 class="part-title">Hooks: Mechanics and Rules</h1>
+  <p class="part-dek">How function components hold state and run side effects, and why the Rules of Hooks aren't arbitrary.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-5-s1" data-short="useState: What's Actually Stored, and Where"><span class="sub-num">5.1</span>useState: What's Actually Stored, and Where</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The linked-list-of-hooks internal model.</p><h2 class="sub-title" id="part-5-s2" data-short="useEffect: Timing, Dependencies, and Cleanup"><span class="sub-num">5.2</span>useEffect: Timing, Dependencies, and Cleanup</h2>
+<p style="color:var(--ink-faint); font-style:italic;">When effects run relative to paint, and how cleanup ordering works.</p><h2 class="sub-title" id="part-5-s3" data-short="useLayoutEffect vs useEffect"><span class="sub-num">5.3</span>useLayoutEffect vs useEffect</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The narrow cases that actually need the synchronous version.</p><h2 class="sub-title" id="part-5-s4" data-short="useRef and the Mutable Escape Hatch"><span class="sub-num">5.4</span>useRef and the Mutable Escape Hatch</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Persisting a value across renders without triggering a re-render.</p><h2 class="sub-title" id="part-5-s5" data-short="useMemo and useCallback: Memoization Mechanics"><span class="sub-num">5.5</span>useMemo and useCallback: Memoization Mechanics</h2>
+<p style="color:var(--ink-faint); font-style:italic;">What's actually being compared, and when memoizing helps or hurts.</p><h2 class="sub-title" id="part-5-s6" data-short="useReducer: Local State With Redux-Shaped Logic"><span class="sub-num">5.6</span>useReducer: Local State With Redux-Shaped Logic</h2>
+<p style="color:var(--ink-faint); font-style:italic;">When a reducer beats several useState calls.</p><h2 class="sub-title" id="part-5-s7" data-short="useContext: Reading Context Without Prop Drilling"><span class="sub-num">5.7</span>useContext: Reading Context Without Prop Drilling</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Consuming context values, and their re-render implications.</p><h2 class="sub-title" id="part-5-s8" data-short="The Rules of Hooks, and Why They're Not Arbitrary"><span class="sub-num">5.8</span>The Rules of Hooks, and Why They're Not Arbitrary</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Why call order has to be stable, tied directly back to 5.1.</p><h2 class="sub-title" id="part-5-s9" data-short="Writing Your Own Custom Hooks"><span class="sub-num">5.9</span>Writing Your Own Custom Hooks</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Extracting and sharing stateful logic between components.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-6" data-num="6" data-title="The Component Lifecycle, Through Hooks">
+  <p class="part-eyebrow">Part 6</p>
+  <h1 class="part-title">The Component Lifecycle, Through Hooks</h1>
+  <p class="part-dek">Mount, update, and unmount — mapped onto the hooks that replaced lifecycle methods.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-6-s1" data-short="Mount, Update, Unmount: Mapped Onto Hooks"><span class="sub-num">6.1</span>Mount, Update, Unmount: Mapped Onto Hooks</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Matching each classic lifecycle method to its hook equivalent.</p><h2 class="sub-title" id="part-6-s2" data-short="Strict Mode's Double-Invocation, Explained"><span class="sub-num">6.2</span>Strict Mode's Double-Invocation, Explained</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Why your effects run twice in development, on purpose.</p><h2 class="sub-title" id="part-6-s3" data-short="Effect Cleanup Ordering"><span class="sub-num">6.3</span>Effect Cleanup Ordering</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The exact order cleanup functions run in on unmount and re-run.</p><h2 class="sub-title" id="part-6-s4" data-short="Stale Closures and Other Classic Lifecycle Bugs"><span class="sub-num">6.4</span>Stale Closures and Other Classic Lifecycle Bugs</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The bug pattern every React developer eventually meets.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-7" data-num="7" data-title="Data Flow & State Management">
+  <p class="part-eyebrow">Part 7</p>
+  <h1 class="part-title">Data Flow & State Management</h1>
+  <p class="part-dek">Getting state to the components that need it, without over-engineering the ones that don't.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-7-s1" data-short="Lifting State Up"><span class="sub-num">7.1</span>Lifting State Up</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The default first move when two components need to share state.</p><h2 class="sub-title" id="part-7-s2" data-short="Prop Drilling: Real Problem vs. Premature Abstraction"><span class="sub-num">7.2</span>Prop Drilling: Real Problem vs. Premature Abstraction</h2>
+<p style="color:var(--ink-faint); font-style:italic;">When drilling is genuinely a problem worth solving.</p><h2 class="sub-title" id="part-7-s3" data-short="The Context API, in Full"><span class="sub-num">7.3</span>The Context API, in Full</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Providers, consumers, and the re-render cost of context updates.</p><h2 class="sub-title" id="part-7-s4" data-short="When to Reach for Redux, Zustand, or Jotai"><span class="sub-num">7.4</span>When to Reach for Redux, Zustand, or Jotai</h2>
+<p style="color:var(--ink-faint); font-style:italic;">A conceptual survey of what each philosophy trades off.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-8" data-num="8" data-title="Forms, Refs & Escape Hatches">
+  <p class="part-eyebrow">Part 8</p>
+  <h1 class="part-title">Forms, Refs & Escape Hatches</h1>
+  <p class="part-dek">The deliberate exceptions to “never touch the DOM directly.”</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-8-s1" data-short="Controlled vs. Uncontrolled Inputs"><span class="sub-num">8.1</span>Controlled vs. Uncontrolled Inputs</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Who owns an input's value — React state, or the DOM itself.</p><h2 class="sub-title" id="part-8-s2" data-short="DOM Refs vs. Value Refs"><span class="sub-num">8.2</span>DOM Refs vs. Value Refs</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The two unrelated things useRef is used for.</p><h2 class="sub-title" id="part-8-s3" data-short="forwardRef and useImperativeHandle"><span class="sub-num">8.3</span>forwardRef and useImperativeHandle</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Exposing a controlled, narrow imperative API from a component.</p><h2 class="sub-title" id="part-8-s4" data-short="Portals: Rendering Outside the Parent Tree"><span class="sub-num">8.4</span>Portals: Rendering Outside the Parent Tree</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Modals and tooltips that need to escape overflow and z-index.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-9" data-num="9" data-title="The Performance Model">
+  <p class="part-eyebrow">Part 9</p>
+  <h1 class="part-title">The Performance Model</h1>
+  <p class="part-dek">Why components actually re-render, and which optimizations do or don't help.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-9-s1" data-short="Why Components Actually Re-Render"><span class="sub-num">9.1</span>Why Components Actually Re-Render</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The real rule, which has nothing to do with whether data “changed.”</p><h2 class="sub-title" id="part-9-s2" data-short="React.memo, useMemo, useCallback: When They Help"><span class="sub-num">9.2</span>React.memo, useMemo, useCallback: When They Help</h2>
+<p style="color:var(--ink-faint); font-style:italic;">And, just as importantly, when they make things worse.</p><h2 class="sub-title" id="part-9-s3" data-short="Concurrent Features: startTransition and useDeferredValue"><span class="sub-num">9.3</span>Concurrent Features: startTransition and useDeferredValue</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Marking updates as low-priority on purpose.</p><h2 class="sub-title" id="part-9-s4" data-short="Suspense and Code-Splitting Fundamentals"><span class="sub-num">9.4</span>Suspense and Code-Splitting Fundamentals</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Declaring loading states instead of managing them by hand.</p><h2 class="sub-title" id="part-9-s5" data-short="A Mental Model for Profiling"><span class="sub-num">9.5</span>A Mental Model for Profiling</h2>
+<p style="color:var(--ink-faint); font-style:italic;">What to actually look at in React DevTools' profiler.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-10" data-num="10" data-title="Rendering Environments: CSR, SSR, SSG, RSC">
+  <p class="part-eyebrow">Part 10</p>
+  <h1 class="part-title">Rendering Environments: CSR, SSR, SSG, RSC</h1>
+  <p class="part-dek">Where the component-function-to-HTML translation actually happens.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-10-s1" data-short="Client-Side Rendering, What Plain React Does By Default"><span class="sub-num">10.1</span>Client-Side Rendering, What Plain React Does By Default</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The baseline every other model is compared against.</p><h2 class="sub-title" id="part-10-s2" data-short="Server-Side Rendering and Hydration"><span class="sub-num">10.2</span>Server-Side Rendering and Hydration</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Sending HTML first, then attaching React's event handling to it.</p><h2 class="sub-title" id="part-10-s3" data-short="Static Site Generation"><span class="sub-num">10.3</span>Static Site Generation</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Rendering once, at build time, instead of on every request.</p><h2 class="sub-title" id="part-10-s4" data-short="React Server Components, the Newest Model"><span class="sub-num">10.4</span>React Server Components, the Newest Model</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Components that never ship any JavaScript to the client at all.</p><h2 class="sub-title" id="part-10-s5" data-short="Where Next.js and Remix Fit In"><span class="sub-num">10.5</span>Where Next.js and Remix Fit In</h2>
+<p style="color:var(--ink-faint); font-style:italic;">What these frameworks add on top of React itself.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-11" data-num="11" data-title="React vs. Plain HTML, CSS, and JS">
+  <p class="part-eyebrow">Part 11</p>
+  <h1 class="part-title">React vs. Plain HTML, CSS, and JS</h1>
+  <p class="part-dek">The explicit, side-by-side comparison: what changes, and what quietly doesn't.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-11-s1" data-short="The Same Feature, Three Ways"><span class="sub-num">11.1</span>The Same Feature, Three Ways</h2>
+<p style="color:var(--ink-faint); font-style:italic;">One feature, built in vanilla JS, jQuery, and React, compared directly.</p><h2 class="sub-title" id="part-11-s2" data-short="What React Adds on Top of JavaScript"><span class="sub-num">11.2</span>What React Adds on Top of JavaScript</h2>
+<p style="color:var(--ink-faint); font-style:italic;">JSX, the reconciler, and the hooks engine — and nothing else.</p><h2 class="sub-title" id="part-11-s3" data-short="What Doesn't Change: It's Still Just DOM Calls"><span class="sub-num">11.3</span>What Doesn't Change: It's Still Just DOM Calls</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Why “learn React” is really “learn a bit more JavaScript.”</p><h2 class="sub-title" id="part-11-s4" data-short="Styling in React: className, CSS Modules, and Styled Components"><span class="sub-num">11.4</span>Styling in React: className, CSS Modules, and Styled Components</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The landscape of styling approaches and their trade-offs.</p><h2 class="sub-title" id="part-11-s5" data-short="Where the Browser Ends and React Begins"><span class="sub-num">11.5</span>Where the Browser Ends and React Begins</h2>
+<p style="color:var(--ink-faint); font-style:italic;">A precise mental boundary between the two.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-12" data-num="12" data-title="Patterns & Idioms">
+  <p class="part-eyebrow">Part 12</p>
+  <h1 class="part-title">Patterns & Idioms</h1>
+  <p class="part-dek">Recurring shapes experienced React codebases converge on — and the ones hooks made obsolete.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-12-s1" data-short="Compound Components"><span class="sub-num">12.1</span>Compound Components</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Components designed to be used together, sharing implicit state.</p><h2 class="sub-title" id="part-12-s2" data-short="Render Props"><span class="sub-num">12.2</span>Render Props</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The pattern hooks replaced for most, but not all, use cases.</p><h2 class="sub-title" id="part-12-s3" data-short="Higher-Order Components, and Why Hooks Replaced Most of Them"><span class="sub-num">12.3</span>Higher-Order Components, and Why Hooks Replaced Most of Them</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Wrapping a component to inject behavior, and its costs.</p><h2 class="sub-title" id="part-12-s4" data-short="Container/Presentational Split"><span class="sub-num">12.4</span>Container/Presentational Split</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Separating data logic from display, and when it's worth doing.</p><h2 class="sub-title" id="part-12-s5" data-short="TypeScript With React"><span class="sub-num">12.5</span>TypeScript With React</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Typing props, state, and hooks without fighting the type system.</p>
+  </div>
+  
+</section>
+<section class="part is-placeholder" id="part-13" data-num="13" data-title="Limitations & Honest Critique">
+  <p class="part-eyebrow">Part 13</p>
+  <h1 class="part-title">Limitations & Honest Critique</h1>
+  <p class="part-dek">Where React genuinely struggles — stated plainly, not as a rebuttal.</p>
+  <div class="placeholder-section">
+    <h3>Coming in the next pass</h3>
+    <p>This part's planned sections are listed in the sidebar so you can see the full shape of the guide. Say <strong>continue</strong> and this section will be replaced with full, in-depth content, the same way Parts 0 and 1 were written.</p><h2 class="sub-title" id="part-13-s1" data-short="The Learning Curve and Conceptual Overhead"><span class="sub-num">13.1</span>The Learning Curve and Conceptual Overhead</h2>
+<p style="color:var(--ink-faint); font-style:italic;">What a newcomer actually has to internalize before feeling productive.</p><h2 class="sub-title" id="part-13-s2" data-short="Boilerplate and the Dependency-Array Tax"><span class="sub-num">13.2</span>Boilerplate and the Dependency-Array Tax</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The recurring friction hooks introduced in exchange for their power.</p><h2 class="sub-title" id="part-13-s3" data-short="Not Batteries-Included: Routing and Data Fetching"><span class="sub-num">13.3</span>Not Batteries-Included: Routing and Data Fetching</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The direct cost of being a library instead of a framework.</p><h2 class="sub-title" id="part-13-s4" data-short="Performance Footguns: Over-Rendering and Unstable References"><span class="sub-num">13.4</span>Performance Footguns: Over-Rendering and Unstable References</h2>
+<p style="color:var(--ink-faint); font-style:italic;">How easy it is to accidentally defeat memoization.</p><h2 class="sub-title" id="part-13-s5" data-short="Bundle Size and Runtime Cost"><span class="sub-num">13.5</span>Bundle Size and Runtime Cost</h2>
+<p style="color:var(--ink-faint); font-style:italic;">What you pay, in kilobytes and runtime work, versus plain JS.</p><h2 class="sub-title" id="part-13-s6" data-short="API Churn and Migration Fatigue"><span class="sub-num">13.6</span>API Churn and Migration Fatigue</h2>
+<p style="color:var(--ink-faint); font-style:italic;">Classes to hooks, Create React App's deprecation, and the real cost of change.</p><h2 class="sub-title" id="part-13-s7" data-short="SEO and SSR, Historical Pain and Current State"><span class="sub-num">13.7</span>SEO and SSR, Historical Pain and Current State</h2>
+<p style="color:var(--ink-faint); font-style:italic;">How much of the old criticism still applies today.</p><h2 class="sub-title" id="part-13-s8" data-short="When Not to Choose React"><span class="sub-num">13.8</span>When Not to Choose React</h2>
+<p style="color:var(--ink-faint); font-style:italic;">The honest cases where a simpler tool is the better choice.</p>
+  </div>
+  
+</section>
+<section class="part" id="part-ref" data-num="§" data-title="Reference & Glossary">
+  <p class="part-eyebrow">Part §</p>
+  <h1 class="part-title">Reference & Glossary</h1>
+  <p class="part-dek">Every precise term this guide has defined so far, in one place — filled in as each Part is written.</p>
+  
+<div class="glossary-term"><dt id="gl-0">Declarative</dt><dd>Code that describes the desired end state, without referencing or depending on whatever state came before it. Contrast with imperative. See 1.2.</dd></div><div class="glossary-term"><dt id="gl-1">Imperative</dt><dd>Code that describes the step-by-step instructions for transforming a previous state into a new one. See 1.2.</dd></div><div class="glossary-term"><dt id="gl-2">Component</dt><dd>A function (or, historically, a class) that takes props/state as input and returns a description of UI. See 1.1 and Part 3.</dd></div><div class="glossary-term"><dt id="gl-3">Props</dt><dd>Read-only data passed into a component from its parent. Covered fully in Part 3.</dd></div><div class="glossary-term"><dt id="gl-4">State</dt><dd>Data a component owns and can change over time, which causes it to re-render when updated. Covered fully in Part 5.</dd></div><div class="glossary-term"><dt id="gl-5">Virtual DOM</dt><dd>A lightweight, plain-JavaScript-object description of the UI that React compares against the previous description to compute minimal real DOM changes. See 1.4, full mechanics in Part 4.</dd></div><div class="glossary-term"><dt id="gl-6">Reconciliation</dt><dd>The process of comparing a new virtual DOM tree to the previous one and determining the minimal real DOM operations needed. Full treatment in Part 4.</dd></div><div class="glossary-term"><dt id="gl-7">N×M synchronization problem</dt><dd>The pattern where N places that change a piece of state and M places that display it require N×M hand-written, hand-maintained update calls in a purely imperative system. See 0.3.</dd></div><div class="glossary-term"><dt id="gl-8">Digest cycle</dt><dd>AngularJS's mechanism for detecting changes: repeatedly re-evaluating every watched expression (“dirty-checking”) until a full pass produces no differences. See 0.4.</dd></div><div class="glossary-term"><dt id="gl-9">XHP</dt><dd>A Facebook PHP extension that let markup be embedded as a first-class value in server-side code; a direct conceptual ancestor of JSX. See 0.5.</dd></div><div class="glossary-term"><dt id="gl-10">Fiber</dt><dd>The reconciler architecture React adopted in version 16, which represents rendering work as interruptible units instead of one uninterruptible recursive pass. Introduced in 1.6, full mechanics in Part 4.</dd></div><div class="glossary-term"><dt id="gl-11">Hooks</dt><dd>Functions (useState, useEffect, and others) that let function components hold state and run side effects, introduced in React 16.8. Full treatment in Part 5.</dd></div><div class="glossary-term"><dt id="gl-12">JSX</dt><dd>A markup-like syntax extension to JavaScript that compiles to React.createElement calls. Introduced conceptually in 1.2, full syntax in Part 2.</dd></div>
+<div class="placeholder-section">
+  <h3>More terms land as each Part is written</h3>
+  <p>The glossary grows alongside the guide — every Part introduces a handful of precise terms here as it's
+  completed, the same way the Runtime guide ended up with a 44-term glossary by the time all six of its Parts
+  were done.</p>
+</div>
+
+  <div class="part-nav"><a href="#part-13"><span class="pn-label">Previous</span>Limitations & Honest Critique</a><span></span></div>
+</section>
+    </main>
+  </div>
+
+<script>
+/* ============================================================
+   REACT — IN DEPTH — app logic
+   ============================================================ */
+
+/* ---------- 1. Syntax highlighter ---------- */
+/* Token-by-token scan via a single alternation regex. Because each
+   alternative is tried at the *current* scan position (not searched for
+   ahead), a string/template literal is always consumed atomically as one
+   token — so a "//" living inside a string (e.g. "https://x.com") is
+   swallowed by the string branch before the comment branch ever gets a
+   chance to misfire on it. This is what the URL-inside-string /
+   URL-inside-comment stress test below checks for. */
+
+const HL = (function(){
+  const KEYWORDS = new Set(['const','let','var','function','return','if','else','for','while',
+    'import','export','default','from','as','class','extends','new','this','super','try','catch',
+    'finally','throw','typeof','instanceof','in','of','async','await','yield','switch','case',
+    'break','continue','null','undefined','true','false','void','delete','do','static','get','set',
+    'interface','type','implements','public','private','protected','readonly','enum']);
+
+  const HOOK_OR_COMPONENT = /^[A-Z][A-Za-z0-9_]*$|^use[A-Z][A-Za-z0-9_]*$/;
+
+  // Order matters: block comment, line comment, template string, double
+  // string, single string, number, JSX-ish tag open, identifier/keyword,
+  // punctuation run, whitespace.
+  const TOKEN_RE = /(\/\*[\s\S]*?\*\/)|(\/\/[^\n]*)|(`(?:\\[\s\S]|\$\{[^}]*\}|[^`\\])*`)|("(?:\\.|[^"\\])*")|('(?:\\.|[^'\\])*')|(<\/?[A-Za-z][A-Za-z0-9.]*)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][A-Za-z0-9_$]*)|([{}()\[\];:,.<>+\-*/%=!&|^~?"'`]+)|(\s+)/g;
+
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function highlight(rawCode){
+    let out = '';
+    let m;
+    TOKEN_RE.lastIndex = 0;
+    // JSX attribute-name detection needs real state, not just "the
+    // previous character was '<'" — the tag regex below swallows the
+    // '<' into the tag token itself (e.g. the whole token is "<button"),
+    // so we track "are we between a tag's name and its closing '>'" and
+    // "are we inside a {expression} at brace-depth 0 within that tag"
+    // explicitly instead.
+    let inTagAttrs = false;
+    let curlyDepth = 0;
+    while((m = TOKEN_RE.exec(rawCode)) !== null){
+      const [full, blockComment, lineComment, template, dstr, sstr, tag, num, ident, punc, ws] = m;
+      if(blockComment !== undefined || lineComment !== undefined){
+        out += `<span class="tok-com">${escapeHtml(full)}</span>`;
+      } else if(template !== undefined || dstr !== undefined || sstr !== undefined){
+        out += `<span class="tok-str">${escapeHtml(full)}</span>`;
+      } else if(tag !== undefined){
+        inTagAttrs = !full.startsWith('</');
+        curlyDepth = 0;
+        out += `<span class="tok-tag">${escapeHtml(full)}</span>`;
+      } else if(num !== undefined){
+        out += `<span class="tok-num">${escapeHtml(full)}</span>`;
+      } else if(ident !== undefined){
+        if(KEYWORDS.has(ident)){
+          out += `<span class="tok-kw">${escapeHtml(full)}</span>`;
+        } else if(inTagAttrs && curlyDepth === 0){
+          out += `<span class="tok-attr">${escapeHtml(full)}</span>`;
+        } else if(HOOK_OR_COMPONENT.test(ident)){
+          out += `<span class="tok-fn">${escapeHtml(full)}</span>`;
+        } else {
+          out += escapeHtml(full);
+        }
+      } else if(punc !== undefined){
+        if(inTagAttrs){
+          for(const ch of full){
+            if(ch === '{') curlyDepth++;
+            else if(ch === '}') curlyDepth = Math.max(0, curlyDepth - 1);
+            else if(ch === '>' && curlyDepth === 0) inTagAttrs = false;
+          }
+        }
+        out += `<span class="tok-punc">${escapeHtml(full)}</span>`;
+      } else if(ws !== undefined){
+        out += full;
+      }
+    }
+    return out;
+  }
+
+  function run(){
+    document.querySelectorAll('pre > code[data-lang]').forEach(el => {
+      if(el.dataset.hled) return;
+      const raw = el.textContent;
+      el.innerHTML = highlight(raw);
+      el.dataset.hled = '1';
+    });
+  }
+
+  return { highlight, run, escapeHtml };
+})();
+
+/* ---------- 2. Copy buttons ---------- */
+function wireCopyButtons(){
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = btn.closest('.code-panel');
+      const code = panel.querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => btn.textContent = orig, 1400);
+      });
+    });
+  });
+}
+
+/* ---------- 3. TOC build + active tracking + read tracking ---------- */
+const READ_KEY = 'react-guide-read-sections';
+const SCROLL_KEY = 'react-guide-scroll-pos';
+
+function getReadSet(){
+  try{ return new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]')); }
+  catch(e){ return new Set(); }
+}
+function saveReadSet(set){
+  try{ localStorage.setItem(READ_KEY, JSON.stringify([...set])); }catch(e){}
+}
+
+function buildTOC(){
+  const toc = document.getElementById('toc');
+  const parts = document.querySelectorAll('main .part');
+  const readSet = getReadSet();
+  let html = '';
+  parts.forEach((part, i) => {
+    const partId = part.id;
+    const partNum = part.dataset.num;
+    const partTitle = part.dataset.title;
+    const isPlaceholder = part.classList.contains('is-placeholder');
+    const subs = part.querySelectorAll('h2.sub-title');
+    let subsHtml = '';
+    subs.forEach(sub => {
+      const read = readSet.has(sub.id);
+      subsHtml += `<a class="toc-sub${read?' read':''}${isPlaceholder?' placeholder':''}" href="#${sub.id}" data-target="${sub.id}">
+        <span class="dot"></span>${sub.dataset.short || sub.textContent}
+      </a>`;
+    });
+    html += `<div class="toc-part${i===0?' open':''}${isPlaceholder?' placeholder':''}" data-part="${partId}">
+      <div class="toc-part-label">
+        <span class="toc-part-num">${partNum}</span>
+        <span class="toc-part-title">${partTitle}</span>
+        <span class="toc-caret">▸</span>
+      </div>
+      <div class="toc-subs">${subsHtml}</div>
+    </div>`;
+  });
+  toc.innerHTML = html;
+
+  toc.querySelectorAll('.toc-part-label').forEach(label => {
+    label.addEventListener('click', () => {
+      label.parentElement.classList.toggle('open');
+    });
+  });
+  toc.querySelectorAll('.toc-sub').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(a.dataset.target);
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      if(window.matchMedia('(max-width: 900px)').matches){
+        document.body.classList.add('sidebar-collapsed');
+      }
+    });
+  });
+  updateProgressLabel();
+}
+
+function updateProgressLabel(){
+  const el = document.getElementById('tocProgress');
+  if(!el) return;
+  const total = document.querySelectorAll('main .part:not(.is-placeholder) h2.sub-title').length;
+  const read = getReadSet().size;
+  el.textContent = `${read} / ${total} sections read`;
+}
+
+/* Mark a heading "read" once its section has been scrolled past reasonably.
+   Placeholder ("coming soon") sections are excluded so the counter only
+   reflects sections that actually have content. */
+function wireReadTracking(){
+  const headings = [...document.querySelectorAll('main .part:not(.is-placeholder) h2.sub-title')];
+  const readSet = getReadSet();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const id = entry.target.id;
+        if(!readSet.has(id)){
+          readSet.add(id);
+          saveReadSet(readSet);
+          const link = document.querySelector(`.toc-sub[data-target="${id}"]`);
+          if(link) link.classList.add('read');
+          updateProgressLabel();
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -70% 0px' });
+  headings.forEach(h => io.observe(h));
+}
+
+/* Highlight active TOC entry + fixed reading-progress bar */
+function wireScrollProgress(){
+  const fill = document.getElementById('progressFill');
+  const headings = [...document.querySelectorAll('main h2.sub-title')];
+  function onScroll(){
+    const doc = document.documentElement;
+    const scrolled = doc.scrollTop;
+    const height = doc.scrollHeight - doc.clientHeight;
+    fill.style.width = height > 0 ? `${Math.min(100,(scrolled/height)*100)}%` : '0%';
+
+    let activeId = null;
+    for(const h of headings){
+      if(h.getBoundingClientRect().top - 90 <= 0) activeId = h.id;
+      else break;
+    }
+    document.querySelectorAll('.toc-sub.active').forEach(a => a.classList.remove('active'));
+    if(activeId){
+      const link = document.querySelector(`.toc-sub[data-target="${activeId}"]`);
+      if(link){
+        link.classList.add('active');
+        const part = link.closest('.toc-part');
+        if(part && !part.classList.contains('open')) part.classList.add('open');
+      }
+    }
+    try{ sessionStorage.setItem(SCROLL_KEY, String(scrolled)); }catch(e){}
+  }
+  document.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+}
+
+/* ---------- 4. Search ---------- */
+function buildSearchIndex(){
+  const index = [];
+  document.querySelectorAll('main .part:not(.is-placeholder) h2.sub-title').forEach(h => {
+    const part = h.closest('.part');
+    const container = document.createElement('div');
+    let node = h.nextElementSibling;
+    let text = '';
+    while(node && node.tagName !== 'H2'){
+      text += ' ' + node.textContent;
+      node = node.nextElementSibling;
+    }
+    index.push({
+      id: h.id,
+      part: part ? part.dataset.title : '',
+      title: h.dataset.short || h.textContent,
+      text: (h.textContent + ' ' + text).toLowerCase().replace(/\s+/g,' ').trim()
+    });
+  });
+  return index;
+}
+
+function wireSearch(){
+  const input = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+  let index = null;
+  let activeIdx = -1;
+
+  function render(items){
+    if(items.length === 0){
+      results.innerHTML = `<div class="search-empty">No matches yet — try another term.</div>`;
+    } else {
+      results.innerHTML = items.slice(0,8).map((it,i) => `
+        <a class="search-result" data-target="${it.id}" data-i="${i}">
+          <span class="sr-part">${it.part}</span>
+          <span class="sr-title">${it.title}</span>
+          <span class="sr-snippet">${it.snippet}</span>
+        </a>`).join('');
+    }
+    results.classList.add('open');
+    activeIdx = -1;
+  }
+
+  function search(q){
+    if(!index) index = buildSearchIndex();
+    q = q.trim().toLowerCase();
+    if(q.length < 2){ results.classList.remove('open'); return; }
+    const hits = [];
+    for(const it of index){
+      const pos = it.text.indexOf(q);
+      if(pos !== -1 || it.title.toLowerCase().includes(q)){
+        const start = Math.max(0, pos - 40);
+        const snippet = (pos === -1 ? it.text.slice(0,90) : ('…' + it.text.slice(start, pos+60) + '…'));
+        hits.push({...it, snippet});
+      }
+    }
+    render(hits);
+  }
+
+  input.addEventListener('input', () => search(input.value));
+  input.addEventListener('keydown', (e) => {
+    const items = [...results.querySelectorAll('.search-result')];
+    if(e.key === 'ArrowDown'){ e.preventDefault(); activeIdx = Math.min(items.length-1, activeIdx+1); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); activeIdx = Math.max(0, activeIdx-1); }
+    else if(e.key === 'Enter'){ e.preventDefault(); if(items[activeIdx]) items[activeIdx].click(); return; }
+    else if(e.key === 'Escape'){ input.blur(); results.classList.remove('open'); return; }
+    else return;
+    items.forEach(it => it.classList.remove('active'));
+    if(items[activeIdx]) items[activeIdx].classList.add('active');
+  });
+  results.addEventListener('click', (e) => {
+    const a = e.target.closest('.search-result');
+    if(!a) return;
+    const target = document.getElementById(a.dataset.target);
+    if(target){
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+      input.value = '';
+      results.classList.remove('open');
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.search-wrap')) results.classList.remove('open');
+  });
+}
+
+/* ---------- 5. Keyboard navigation ---------- */
+function wireKeyboardNav(){
+  document.addEventListener('keydown', (e) => {
+    const tag = document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if(e.key === '/'){
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+    } else if(e.key === 'j' || e.key === 'J'){
+      moveHeading(1);
+    } else if(e.key === 'k' || e.key === 'K'){
+      moveHeading(-1);
+    } else if(e.key === '['){
+      document.body.classList.toggle('sidebar-collapsed');
+    }
+  });
+  function moveHeading(dir){
+    const headings = [...document.querySelectorAll('main h2.sub-title')];
+    let idx = headings.findIndex(h => h.getBoundingClientRect().top > 100);
+    if(dir === 1){
+      if(idx === -1) return;
+      headings[idx].scrollIntoView({behavior:'smooth', block:'start'});
+    } else {
+      idx = idx === -1 ? headings.length - 1 : idx - 1;
+      if(idx < 0) idx = 0;
+      headings[idx].scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+}
+
+/* ---------- 6. Sidebar toggle ---------- */
+function wireSidebarToggle(){
+  document.getElementById('sidebarToggle').addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-collapsed');
+  });
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  HL.run();
+  wireCopyButtons();
+  buildTOC();
+  wireReadTracking();
+  wireScrollProgress();
+  wireSearch();
+  wireKeyboardNav();
+  wireSidebarToggle();
+
+  if(location.hash){
+    const el = document.getElementById(location.hash.slice(1));
+    if(el) setTimeout(() => el.scrollIntoView({block:'start'}), 50);
+  }
+});
+
+</script>
+</body>
+</html>

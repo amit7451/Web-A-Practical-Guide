@@ -31,6 +31,7 @@
       <a href="css-guide/index.html" class="portal-nav-btn" id="navCssBtn">CSS Guide</a>
       <a href="js-guide/index.html" class="portal-nav-btn" id="navJsBtn">JS Guide</a>
       <a href="runtime-guide/index.html" class="portal-nav-btn" id="navRuntimeBtn">Runtime Guide</a>
+      <a href="react-guide/index.html" class="portal-nav-btn" id="navReactBtn">React Guide</a>
       <a href="#curriculum" class="portal-nav-btn">Curriculum</a>
       <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="portal-nav-btn"
         title="View Source on GitHub">
@@ -48,7 +49,7 @@
         <span>A Practical Guide to New Web Development</span>
       </div>
       <h1 class="portal-hero-title" id="heroHeading">
-        Master the Web from <em>Structure</em> to <em>Style</em> to <em>Behavior</em> to <em>Runtime</em>.
+        Master the Web from <em>Structure</em> to <em>Style</em> to <em>Behavior</em> to <em>Runtime</em> to <em>Architecture</em>.
       </h1>
       <p class="portal-hero-desc">
         Sequential, tiered working practical guides designed to build foundational fluency and engineering confidence.
@@ -58,10 +59,10 @@
       <!-- Meta stats chips -->
       <div class="portal-meta-row" role="list">
         <div class="portal-meta-chip" role="listitem">
-          <strong>119</strong> Total Topics
+          <strong>198</strong> Total Topics
         </div>
         <div class="portal-meta-chip" role="listitem">
-          <strong>4</strong> Core Disciplines
+          <strong>5</strong> Core Disciplines
         </div>
         <div class="portal-meta-chip" role="listitem">
           <strong>6</strong> Progressive Tiers
@@ -75,11 +76,11 @@
       </div>
     </section>
 
-    <!-- Guide Selection Paths (Four Core Paths) -->
+    <!-- Guide Selection Paths (Five Core Paths) -->
     <section class="portal-guides-section" id="guidesSelection" aria-labelledby="pathsHeading">
       <div class="portal-section-header">
         <h2 class="portal-section-title" id="pathsHeading">Choose Your Path</h2>
-        <span class="portal-section-sub">Four Comprehensive Practical Guides</span>
+        <span class="portal-section-sub">Five Comprehensive Practical Guides</span>
       </div>
 
       <div class="portal-cards-grid">
@@ -359,6 +360,73 @@
             </svg>
           </a>
         </article>
+
+        <!-- PATH 5: REACT GUIDE -->
+        <article class="guide-card guide-card-react" id="reactGuideCard">
+          <div class="guide-card-top">
+            <span class="guide-badge-pill badge-react">UI &amp; Architecture</span>
+            <div class="guide-card-glyph" aria-hidden="true">{ ⚛ }</div>
+          </div>
+
+          <div class="guide-card-body">
+            <h3 class="guide-card-title">React — In Depth</h3>
+            <div class="guide-card-subtitle">From UI as a Function of State to Full Architecture</div>
+            <p class="guide-card-desc">
+              Understand the core mechanics and architectural philosophy of modern React. Demystify the DOM-as-truth problem,
+              declarative rendering, JSX compilation, Virtual DOM reconciliation, the Hooks engine, performance models,
+              SSR, SSG, and React Server Components.
+            </p>
+          </div>
+
+          <!-- Tiers Overview -->
+          <div class="guide-tiers-list" aria-label="React Curriculum Tiers">
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-i">I</span>
+              <span class="guide-tier-name">Foundations</span>
+              <span class="guide-tier-focus">DOM Truth, UI = f(state), Declarative Model</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-ii">II</span>
+              <span class="guide-tier-name">Core Engine</span>
+              <span class="guide-tier-focus">JSX Semantics, Components, Virtual DOM</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-iii">III</span>
+              <span class="guide-tier-name">Hooks &amp; Lifecycle</span>
+              <span class="guide-tier-focus">State, Effects, Data Flow, Forms &amp; Refs</span>
+            </div>
+            <div class="guide-tier-item">
+              <span class="guide-tier-num tier-iv">IV</span>
+              <span class="guide-tier-name">Performance &amp; Systems</span>
+              <span class="guide-tier-focus">CSR, SSR, SSG, RSC, Patterns &amp; Trade-offs</span>
+            </div>
+          </div>
+
+          <!-- Quick tags -->
+          <div class="guide-tags-row" aria-label="Key React Topics">
+            <span class="guide-tag">UI = f(state)</span>
+            <span class="guide-tag">JSX Engine</span>
+            <span class="guide-tag">Virtual DOM</span>
+            <span class="guide-tag">Hooks Rules</span>
+            <span class="guide-tag">Reconciliation</span>
+            <span class="guide-tag">SSR &amp; RSC</span>
+          </div>
+
+          <!-- Dynamic Reading Progress Tracker -->
+          <div id="reactProgressSummary" class="portal-meta-chip" style="margin-top: -8px; width: fit-content;">
+            <span id="reactProgressText">79 Topics in Curriculum</span>
+          </div>
+
+          <!-- Enter Button -->
+          <a href="react-guide/index.html" class="guide-action-btn btn-react" id="enterReactBtn">
+            <span>Enter React Guide</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </article>
       </div>
     </section>
 
@@ -562,6 +630,43 @@
             </li>
           </ul>
         </div>
+
+        <!-- React Track -->
+        <div class="compare-col">
+          <div class="compare-col-header col-react-head">React Track Syllabus</div>
+          <ul class="compare-topics-list">
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part 0–1: Pre-React DOM Truth &bull; N&times;M State Problem &bull; UI = f(state)</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part 2–4: JSX Desugaring &bull; Component Trees &bull; Virtual DOM Reconciliation</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part 5–8: Hooks Mechanics &bull; Lifecycle Pipelines &bull; State Flow &bull; Refs</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part 9–10: Performance Profiling &bull; CSR vs SSR vs SSG &bull; React Server Components</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Part 11–13: React vs Vanilla &bull; Advanced Idioms &bull; Limitations &amp; Trade-offs</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
@@ -576,6 +681,7 @@
       <a href="css-guide/index.html">CSS Guide</a>
       <a href="js-guide/index.html">JS Guide</a>
       <a href="runtime-guide/index.html">Runtime Guide</a>
+      <a href="react-guide/index.html">React Guide</a>
       <a href="404.html">404 Page</a>
       <a href="README.md">Documentation</a>
     </div>
@@ -632,6 +738,15 @@
                 var el = document.getElementById('runtimeProgressText');
                 if (el) el.textContent = '✓ ' + count + ' of 23 Topics Read';
               }
+            }
+          }
+          // React Guide Progress
+          var reactRaw = localStorage.getItem('react-guide-read-sections');
+          if (reactRaw) {
+            var reactState = JSON.parse(reactRaw);
+            if (Array.isArray(reactState) && reactState.length > 0) {
+              var el = document.getElementById('reactProgressText');
+              if (el) el.textContent = '✓ ' + reactState.length + ' of 79 Topics Read';
             }
           }
         }

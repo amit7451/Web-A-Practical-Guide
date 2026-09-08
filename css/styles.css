@@ -1253,14 +1253,8 @@ main.page {
 
 .portal-cards-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 28px;
-}
-
-@media (min-width: 1380px) {
-  .portal-cards-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .guide-card {
@@ -1303,6 +1297,10 @@ main.page {
 
 .guide-card-runtime::before {
   background: linear-gradient(90deg, #7a4a6b, #3f7268);
+}
+
+.guide-card-react::before {
+  background: linear-gradient(90deg, #087ea4, #7fd4c4);
 }
 
 .guide-card:hover {
@@ -1353,6 +1351,12 @@ main.page {
   background: rgba(122, 74, 107, 0.2);
   color: #d89fc6;
   border: 1px solid rgba(122, 74, 107, 0.4);
+}
+
+.badge-react {
+  background: rgba(127, 212, 196, 0.15);
+  color: #7fd4c4;
+  border: 1px solid rgba(127, 212, 196, 0.35);
 }
 
 .guide-card-glyph {
@@ -1527,6 +1531,17 @@ main.page {
   box-shadow: 0 6px 20px rgba(106, 62, 92, 0.5);
 }
 
+.btn-react {
+  background: #087ea4;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(8, 126, 164, 0.35);
+}
+
+.btn-react:hover {
+  background: #149eca;
+  box-shadow: 0 6px 20px rgba(8, 126, 164, 0.5);
+}
+
 .guide-action-btn svg {
   transition: transform 0.2s ease;
 }
@@ -1603,8 +1618,14 @@ main.page {
 
 .compare-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+@media (min-width: 1400px) {
+  .compare-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 .compare-col {
@@ -1625,6 +1646,7 @@ main.page {
 .col-css-head { color: #8cb5d6; }
 .col-js-head { color: #f3c267; }
 .col-runtime-head { color: #d89fc6; }
+.col-react-head { color: #7fd4c4; }
 
 .compare-topics-list {
   list-style: none;
