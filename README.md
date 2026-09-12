@@ -59,7 +59,8 @@ Web-Guide/
 │   └── runtime-guide.html      # Secondary entry satisfying direct file requests
 ├── react-guide/
 │   ├── index.html              # React In-Depth manuscript (main entry)
-│   └── react-guide.html        # Secondary entry satisfying direct file requests
+│   ├── react-guide.html        # Secondary entry satisfying direct file requests
+│   └── source/                 # Modular Python assembly pipeline, tests, & styles
 ├── index.html                  # Main Home Portal entry page (links to all 5 guides)
 ├── js-guide.html               # Backwards-compatible canonical redirect forwarder
 ├── runtime-guide.html          # Backwards-compatible canonical redirect forwarder

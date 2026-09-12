@@ -30,6 +30,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Validate & Build React Guide
+        run: |
+          node react-guide/source/tokenizer_test.js
+          python3 react-guide/source/build.py
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

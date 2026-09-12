@@ -19,3 +19,8 @@ yarn-error.log*
 dist/
 build/
 scratch/
+__pycache__/
+*.py[cod]
+*$py.class
+*.zip
+
