@@ -1,4 +1,4 @@
-# 📖 Web Guides — Practical Learning Manuscripts
+# Web Guides — Practical Learning Manuscripts
 
 A modern, interactive, tiered reference and learning manuscript series for modern web craftsmanship: **HTML — A Practical Guide**, **CSS — A Working Style Sheet**, **JavaScript — A Working Script**, **Runtime — The Machine Behind the Page**, and **React — In Depth: A Complete Reference Guide**, built from first principles to advanced browser APIs, layout architectures, asynchronous systems, Web Components, browser runtime engines, and modern declarative component architectures.
 
